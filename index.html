@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¡A jugar! · Language games</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#f7f1e8;--card:#fff;--ink:#2b2b3a;--soft:#6d6d80;--red:#e2483d;--terra:#d9693a;--teal:#16a3a3;--blue:#3f6fe8;--yellow:#f6b922}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Nunito',system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+  .wrap{max-width:960px;margin:0 auto;padding:36px 20px 60px}
+  h1{font-size:46px;font-weight:900;margin:0;letter-spacing:-1px}
+  h1 span{color:var(--red)}
+  .lead{font-size:20px;font-weight:700;color:var(--soft);margin:6px 0 30px}
+  h2{font-size:22px;font-weight:900;margin:28px 0 12px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+  a.game{display:flex;flex-direction:column;gap:10px;text-decoration:none;color:#fff;border-radius:24px;padding:22px;min-height:180px;box-shadow:0 6px 0 rgba(0,0,0,.18);transition:transform .12s}
+  a.game:hover{transform:translateY(-4px)}
+  a.game .ico{font-size:52px;line-height:1}
+  a.game b{font-size:26px;font-weight:900}
+  a.game span{font-size:16px;font-weight:700;opacity:.9}
+  .soon{background:#ece4d6;color:#8a8070;box-shadow:none;pointer-events:none}
+  footer{margin-top:40px;color:var(--soft);font-size:14px;font-weight:700;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>¡A <span>jugar</span>! 🎉</h1>
+  <p class="lead">Language games · Juegos de idiomas</p>
+
+  <h2>🇪🇸 Español</h2>
+  <div class="grid">
+    <a class="game" style="background:var(--red)" href="espanol-myp12/index.html">
+      <div class="ico">🌮</div><b>¡Juega en español!</b><span>MYP1-2 · Greetings, countries, family, free time</span>
+    </a>
+    <div class="game soon" style="display:flex;flex-direction:column;gap:10px;border-radius:24px;padding:22px;min-height:180px">
+      <div style="font-size:52px">🕐</div><b style="font-size:26px">La hora y mi día</b><span>Coming soon</span>
+    </div>
+  </div>
+
+  <h2>🇬🇧 English</h2>
+  <div class="grid">
+    <a class="game" style="background:var(--blue)" href="english-basics/index.html">
+      <div class="ico">🧩</div><b>English Fun</b><span>Basic words and sentences · Engelska</span>
+    </a>
+  </div>
+
+  <footer>No accounts, no personal data. Your stars are saved only on this computer.</footer>
+</div>
+</body>
+</html>
