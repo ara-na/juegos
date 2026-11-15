@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¡Juega en español! · Åk 8</title>
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../engine/games.css">
+<link rel="icon" href="../img/fresca.webp">
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<!-- To change this group's units: edit the list below (order = order on the page; "current" gets the NOW/NU badge) -->
+<script>window.GROUP = {
+ "name": "Åk 8",
+ "lang": "sv",
+ "units": [
+  "es-mi-barrio",
+  "es-peru",
+  "es-restaurante"
+ ],
+ "current": "es-peru",
+ "labels": {
+  "es-mi-barrio": "KAP 1",
+  "es-peru": "KAP 2",
+  "es-restaurante": "RECEPT · EXTRA"
+ },
+ "id": "ak8"
+};</script>
+<script src="../engine/base.js"></script>
+<script src="../units/es-mi-barrio.js"></script>
+<script src="../units/es-peru.js"></script>
+<script src="../units/es-restaurante.js"></script>
+<script src="../engine/engine.js"></script>
+</body>
+</html>
