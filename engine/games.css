@@ -125,3 +125,5 @@ footer{margin-top:26px;color:var(--soft);font-size:14px;font-weight:700}
   .mem{grid-template-columns:repeat(3,1fr)}.card{font-size:34px}.card.open.w{font-size:15px}
   .tile{font-size:19px}.tile.pic{font-size:34px}.question{font-size:28px}.gapline{font-size:26px}.fresca{width:80px}
 }
+.act{font-family:"Luckiest Guy","Nunito",sans-serif;font-weight:400;letter-spacing:.5px}
+.act .sub{font-family:"Nunito",sans-serif;font-weight:800;letter-spacing:0}

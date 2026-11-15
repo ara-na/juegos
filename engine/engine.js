@@ -108,9 +108,9 @@ function home(){
 /* ---------- unit menu ---------- */
 const ACTS = [
   {id:"match", ico:"🧩", col:"var(--blue)"}, {id:"choose", ico:"🤔", col:"var(--terra)"},
-  {id:"listen", ico:"👂", col:"var(--teal)"}, {id:"spell", ico:"🔤", col:"var(--pink)"},
+  {id:"listen", ico:"👂", col:"var(--lime)"}, {id:"spell", ico:"🔤", col:"var(--pink)"},
   {id:"memory", ico:"🃏", col:"var(--purple)"}, {id:"sentence", ico:"🧱", col:"var(--green)", need:"sentences"},
-  {id:"gap", ico:"✍️", col:"#d39a10", need:"gaps"}, {id:"qa", ico:"💬", col:"var(--red)", need:"qa", min:3}
+  {id:"gap", ico:"✍️", col:"var(--orange)", need:"gaps"}, {id:"qa", ico:"💬", col:"var(--red)", need:"qa", min:3}
 ];
 function unitMenu(){
   const cur = state.topics[U.id] || Object.keys(U.topics)[0];
