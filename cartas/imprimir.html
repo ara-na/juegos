@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El mazo de Fresca · Imprimir</title>
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="icon" href="../img/fresca.webp">
+<style>
+  @page{size:A4;margin:0}
+  *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{margin:0;font-family:'Nunito',sans-serif;color:#141414;background:#ddd}
+  .bar{position:sticky;top:0;z-index:5;background:#141414;color:#fff;padding:10px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-weight:800}
+  .bar a,.bar button{background:#fff;color:#141414;border:none;border-radius:999px;padding:6px 14px;font:inherit;text-decoration:none;cursor:pointer}
+  .bar a.on{background:#e4f21c}
+  .bar button{background:#ff2fa0;color:#fff}
+  .page{width:210mm;height:297mm;margin:10mm auto;background:#fff;position:relative;overflow:hidden;page-break-after:always;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+  @media print{ body{background:#fff} .bar{display:none} .page{margin:0;box-shadow:none} }
+
+  /* card sheet */
+  .sheet{position:absolute;left:10.5mm;top:16.5mm;display:grid;grid-template-columns:repeat(3,63mm);grid-auto-rows:88mm;gap:0}
+  .card{width:63mm;height:88mm;outline:0.2mm dashed #999;padding:2.2mm;position:relative}
+  .face{width:100%;height:100%;border:1mm solid #141414;border-radius:4mm;padding:2.2mm;display:flex;flex-direction:column;gap:1.6mm;overflow:hidden;position:relative}
+  .top{display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:8.5pt;line-height:1}
+  .sym{font-size:14pt;line-height:1}
+  .chname{font-family:'Luckiest Guy',sans-serif;font-weight:400;font-size:10pt;letter-spacing:.3px}
+  .art{flex:1;background:#fff;border:0.7mm solid #141414;border-radius:2.5mm;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+  .art img{max-width:88%;max-height:88%}
+  .art .ph{font-size:7.5pt;font-weight:800;color:#888;text-align:center;padding:2mm;border:0.4mm dashed #bbb;border-radius:2mm}
+  .partlabel{position:absolute;bottom:1mm;left:0;right:0;text-align:center;font-weight:900;font-size:7pt;text-transform:uppercase;letter-spacing:.5px}
+  .ch{background:#fff;border:0.7mm solid #141414;border-radius:2.5mm;padding:1.6mm;min-height:23mm;display:flex;flex-direction:column;justify-content:center;text-align:center}
+  .ch .ico{font-size:9pt;line-height:1}
+  .ch .q{font-weight:900;font-size:9.5pt;line-height:1.15}
+  .ch .h{font-size:6.8pt;font-weight:700;color:#555;margin-top:.6mm}
+  .ch .v{font-weight:900;font-size:11pt;line-height:1.1}
+  .ch .t{display:inline-block;margin-top:.8mm;font-size:7pt;font-weight:900;text-transform:uppercase;background:#141414;color:#fff;border-radius:999px;padding:.3mm 2mm;align-self:center}
+  .ans{position:absolute;bottom:.6mm;right:2.4mm;font-size:6pt;font-weight:800;color:#141414;opacity:.7;transform:rotate(180deg);transform-origin:center}
+  .own{position:absolute;top:.8mm;right:1mm;font-size:6pt;font-weight:900;color:#ff2fa0}
+  .special{background:#fff}
+  .special .art{border:none;flex:1}
+  .special .art img{max-width:100%;max-height:100%}
+  .special .rule{font-weight:900;font-size:9pt;text-align:center;line-height:1.15}
+  .special .uno{font-size:7pt;font-weight:800;text-align:center;color:#555;border-top:0.4mm dashed #999;padding-top:1mm}
+  .back .face{background:#e4f21c;align-items:center;justify-content:center;text-align:center}
+  .back img{width:70%}
+  .back b{font-family:'Luckiest Guy',sans-serif;font-weight:400;font-size:16pt;color:#ff2fa0;text-shadow:.5mm .5mm 0 #141414}
+  .foot{position:absolute;bottom:6mm;left:0;right:0;text-align:center;font-size:8pt;font-weight:800;color:#666}
+
+  /* rules */
+  .rules{padding:9mm 13mm;font-size:9pt;line-height:1.3}
+  .rules h1{font-family:'Luckiest Guy',sans-serif;font-weight:400;font-size:26pt;margin:0;color:#ff2fa0;text-shadow:.6mm .6mm 0 #141414}
+  .rules h2{font-family:'Luckiest Guy',sans-serif;font-weight:400;font-size:13pt;margin:1mm 0 .5mm;color:#141414}
+  .rules .box{border:0.8mm solid #141414;border-radius:4mm;padding:2mm 4mm;margin-top:2.4mm;box-shadow:1mm 1mm 0 #141414}
+  .rules ol,.rules ul{margin:1mm 0 0 5mm;padding:0}
+  .rules li{margin:.3mm 0}
+  .rules .hdr{display:flex;align-items:center;gap:4mm}
+  .rules .hdr img{width:20mm}
+  .legend{display:flex;flex-wrap:wrap;gap:2mm;margin-top:2mm}
+  .legend span{border:0.5mm solid #141414;border-radius:999px;padding:.5mm 3mm;font-weight:900;font-size:8.5pt}
+  .phr{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6mm 5mm;font-weight:800}
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<div id="out"></div>
+<script src="data.js"></script>
+<script>
+const qs = new URLSearchParams(location.search);
+const KEY = qs.get("mazo")==="B" ? "B" : "A";
+const L = qs.get("lang")==="en" ? "en" : "sv";
+const D = DECKS[KEY];
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+
+document.getElementById("bar").innerHTML = `🃏 El mazo de Fresca ·
+  <a href="?mazo=A&lang=${L}" class="${KEY==="A"?"on":""}">Mazo A · åk6–7 · MYP1-2</a>
+  <a href="?mazo=B&lang=${L}" class="${KEY==="B"?"on":""}">Mazo B · åk8–9 · MYP3-4</a>
+  <a href="?mazo=${KEY}&lang=sv" class="${L==="sv"?"on":""}">Regler SV</a>
+  <a href="?mazo=${KEY}&lang=en" class="${L==="en"?"on":""}">Rules EN</a>
+  <button onclick="window.print()">🖨️ Imprimir / Print</button>
+  <span style="font-weight:700;opacity:.8">A4 · 100 % · sin márgenes / no margins</span>`;
+
+const R = {
+ sv:{
+  intro:"Ett kortlek – tre spel. För att spela ett kort måste du alltid säga något på spanska!",
+  colors:"Färgerna", parts:"Delarna (symbolen i hörnet)",
+  verbHow:"🔧 = verbutmaning: säg rätt form. Svaret står upp och ner längst ner – domaren kollar.",
+  g1:"¡Monta a Fresca!", g1sub:"Bygg en figur · 3–5 spelare",
+  g1r:[ "Alla får 3 kort. Resten är högen.",
+        "Din tur: välj ett delkort och klara utmaningen på spanska. Spelaren till vänster är domare.",
+        "Rätt → lägg kortet framför dig. Fel → kortet går till slängen. Dra sedan så att du har 3 kort igen.",
+        "Du får bara ha en av varje del: ● huvud, ■ kropp, ▲ ben, ★ extra. Delarna får komma från olika figurer!",
+        "När du har 3 delar: säg <b>«¡Chao pescao!»</b>. Glömmer du och någon märker det → dra 2 kort.",
+        "Vinst: lägg din fjärde del och beskriv din figur på spanska: <i>«Mi personaje se llama…, tiene…, lleva…»</i>" ],
+  g1s:"Specialkort: ¡Qué fuerte! = ta en del från någon (säg vad: <i>«Tomo la cabeza de Lisa»</i>) · Todo bien = spela direkt för att stoppa en ¡Qué fuerte! · Planazo = byt en av dina delar mot någons · ¡Vamos! = spela ett kort till.",
+  g2:"¡Chao pescao!", g2sub:"Som Uno · 3–5 spelare",
+  g2r:[ "Alla får 6 kort. Vänd upp ett kort från högen.",
+        "Din tur: lägg ett kort med samma färg eller samma symbol (● ■ ▲ ★) och klara utmaningen. Fel → ta tillbaka kortet och dra ett.",
+        "Kan du inte lägga något: dra ett kort.",
+        "Specialkort passar alltid: ¡Qué fuerte! nästa drar 2 · ¡Vamos! nästa står över · Planazo byt håll · Todo bien välj färg.",
+        "Ett kort kvar: säg <b>«¡Chao pescao!»</b>. Glömmer du → dra 2. Först utan kort vinner." ],
+  g3:"Las familias de Fresca", g3sub:"Som Kvartett · 3–5 spelare",
+  g3r:[ "Ta bort specialkorten. Alla får 5 kort.",
+        "Din tur: fråga någon på spanska efter en del av en figur du redan har ett kort av: <i>«Lisa, ¿tienes la cabeza de Fresca?»</i>",
+        "<i>«Sí, aquí tienes»</i> → du får kortet och frågar igen. <i>«No, no la tengo»</i> → dra ett kort, nästa spelare.",
+        "Har du alla 4 delar av samma figur: lägg ner dem och säg <b>«¡Familia completa!»</b>",
+        "Flest familjer vinner." ],
+  phr:"Frases útiles"
+ },
+ en:{
+  intro:"One deck – three games. To play a card you always have to say something in Spanish!",
+  colors:"The colours", parts:"The parts (symbol in the corner)",
+  verbHow:"🔧 = verb challenge: say the right form. The answer is printed upside down at the bottom – the referee checks.",
+  g1:"¡Monta a Fresca!", g1sub:"Build a character · 3–5 players",
+  g1r:[ "Everyone gets 3 cards. The rest is the pile.",
+        "Your turn: choose a part card and do its challenge in Spanish. The player on your left is the referee.",
+        "Right → place the card in front of you. Wrong → the card goes to the discard pile. Then draw back up to 3 cards.",
+        "You can only have one of each part: ● head, ■ body, ▲ legs, ★ extra. Parts can come from different characters!",
+        "When you have 3 parts: say <b>“¡Chao pescao!”</b>. If you forget and someone notices → draw 2 cards.",
+        "To win: place your fourth part and describe your character in Spanish: <i>“Mi personaje se llama…, tiene…, lleva…”</i>" ],
+  g1s:"Special cards: ¡Qué fuerte! = take a part from someone (say what: <i>“Tomo la cabeza de Lisa”</i>) · Todo bien = play at once to block a ¡Qué fuerte! · Planazo = swap one of your parts with someone’s · ¡Vamos! = play another card.",
+  g2:"¡Chao pescao!", g2sub:"Like Uno · 3–5 players",
+  g2r:[ "Everyone gets 6 cards. Turn over one card from the pile.",
+        "Your turn: play a card of the same colour or the same symbol (● ■ ▲ ★) and do its challenge. Wrong → take the card back and draw one.",
+        "If you can’t play: draw a card.",
+        "Special cards can always be played: ¡Qué fuerte! next player draws 2 · ¡Vamos! next player misses a turn · Planazo reverse · Todo bien choose a colour.",
+        "One card left: say <b>“¡Chao pescao!”</b>. Forget → draw 2. First with no cards wins." ],
+  g3:"Las familias de Fresca", g3sub:"Like Happy Families · 3–5 players",
+  g3r:[ "Remove the special cards. Everyone gets 5 cards.",
+        "Your turn: ask someone in Spanish for a part of a character you already have a card of: <i>“Lisa, ¿tienes la cabeza de Fresca?”</i>",
+        "<i>“Sí, aquí tienes”</i> → you get the card and ask again. <i>“No, no la tengo”</i> → draw a card, next player.",
+        "When you have all 4 parts of one character: put them down and say <b>“¡Familia completa!”</b>",
+        "Most families wins." ],
+  phr:"Frases útiles"
+ }
+}[L];
+
+const PHRASES = ["Me toca / Te toca","Robo una carta","¡Correcto!","¡Otra vez!","¿Tienes la cabeza / el cuerpo de…?","Sí, aquí tienes","No, no la / lo / las tengo","¡Qué fuerte!","¡Chao pescao!","¡Familia completa!","Tomo… de…","¡Gané!"];
+
+function rulesPage(){
+  return `<div class="page"><div class="rules">
+   <div class="hdr"><img src="../img/fresca.webp" alt=""><div><h1>El mazo de Fresca</h1><b>${D.name} · ${D.level}</b><br>${R.intro}</div></div>
+   <div class="box"><b>${R.colors}:</b><div class="legend">${D.colors.map(c=>`<span style="background:${c.hex};${c.id==="morado"?"color:#fff":""}">${esc(c.name[L])}</span>`).join("")}</div>
+     <div style="margin-top:2mm"><b>${R.parts}:</b> ${PARTS.map(p=>`${p.sym} ${p.es}`).join(" · ")}</div>
+     <div style="margin-top:1mm">💬 = ${L==="sv"?"svara på frågan":"answer the question"} · ${R.verbHow}</div></div>
+   <div class="box"><h2>1. ${R.g1}</h2><i>${R.g1sub}</i><ol>${R.g1r.map(x=>`<li>${x}</li>`).join("")}</ol><div style="margin-top:1mm;font-size:9pt">${R.g1s}</div></div>
+   <div class="box"><h2>2. ${R.g2}</h2><i>${R.g2sub}</i><ol>${R.g2r.map(x=>`<li>${x}</li>`).join("")}</ol></div>
+   <div class="box"><h2>3. ${R.g3}</h2><i>${R.g3sub}</i><ol>${R.g3r.map(x=>`<li>${x}</li>`).join("")}</ol></div>
+   <div class="box" style="background:#e4f21c"><h2 style="margin-top:0">${R.phr}</h2><div class="phr">${PHRASES.map(p=>`<span>${p}</span>`).join("")}</div></div>
+  </div><div class="foot">✏️ Fresca: diseño de Elliot · ara-na.github.io/juegos</div></div>`;
+}
+
+function cardHTML(c){
+  if(c.type==="special") return `<div class="card"><div class="face special">
+     <div class="art"><img src="${c.sp.img}" alt=""></div>
+     <div class="rule">${c.sp.es}</div><div class="uno">🃏 ¡Chao pescao!: ${c.sp.uno}</div></div></div>`;
+  const ch = c.challenge, isV = !!ch.v, dark = c.color.id==="morado";
+  return `<div class="card"><div class="face" style="background:${c.color.hex};${dark?"color:#fff":""}">
+    <div class="top"><span class="sym">${c.part.sym}</span><span class="chname">${esc(c.ch.name)}</span><span class="sym">${c.part.sym}</span></div>
+    <div class="art">${c.ch.img?`<img src="${c.ch.img}" alt="">`:`<div class="ph">dibujo de Elliot<br>${esc(c.ch.name)}</div>`}<div class="partlabel" style="color:#141414">${c.part.es}</div></div>
+    <div class="ch" style="color:#141414">${ch.own?`<span class="own">✦</span>`:""}
+      ${isV ? `<span class="ico">🔧</span><span class="v">${esc(ch.v)}</span><span class="t">${esc(ch.t)}</span>`
+            : `<span class="ico">💬</span><span class="q">${esc(ch.q)}</span>${ch.h?`<span class="h">(${esc(ch.h)})</span>`:""}`}
+    </div>
+    ${isV?`<div class="ans" style="${dark?"color:#fff":""}">→ ${esc(ch.a)}</div>`:""}
+  </div></div>`;
+}
+function backHTML(){ return `<div class="card back"><div class="face"><img src="../img/fresca.webp" alt=""><b>¡A jugar!</b><span style="font-weight:900;font-size:8pt">${D.name}</span></div></div>`; }
+
+const cards = buildDeck(KEY);
+let html = rulesPage();
+for(let i=0;i<cards.length;i+=9){
+  html += `<div class="page"><div class="sheet">${cards.slice(i,i+9).map(cardHTML).join("")}</div><div class="foot">${D.name} · ${D.level} · ${Math.floor(i/9)+1}/${Math.ceil(cards.length/9)} · ✦ = ${L==="sv"?"ny fråga, inte från dina kort":"new question, not from your cards"}</div></div>`;
+}
+html += `<div class="page"><div class="sheet">${Array.from({length:9},backHTML).join("")}</div><div class="foot">${L==="sv"?"Baksida (valfritt) – skriv ut på baksidan av kortarken":"Card backs (optional) – print on the back of the card sheets"}</div></div>`;
+document.getElementById("out").innerHTML = html;
+</script>
+</body>
+</html>
