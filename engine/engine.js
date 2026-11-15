@@ -101,7 +101,7 @@ function home(){
   </div>
   <div class="panel"><p class="label">${S.stickers} <span class="sub">${S.toNext(PER - state.stars % PER)}</span></p>
     <div class="shelf">${STICKERS.map((s,i)=>`<span class="${i<unlocked?'':'locked'}">${s}</span>`).join("")}</div></div>
-  <footer>${S.footer}</footer>`;
+  <footer>✏️ Fresca: diseño de Elliot · ${S.footer}</footer>`;
   app.querySelectorAll(".unitcard").forEach(b=>b.onclick=()=>{ location.hash = b.dataset.u; });
 }
 
@@ -144,7 +144,7 @@ function finish(again, earned, newSticker){
   const st = newSticker ? STICKERS[Math.min(STICKERS.length, Math.floor(state.stars/PER))-1] : null;
   app.innerHTML = `
   <div class="topbar"><button class="back" id="back">${S.back}</button><div style="flex:1"></div>${starsHTML()}</div>
-  <div class="stage end"><img src="${IMG}${rnd(["todobien","quefuerte","planazo"])}.webp" style="width:min(300px,70%)" alt=""><br><img class="fresca" src="${IMG}fresca.webp" alt="Fresca"><h2 class="outline">${rnd(PRAISE)}</h2>
+  <div class="stage end"><img src="${IMG}chao.webp" style="width:min(320px,75%);transform:rotate(-3deg)" alt="¡Chao pescao!"><br><img class="fresca" src="${IMG}fresca.webp" alt="Fresca"><h2 class="outline">${rnd(PRAISE)}</h2>
     <div style="font-size:24px;font-weight:800">${S.youGot(earned)}</div>
     ${st?`<div class="newsticker">${S.newSticker}<span>${st}</span></div>`:""}
     <div class="opts" style="margin-top:22px"><button class="next" id="again">${S.again}</button>
@@ -152,7 +152,7 @@ function finish(again, earned, newSticker){
   document.getElementById("back").onclick = unitMenu;
   document.getElementById("tomenu").onclick = unitMenu;
   document.getElementById("again").onclick = again;
-  say(st ? "¡Nueva pegatina!" : "¡Muy bien!");
+  say(st ? "¡Nueva pegatina! ¡Chao pescao!" : "¡Muy bien! ¡Chao pescao!");
 }
 function confetti(){ const e=["⭐","🎉","✨","🌟","🎊"]; for(let i=0;i<26;i++){ const s=document.createElement("div"); s.className="confetti"; s.textContent=rnd(e); s.style.left=Math.random()*100+"vw"; s.style.animationDuration=(1.6+Math.random()*1.8)+"s"; document.body.appendChild(s); setTimeout(()=>s.remove(),3600); } }
 function run(id, again, qs, renderQ){
