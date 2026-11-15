@@ -23,7 +23,7 @@ const S = {
        stickers:"🏅 My stickers", toNext:n=>`${n} ⭐ to the next sticker`, meaning:"ENGLISH", gloss:"EN:",
        help:"💡 Help", showWord:"👀 Show the word", tryAgain:"¡Otra vez! Try again 🙂", listenAgain:"¡Escucha otra vez! Listen again 👂",
        youGot:n=>`You got ${n} ⭐`, newSticker:"¡Nueva pegatina! New sticker!", again:"🔁 Otra vez", menu:"🏠 Menu",
-       hello:"¡Hola! I'm Fresca. Choose a unit!", pick:"¡Vamos! Pick a topic and a game.",
+       escape:"Escape room: present, ser/estar/tener/ir, future, perfect, gerund", hello:"¡Hola! I'm Fresca. Choose a unit!", pick:"¡Vamos! Pick a topic and a game.",
        footer:"No accounts, no personal data. Your stars are saved only on this computer.",
        g:{ match:["Match it","Pair the Spanish word with its meaning","Click a meaning, then the Spanish word"],
            choose:["¿Qué es?","Choose the right Spanish word","Choose the right Spanish word"],
@@ -39,7 +39,7 @@ const S = {
        stickers:"🏅 Mina klistermärken", toNext:n=>`${n} ⭐ till nästa klistermärke`, meaning:"SVENSKA", gloss:"SV:",
        help:"💡 Hjälp", showWord:"👀 Visa ordet", tryAgain:"¡Otra vez! Försök igen 🙂", listenAgain:"¡Escucha otra vez! Lyssna igen 👂",
        youGot:n=>`Du fick ${n} ⭐`, newSticker:"¡Nueva pegatina! Nytt klistermärke!", again:"🔁 Otra vez", menu:"🏠 Meny",
-       hello:"¡Hola! Jag heter Fresca. Välj ett tema!", pick:"¡Vamos! Välj ett område och ett spel.",
+       escape:"Escape room: presens, ser/estar/tener/ir, futurum, perfekt, gerundium", hello:"¡Hola! Jag heter Fresca. Välj ett tema!", pick:"¡Vamos! Välj ett område och ett spel.",
        footer:"Inga konton, inga personuppgifter. Dina stjärnor sparas bara på den här datorn.",
        g:{ match:["Para ihop","Para ihop det spanska ordet med betydelsen","Klicka på en betydelse och sedan på det spanska ordet"],
            choose:["¿Qué es?","Välj rätt spanskt ord","Välj rätt spanskt ord"],
@@ -99,6 +99,7 @@ function home(){
   <div class="panel"><p class="label">${S.chooseUnit}</p>
     <div class="units">${units.map(id=>{const u=window.UNITS[id]; return `<button class="unitcard ${id===G.current?'now':''}" data-u="${id}">${id===G.current?`<i class="badge">${S.now}</i>`:""}<span class="ico">${u.icon}</span>${G.labels&&G.labels[id]?`<i class="kap">${esc(G.labels[id])}</i>`:""}<b>${esc(u.title)}</b><span>${esc(tr(u.sub))}</span></button>`;}).join("")}</div>
   </div>
+  <a class="unitcard" href="../verbos/?lang=${L}" style="background:var(--purple);color:#fff;text-decoration:none;margin-bottom:18px;display:flex"><span class="ico">🔐</span><b>¡Escapa de los verbos!</b><span style="color:#fff">${S.escape}</span></a>
   <div class="panel"><p class="label">${S.stickers} <span class="sub">${S.toNext(PER - state.stars % PER)}</span></p>
     <div class="shelf">${STICKERS.map((s,i)=>`<span class="${i<unlocked?'':'locked'}">${s}</span>`).join("")}</div></div>
   <footer>✏️ Fresca: diseño de Elliot · ${S.footer}</footer>`;

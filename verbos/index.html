@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¡Escapa de los verbos! · Escape room</title>
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../engine/games.css">
+<link rel="icon" href="../img/fresca.webp">
+<style>
+  .langs{display:flex;gap:6px}
+  .langs a{background:#fff;border:3px solid var(--ink);border-radius:999px;padding:4px 12px;font-weight:900;color:var(--ink);text-decoration:none}
+  .langs a.on{background:var(--ink);color:#fff}
+  .rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+  .room{border:var(--bd);box-shadow:var(--sh);border-radius:22px;padding:16px;text-align:left;display:flex;flex-direction:column;gap:6px;position:relative;min-height:170px}
+  .room .ico{font-size:44px;line-height:1}
+  .room b{font-family:'Luckiest Guy',sans-serif;font-weight:400;font-size:25px;line-height:1.1}
+  .room span{font-size:15px;font-weight:800}
+  .room .lvl{display:inline-block;background:#fff;border:2px solid var(--ink);border-radius:999px;padding:2px 10px;font-size:13px;font-weight:900;align-self:flex-start}
+  .room .done{position:absolute;top:-12px;right:10px;background:var(--green);color:#fff;border:3px solid var(--ink);border-radius:999px;padding:3px 10px;font-weight:900;font-size:13px;transform:rotate(4deg)}
+  .timer{background:#fff;border:3px solid var(--ink);border-radius:999px;padding:6px 14px;font-weight:900;font-size:20px;box-shadow:3px 3px 0 var(--ink)}
+  .chests{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
+  .chest{background:var(--lime);border:var(--bd);box-shadow:var(--sh);border-radius:20px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:150px;justify-content:center}
+  .chest:nth-child(2){background:var(--pink);color:#fff}.chest:nth-child(3){background:var(--cyan)}.chest:nth-child(4){background:var(--orange)}.chest:nth-child(5){background:var(--purple);color:#fff}
+  .chest .big{font-size:48px;line-height:1}
+  .chest b{font-size:18px;font-weight:900;text-align:center}
+  .chest.solved{background:#fff!important;color:var(--ink)!important}
+  .chest .digit{font-family:'Luckiest Guy',sans-serif;font-size:48px;color:var(--pink);text-shadow:3px 3px 0 var(--ink);line-height:1}
+  .lock{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px}
+  .lock input{width:58px;height:70px;border:var(--bd);border-radius:14px;font-family:'Luckiest Guy',sans-serif;font-size:40px;text-align:center;box-shadow:3px 3px 0 var(--ink);background:#fff}
+  .lock .pos{font-size:12px;font-weight:900;text-align:center;color:var(--soft)}
+  .open{background:var(--pink);color:#fff;border:var(--bd);border-radius:18px;padding:14px 22px;font-size:22px;font-weight:900;box-shadow:4px 4px 0 var(--ink)}
+  .table{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;max-width:560px;margin:8px auto 16px;align-items:center;text-align:left}
+  .table .pr{font-weight:900;font-size:20px;color:var(--soft);text-align:right}
+  .table .row{font-size:26px;font-weight:900;padding:6px 10px;border-radius:12px}
+  .table .row.cur{background:var(--lime);outline:3px solid var(--ink)}
+  .table .slot{display:inline-block;width:auto;min-width:64px;height:auto;padding:2px 8px;font-size:26px;vertical-align:middle}
+  .typed{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin-top:10px}
+  .typed input{font-family:'Nunito',sans-serif;font-size:28px;font-weight:900;border:var(--bd);border-radius:14px;padding:10px 14px;width:min(380px,90%);box-shadow:3px 3px 0 var(--ink)}
+  .acc{background:#fff;border:3px solid var(--ink);border-radius:10px;font-size:22px;font-weight:900;width:46px;height:46px;box-shadow:2px 2px 0 var(--ink)}
+  .story{max-width:640px}
+  .count{font-weight:900;color:var(--soft);margin-bottom:6px}
+  .door{font-size:110px;animation:pop 1s}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+(function(){
+/* ---------------- language ---------------- */
+const qs = new URLSearchParams(location.search);
+let L = qs.get("lang"); try{ if(!L) L = localStorage.getItem("aJugar-verbos-lang"); }catch(e){}
+if(L!=="en" && L!=="sv") L = "sv";
+try{ localStorage.setItem("aJugar-verbos-lang", L); }catch(e){}
+const T = {
+ en:{ sub:"Digital escape room · Spanish verbs", story:"¡Socorro! I'm locked in the school! Every classroom has a padlock. Solve the 5 challenges, write down the numbers and open the door.",
+   choose:"Choose a room", best:"best", roomIntro:"Solve the 5 challenges. Each one gives you a number for the padlock. Write the numbers down!",
+   lock:"🔐 The padlock", open:"Open the door 🚪", wrongCode:"¡Ese no es el código! That's not the code.", rooms:"← Rooms", room:"← Room",
+   found:"Number found! Write it down:", win:"You escaped in", next:"Next room →", again:"🔁 Otra vez", check:"Check ✔", almost:"Almost! Watch the accent:",
+   answerIs:"The answer is:", typeIt:"Now type it yourself 🙂", tryAgain:"¡Otra vez! Try again", position:"N°", allGames:"🏠 ¡A jugar!",
+   names:{tabla:"The table",quien:"Who is it?",intruso:"The intruder",escribe:"Write it",escribe2:"Write it",traduce:"Translate",serestar:"Ser, estar, tener or ir?",ordena:"Word order",participio:"The participle",gerundio:"The gerund"},
+   how:{tabla:"Click the right form for each person, from top to bottom.",quien:"Who is doing it? Choose the right person.",intruso:"One form is wrong. Find it!",
+        escribe:"Write the right form of the verb. Use the buttons for á é í ó ú ñ.",escribe2:"Write the right form of the verb. Use the buttons for á é í ó ú ñ.",traduce:"Choose the Spanish for:",
+        serestar:"Choose the right verb.",ordena:"Click the words in the right order.",participio:"Choose the right participle.",gerundio:"Choose the right gerund."} },
+ sv:{ sub:"Digitalt escape room · spanska verb", story:"¡Socorro! Jag är inlåst i skolan! Varje klassrum har ett hänglås. Lös de 5 uppdragen, skriv upp siffrorna och öppna dörren.",
+   choose:"Välj ett rum", best:"bästa tid", roomIntro:"Lös de 5 uppdragen. Varje uppdrag ger dig en siffra till hänglåset. Skriv upp siffrorna!",
+   lock:"🔐 Hänglåset", open:"Öppna dörren 🚪", wrongCode:"¡Ese no es el código! Det är inte koden.", rooms:"← Rummen", room:"← Rummet",
+   found:"Siffra hittad! Skriv upp den:", win:"Du rymde på", next:"Nästa rum →", again:"🔁 Otra vez", check:"Kolla ✔", almost:"Nästan! Tänk på accenten:",
+   answerIs:"Svaret är:", typeIt:"Skriv det nu själv 🙂", tryAgain:"¡Otra vez! Försök igen", position:"Nr", allGames:"🏠 ¡A jugar!",
+   names:{tabla:"Tabellen",quien:"Vem är det?",intruso:"Inkräktaren",escribe:"Skriv",escribe2:"Skriv",traduce:"Översätt",serestar:"Ser, estar, tener eller ir?",ordena:"Ordningen",participio:"Participet",gerundio:"Gerundiet"},
+   how:{tabla:"Klicka på rätt form för varje person, uppifrån och ner.",quien:"Vem gör det? Välj rätt person.",intruso:"En form är fel. Hitta den!",
+        escribe:"Skriv rätt form av verbet. Använd knapparna för á é í ó ú ñ.",escribe2:"Skriv rätt form av verbet. Använd knapparna för á é í ó ú ñ.",traduce:"Välj den spanska formen för:",
+        serestar:"Välj rätt verb.",ordena:"Klicka på orden i rätt ordning.",participio:"Välj rätt particip.",gerundio:"Välj rätt gerundium."} }
+}[L];
+
+/* ---------------- verbs ---------------- */
+// c: class · o: object · e: emoji · en:[base, 3rd sing., -ing, past participle] · sv:[present, infinitive, supine] · reg:false = irregular present
+const V = {
+ hablar:{c:"ar",o:"español",e:"🗣️",en:["speak","speaks","speaking","spoken"],sv:["pratar","prata","pratat"]},
+ escuchar:{c:"ar",o:"música",e:"🎧",en:["listen","listens","listening","listened"],sv:["lyssnar","lyssna","lyssnat"]},
+ estudiar:{c:"ar",o:"matemáticas",e:"📚",en:["study","studies","studying","studied"],sv:["pluggar","plugga","pluggat"]},
+ bailar:{c:"ar",o:"salsa",e:"💃",en:["dance","dances","dancing","danced"],sv:["dansar","dansa","dansat"]},
+ cantar:{c:"ar",o:"una canción",e:"🎤",en:["sing","sings","singing","sung"],sv:["sjunger","sjunga","sjungit"]},
+ trabajar:{c:"ar",o:"en una tienda",e:"💼",en:["work","works","working","worked"],sv:["jobbar","jobba","jobbat"]},
+ cocinar:{c:"ar",o:"pasta",e:"🍳",en:["cook","cooks","cooking","cooked"],sv:["lagar mat","laga mat","lagat mat"]},
+ comprar:{c:"ar",o:"ropa",e:"🛒",en:["buy","buys","buying","bought"],sv:["köper","köpa","köpt"]},
+ nadar:{c:"ar",o:"en el mar",e:"🏊",en:["swim","swims","swimming","swum"],sv:["simmar","simma","simmat"]},
+ comer:{c:"er",o:"una pizza",e:"🍕",en:["eat","eats","eating","eaten"],sv:["äter","äta","ätit"]},
+ beber:{c:"er",o:"agua",e:"🥤",en:["drink","drinks","drinking","drunk"],sv:["dricker","dricka","druckit"]},
+ leer:{c:"er",o:"un libro",e:"📖",en:["read","reads","reading","read"],sv:["läser","läsa","läst"]},
+ correr:{c:"er",o:"en el parque",e:"🏃",en:["run","runs","running","run"],sv:["springer","springa","sprungit"]},
+ vender:{c:"er",o:"fruta",e:"🍎",en:["sell","sells","selling","sold"],sv:["säljer","sälja","sålt"]},
+ vivir:{c:"ir",o:"en Suecia",e:"🏠",en:["live","lives","living","lived"],sv:["bor","bo","bott"]},
+ escribir:{c:"ir",o:"un mensaje",e:"✍️",en:["write","writes","writing","written"],sv:["skriver","skriva","skrivit"]},
+ abrir:{c:"ir",o:"la ventana",e:"🪟",en:["open","opens","opening","opened"],sv:["öppnar","öppna","öppnat"]},
+ compartir:{c:"ir",o:"la comida",e:"🤝",en:["share","shares","sharing","shared"],sv:["delar","dela","delat"]},
+ hacer:{c:"er",o:"los deberes",e:"📓",reg:false,en:["do","does","doing","done"],sv:["gör","göra","gjort"]},
+ ver:{c:"er",o:"una película",e:"🎬",reg:false,en:["watch","watches","watching","watched"],sv:["ser","se","sett"]},
+ volver:{c:"er",o:"a casa",e:"🏡",reg:false,en:["come back","comes back","coming back","come back"],sv:["kommer tillbaka","komma tillbaka","kommit tillbaka"]},
+ dormir:{c:"ir",o:"ocho horas",e:"😴",reg:false,en:["sleep","sleeps","sleeping","slept"],sv:["sover","sova","sovit"]},
+ decir:{c:"ir",o:"la verdad",e:"🗯️",reg:false,en:["tell","tells","telling","told"],sv:["säger","säga","sagt"]},
+ poner:{c:"er",o:"la mesa",e:"🍽️",reg:false,en:["lay","lays","laying","laid"],sv:["dukar","duka","dukat"]}
+};
+const PRON = ["yo","tú","él / ella","nosotros","vosotros","ellos / ellas"];
+const SUBJ = [["Yo"],["Tú"],["Mi hermano","Ana","Mi madre"],["Ana y yo","Nosotros","Mi familia y yo"],["Vosotros","Tú y Pablo"],["Mis amigos","Ellos","Mis padres"]];
+const END = {ar:["o","as","a","amos","áis","an"], er:["o","es","e","emos","éis","en"], ir:["o","es","e","imos","ís","en"]};
+const IRR = {ser:["soy","eres","es","somos","sois","son"], estar:["estoy","estás","está","estamos","estáis","están"],
+             tener:["tengo","tienes","tiene","tenemos","tenéis","tienen"], ir:["voy","vas","va","vamos","vais","van"]};
+const IRR_GLOSS = {
+  en:{ser:["am","are","is","are","are","are"],estar:["am","are","is","are","are","are"],tener:["have","have","has","have","have","have"],ir:["go","go","goes","go","go","go"]},
+  sv:{ser:"är",estar:"är",tener:"har",ir:"går"} };
+const IRR_INF = {ser:"to be (identity)",estar:"to be (place / mood)",tener:"to have",ir:"to go"};
+const HABER = ["he","has","ha","hemos","habéis","han"];
+const PP_IRR = {hacer:"hecho",ver:"visto",escribir:"escrito",abrir:"abierto",volver:"vuelto",decir:"dicho",poner:"puesto",leer:"leído"};
+const PP_BAD = {hacer:"hacido",ver:"vido",escribir:"escribido",abrir:"abrido",volver:"volvido",decir:"decido",poner:"ponido",leer:"leyido"};
+const GER_IRR = {leer:"leyendo",dormir:"durmiendo",decir:"diciendo"};
+const GER_BAD = {leer:"leiendo",dormir:"dormiendo",decir:"deciendo"};
+const stem = v => v.slice(0,-2);
+const pp  = v => PP_IRR[v] || stem(v) + (V[v].c==="ar" ? "ado" : "ido");
+const ppBad = v => PP_BAD[v] || stem(v) + (V[v].c==="ar" ? "ido" : "ado");
+const ger = v => GER_IRR[v] || stem(v) + (V[v].c==="ar" ? "ando" : "iendo");
+const gerBad = v => GER_BAD[v] || stem(v) + (V[v].c==="ar" ? "iendo" : "ando");
+const ALL = Object.keys(V), REG = ALL.filter(v=>V[v].reg!==false);
+
+const SE = [ // ser / estar / tener / ir in context
+ ["Yo ___ de Suecia.","ser",0,"I am from Sweden.","Jag kommer från Sverige."],["Mi madre ___ en casa.","estar",2,"My mother is at home.","Min mamma är hemma."],
+ ["Nosotros ___ al cine.","ir",3,"We are going to the cinema.","Vi går på bio."],["Tú ___ doce años.","tener",1,"You are twelve.","Du är tolv år."],
+ ["El café ___ caliente.","estar",2,"The coffee is hot.","Kaffet är varmt."],["Ellos ___ muy simpáticos.","ser",5,"They are very nice.","De är väldigt trevliga."],
+ ["¿Adónde ___ tú?","ir",1,"Where are you going?","Vart går du?"],["Yo ___ un perro.","tener",0,"I have a dog.","Jag har en hund."],
+ ["Madrid ___ en España.","estar",2,"Madrid is in Spain.","Madrid ligger i Spanien."],["Hoy ___ lunes.","ser",2,"Today is Monday.","Idag är det måndag."],
+ ["Vosotros ___ cansados.","estar",4,"You (all) are tired.","Ni är trötta."],["Mis abuelos ___ a Málaga.","ir",5,"My grandparents are going to Málaga.","Mina morföräldrar åker till Málaga."],
+ ["Nosotros ___ dos gatos.","tener",3,"We have two cats.","Vi har två katter."],["Yo ___ en el colegio.","estar",0,"I am at school.","Jag är i skolan."],
+ ["Mi hermana ___ profesora.","ser",2,"My sister is a teacher.","Min syster är lärare."],["¿___ (tú) hambre?","tener",1,"Are you hungry?","Är du hungrig?"]
+];
+
+/* ---------------- rooms ---------------- */
+const ROOMS = [
+ {id:"presente", icon:"🔧", col:"var(--lime)", title:"El presente", lvl:"Åk 7 · MYP 1-2",
+  sub:{en:"Regular verbs -ar / -er / -ir", sv:"Regelbundna verb -ar / -er / -ir"},
+  verbs:REG, form:(v,p)=>stem(v)+END[V[v].c][p], split:(v,p)=>[stem(v),END[V[v].c][p],""], marker:"",
+  puzzles:["tabla","quien","intruso","escribe","traduce"]},
+ {id:"irregulares", icon:"⭐", col:"var(--pink)", title:"Ser, estar, tener, ir", lvl:"Åk 7 · MYP 1-2",
+  sub:{en:"The four key irregular verbs", sv:"De fyra viktigaste oregelbundna verben"},
+  verbs:["ser","estar","tener","ir"], form:(v,p)=>IRR[v][p], split:(v,p)=>["",IRR[v][p],""], marker:"",
+  puzzles:["tabla","quien","serestar","escribe2","traduce"]},
+ {id:"futuro", icon:"🚀", col:"var(--cyan)", title:"El futuro: ir a + infinitivo", lvl:"Åk 7 (VT) · MYP 1-2",
+  sub:{en:"voy a comer, vas a jugar…", sv:"voy a comer, vas a jugar…"},
+  verbs:ALL, form:(v,p)=>IRR.ir[p]+" a "+v, split:(v,p)=>["",IRR.ir[p]," a "+v], marker:"Mañana",
+  puzzles:["tabla","quien","ordena","escribe","traduce"]},
+ {id:"perfecto", icon:"✅", col:"var(--orange)", title:"El perfecto: haber + participio", lvl:"Åk 8 · MYP 3-4",
+  sub:{en:"he comido, has visto…", sv:"he comido, has visto…"},
+  verbs:ALL, form:(v,p)=>HABER[p]+" "+pp(v), split:(v,p)=>["",HABER[p]," "+pp(v)], marker:"Hoy",
+  puzzles:["tabla","participio","quien","escribe","traduce"]},
+ {id:"gerundio", icon:"🎬", col:"var(--purple)", title:"Estar + gerundio", lvl:"Åk 9 · MYP 3-4",
+  sub:{en:"estoy comiendo, está leyendo…", sv:"estoy comiendo, está leyendo…"},
+  verbs:ALL, form:(v,p)=>IRR.estar[p]+" "+ger(v), split:(v,p)=>["",IRR.estar[p]," "+ger(v)], marker:"Ahora",
+  puzzles:["tabla","gerundio","quien","escribe","traduce"]}
+];
+
+function gloss(room, v, p){
+  if(L==="en"){
+    const P=["I","you","he/she","we","you all","they"][p], be=["am","are","is","are","are","are"][p], have=p===2?"has":"have";
+    if(room.id==="irregulares") return `${P} ${IRR_GLOSS.en[v][p]}`;
+    const e=V[v].en;
+    if(room.id==="presente") return `${P} ${p===2?e[1]:e[0]}`;
+    if(room.id==="futuro") return `${P} ${be} going to ${e[0]}`;
+    if(room.id==="perfecto") return `${P} ${have} ${e[3]}`;
+    return `${P} ${be} ${e[2]}`;
+  } else {
+    const P=["jag","du","han/hon","vi","ni","de"][p];
+    if(room.id==="irregulares") return `${P} ${IRR_GLOSS.sv[v]}`;
+    const s=V[v].sv;
+    if(room.id==="presente") return `${P} ${s[0]}`;
+    if(room.id==="futuro") return `${P} ska ${s[1]}`;
+    if(room.id==="perfecto") return `${P} har ${s[2]}`;
+    return `${P} håller på att ${s[1]}`;
+  }
+}
+
+/* ---------------- helpers ---------------- */
+const app = document.getElementById("app");
+const IMG = "../img/";
+const rnd = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+const noAcc = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"");
+const norm = s => s.trim().toLowerCase().replace(/\s+/g," ");
+let voice=null; function pickVoice(){ try{ const v=speechSynthesis.getVoices(); voice=v.find(x=>/es[-_]ES/i.test(x.lang))||v.find(x=>/^es/i.test(x.lang))||null; }catch(e){} }
+try{ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }catch(e){}
+function say(t){ try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t.replace(" .",".")); u.lang="es-ES"; u.rate=.85; if(voice) u.voice=voice; speechSynthesis.speak(u); }catch(e){} }
+let save = {}; try{ save = JSON.parse(localStorage.getItem("aJugar-verbos")||"{}"); }catch(e){}
+const store = () => { try{ localStorage.setItem("aJugar-verbos", JSON.stringify(save)); }catch(e){} };
+const fmt = s => `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
+let lastPop=0;
+function pop(){ if(Date.now()-lastPop<900) return; lastPop=Date.now(); const im=document.createElement("img"); im.className="pop"; im.src=IMG+rnd(["vamos","planazo","quefuerte","todobien"])+".webp"; im.alt=""; document.body.appendChild(im); setTimeout(()=>im.remove(),1200); }
+function oops(fb,msg){ fb.innerHTML=`<img src="${IMG}fresca.webp" alt=""> ${msg||T.tryAgain}`; }
+function bad(el){ el.classList.add("bad"); setTimeout(()=>el.classList.remove("bad"),400); }
+function confetti(){ const e=["⭐","🎉","✨","🔓","🎊"]; for(let i=0;i<30;i++){ const s=document.createElement("div"); s.className="confetti"; s.textContent=rnd(e); s.style.left=Math.random()*100+"vw"; s.style.animationDuration=(1.6+Math.random()*1.8)+"s"; document.body.appendChild(s); setTimeout(()=>s.remove(),3600); } }
+const langLinks = () => `<div class="langs"><a href="?lang=sv" class="${L==="sv"?"on":""}">SV</a><a href="?lang=en" class="${L==="en"?"on":""}">EN</a></div>`;
+
+/* ---------------- screens ---------------- */
+let R=null, S=null, tick=null;   // current room, room session
+
+function home(){
+  clearInterval(tick); R=null;
+  app.innerHTML = `
+  <div style="display:flex;justify-content:space-between;align-items:center"><a class="home" href="../index.html">${T.allGames}</a>${langLinks()}</div>
+  <header><h1 class="outline"><span class="w1">¡Escapa</span> <span class="w2">de los</span> <span class="w3">verbos!</span><span class="sub">🔐 ${T.sub}</span></h1></header>
+  <div class="fresca-row"><img class="fresca" src="${IMG}fresca.webp" alt="Fresca"><div class="bubble story">${T.story}</div></div>
+  <div class="panel"><p class="label">${T.choose}</p>
+   <div class="rooms">${ROOMS.map((r,i)=>`<button class="room" data-r="${i}" style="background:${r.col};${i%2?"transform:rotate(1deg)":"transform:rotate(-1deg)"}">
+     ${save[r.id]?`<i class="done">🔓 ${fmt(save[r.id])}</i>`:""}
+     <span class="ico">${r.icon}</span><b>${r.title}</b><span>${r.sub[L]}</span><i class="lvl">${r.lvl}</i></button>`).join("")}</div></div>
+  <footer>✏️ Fresca: diseño de Elliot</footer>`;
+  app.querySelectorAll(".room").forEach(b=>b.onclick=()=>startRoom(+b.dataset.r));
+}
+
+function startRoom(i){
+  R = ROOMS[i];
+  S = {i, start:Date.now(), digits:R.puzzles.map(()=>Math.floor(Math.random()*10)), solved:R.puzzles.map(()=>false)};
+  clearInterval(tick); tick=setInterval(()=>{ const t=document.getElementById("time"); if(t) t.textContent="⏱️ "+fmt(Math.floor((Date.now()-S.start)/1000)); },1000);
+  roomView();
+}
+const timerHTML = () => `<div class="timer" id="time">⏱️ ${fmt(Math.floor((Date.now()-S.start)/1000))}</div>`;
+
+function roomView(){
+  app.innerHTML = `
+  <div class="topbar"><button class="back" id="toRooms">${T.rooms}</button><div style="flex:1"></div>${timerHTML()}</div>
+  <header><h1 class="outline"><span class="w1">${R.icon} ${R.title}</span><span class="sub">${R.lvl} · ${R.sub[L]}</span></h1></header>
+  <div class="fresca-row"><img class="fresca" src="${IMG}fresca.webp" alt="Fresca"><div class="bubble">${T.roomIntro}</div></div>
+  <div class="chests">${R.puzzles.map((p,k)=>`<button class="chest ${S.solved[k]?"solved":""}" data-k="${k}">
+     ${S.solved[k]?`<span class="digit">${S.digits[k]}</span>`:`<span class="big">🧰</span>`}<b>${k+1}. ${T.names[p]}</b></button>`).join("")}</div>
+  <div class="panel" style="margin-top:20px"><p class="label">${T.lock}</p>
+   <div class="lock">${R.puzzles.map((p,k)=>`<div><input inputmode="numeric" maxlength="1" data-k="${k}" aria-label="${T.position} ${k+1}"><div class="pos">${T.position} ${k+1}</div></div>`).join("")}
+   <button class="open" id="open">${T.open}</button></div><div class="feedback" id="fb"></div></div>`;
+  document.getElementById("toRooms").onclick = home;
+  app.querySelectorAll(".chest").forEach(b=>b.onclick=()=>puzzle(+b.dataset.k));
+  const ins = [...app.querySelectorAll(".lock input")];
+  ins.forEach((inp,k)=>inp.oninput=()=>{ inp.value=inp.value.replace(/\D/g,"").slice(0,1); if(inp.value && ins[k+1]) ins[k+1].focus(); });
+  document.getElementById("open").onclick = ()=>{
+    const code = ins.map(x=>x.value).join("");
+    if(code === S.digits.join("")) win();
+    else { ins.forEach(bad); oops(document.getElementById("fb"), T.wrongCode); }
+  };
+}
+
+function win(){
+  clearInterval(tick);
+  const secs = Math.floor((Date.now()-S.start)/1000);
+  if(!save[R.id] || secs < save[R.id]){ save[R.id]=secs; store(); }
+  confetti(); say("¡Chao pescao!");
+  const nxt = S.i+1 < ROOMS.length;
+  app.innerHTML = `<div class="stage end">
+    <div class="door">🚪🔓</div>
+    <img src="${IMG}chao.webp" style="width:min(320px,75%);transform:rotate(-3deg)" alt="¡Chao pescao!"><br>
+    <img class="fresca" src="${IMG}fresca.webp" alt="Fresca">
+    <h2 class="outline">${T.win} ${fmt(secs)}!</h2>
+    <div class="opts">${nxt?`<button class="next" id="nx">${T.next}</button>`:""}<button class="next" id="ag" style="background:var(--lime)">${T.again}</button><button class="next" id="hm" style="background:#fff">${T.rooms}</button></div></div>`;
+  if(nxt) document.getElementById("nx").onclick=()=>startRoom(S.i+1);
+  document.getElementById("ag").onclick=()=>startRoom(S.i);
+  document.getElementById("hm").onclick=home;
+}
+
+/* ---------------- puzzle shell ---------------- */
+function puzzle(k){
+  const type = R.puzzles[k];
+  app.innerHTML = `
+  <div class="topbar"><button class="back" id="toRoom">${T.room}</button><div class="bar"><i style="width:0%"></i></div>${timerHTML()}</div>
+  <div class="task outline">${k+1}. ${T.names[type]}<span class="sub">${T.how[type]}</span></div>
+  <div class="stage" id="stage"></div>`;
+  document.getElementById("toRoom").onclick = roomView;
+  const stage = document.getElementById("stage");
+  const done = () => {
+    S.solved[k]=true; pop();
+    stage.innerHTML = `<div style="font-size:24px;font-weight:900">${T.found}</div><div class="digit" style="font-family:'Luckiest Guy',sans-serif;font-size:120px;color:var(--pink);text-shadow:5px 5px 0 var(--ink)">${S.digits[k]}</div>
+      <div class="pos" style="font-weight:900">${T.position} ${k+1}</div><button class="next" id="bk">${T.room}</button>`;
+    setBar(1,1); document.getElementById("bk").onclick = roomView;
+  };
+  PUZ[type](stage, done);
+}
+function setBar(d,t){ const i=app.querySelector(".bar i"); if(i) i.style.width=Math.round(d/t*100)+"%"; }
+// run a sequence of rounds; render(stage, item, next) calls next() when the round is solved
+function rounds(stage, items, render, done){
+  let i=0; const go=()=>{ setBar(i,items.length); if(i>=items.length) return done(); render(stage, items[i], ()=>{ i++; setTimeout(go, 900); }); }; go();
+}
+// multiple-choice round helper
+function choice(stage, headHTML, opts, ans, onOk, sayText){
+  stage.innerHTML = `${headHTML}<div class="opts">${opts.map(o=>`<button class="opt" data-o="${esc(o)}">${esc(o)}</button>`).join("")}</div><div class="feedback" id="fb"></div>`;
+  stage.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    if(b.dataset.o===ans){ b.classList.add("ok"); stage.querySelectorAll(".opt").forEach(x=>x.disabled=true); stage.querySelector("#fb").textContent="¡Muy bien!"; say(sayText||ans); onOk(); }
+    else { bad(b); setTimeout(()=>b.classList.add("faded"),400); oops(stage.querySelector("#fb")); }
+  });
+}
+const pickVP = (n, verbs) => { const out=[], seen=new Set(); let guard=0; while(out.length<n && guard++<200){ const v=rnd(verbs), p=Math.floor(Math.random()*6); if(!seen.has(v+p)){ seen.add(v+p); out.push([v,p]); } } return out; };
+const verbLabel = v => R.id==="irregulares" && L==="en" ? `${v} <small>(${IRR_INF[v]})</small>` : v;
+
+/* ---------------- puzzles ---------------- */
+const PUZ = {};
+
+PUZ.tabla = (stage, done) => {
+  const v = rnd(R.verbs);
+  const parts = [0,1,2,3,4,5].map(p=>R.split(v,p));
+  const tiles = shuffle(parts.map(x=>x[1]));
+  let p=0;
+  const draw = () => {
+    stage.innerHTML = `<div class="bigpic" style="font-size:70px;min-height:80px">${V[v]?V[v].e:"⭐"}</div>
+      <div style="font-size:30px;font-weight:900">${verbLabel(v)}</div>
+      <div class="table">${parts.map((x,i)=>`<div class="pr">${PRON[i]}</div><div class="row ${i===p?"cur":""}">${esc(x[0])}<span class="slot ${i<p?"filled":""}">${i<p?esc(x[1]):"?"}</span>${esc(x[2])}</div>`).join("")}</div>
+      <div class="tiles">${tiles.map((t,i)=>`<button class="letter" style="width:auto;padding:0 14px" data-i="${i}">${esc(t)}</button>`).join("")}</div><div class="feedback" id="fb"></div>`;
+    stage.querySelectorAll(".letter").forEach(b=>b.onclick=()=>{
+      if(p>=6) return;
+      const t = tiles[+b.dataset.i];
+      if(t===parts[p][1]){ say(R.form(v,p)); tiles.splice(+b.dataset.i,1); p++; setBar(p,6); if(p===6) setTimeout(done,700); else draw(); }
+      else { bad(b); oops(stage.querySelector("#fb")); }
+    });
+  };
+  draw();
+};
+
+PUZ.quien = (stage, done) => {
+  rounds(stage, pickVP(5, R.verbs), (st,[v,p],next)=>{
+    choice(st, `<div class="question">«${R.form(v,p)}»</div>`, PRON, PRON[p], next, R.form(v,p));
+  }, done);
+};
+
+PUZ.intruso = (stage, done) => {
+  const items = [0,1,2].map(()=>{
+    const p = 1+Math.floor(Math.random()*5);
+    const vs = shuffle(REG).slice(0,4); const w = Math.floor(Math.random()*4);
+    const opts = vs.map((v,i)=>{ if(i!==w) return R.form(v,p);
+      const c=V[v].c, other = c==="ar" ? "er" : (p===3||p===4 ? (c==="er"?"ir":"er") : "ar");
+      return stem(v)+END[other][p]; });
+    return {p, opts, wrong:opts[w], right:R.form(vs[w],p)};
+  });
+  rounds(stage, items, (st,it,next)=>{
+    choice(st, `<div class="question" style="font-size:28px">${PRON[it.p]}: ?</div>`, it.opts, it.wrong, ()=>{ st.querySelector("#fb").textContent = `✔ ${it.wrong} → ${it.right}`; say(it.right); next(); });
+  }, done);
+};
+
+function typed(stage, headHTML, ans, next){
+  stage.innerHTML = `${headHTML}<div class="typed"><input id="ti" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="next" id="ck">${T.check}</button></div>
+    <div class="typed">${["á","é","í","ó","ú","ñ"].map(a=>`<button class="acc" data-a="${a}">${a}</button>`).join("")}</div><div class="feedback" id="fb"></div>`;
+  const ti = stage.querySelector("#ti"), fb = stage.querySelector("#fb"); ti.focus();
+  let fails=0;
+  stage.querySelectorAll(".acc").forEach(b=>b.onclick=()=>{ const s=ti.selectionStart??ti.value.length; ti.value=ti.value.slice(0,s)+b.dataset.a+ti.value.slice(ti.selectionEnd??s); ti.focus(); ti.selectionStart=ti.selectionEnd=s+1; });
+  const check = () => {
+    const v = norm(ti.value), a = norm(ans);
+    if(v===a){ ti.disabled=true; ti.style.background="var(--lime)"; fb.textContent="¡Muy bien! "+ans; say(ans); next(); }
+    else if(noAcc(v)===noAcc(a)){ ti.disabled=true; ti.style.background="var(--lime)"; fb.textContent=`${T.almost} ${ans}`; say(ans); next(); }
+    else { fails++; bad(ti); if(fails>=2){ fb.innerHTML=`<img src="${IMG}fresca.webp" alt=""> ${T.answerIs} <b style="color:var(--pink)">${esc(ans)}</b>. ${T.typeIt}`; } else oops(fb); ti.select(); }
+  };
+  stage.querySelector("#ck").onclick = check;
+  ti.onkeydown = e => { if(e.key==="Enter") check(); };
+}
+
+PUZ.escribe = (stage, done) => {
+  rounds(stage, pickVP(3, R.verbs), (st,[v,p],next)=>{
+    let subj = rnd(SUBJ[p]);
+    if(R.marker && !/^(Ana|Pablo)/.test(subj)) subj = subj[0].toLowerCase()+subj.slice(1);
+    const sent = `${R.marker?R.marker+" ":""}${subj} <b style="color:var(--pink)">___</b> (${v}) ${V[v].o}.`;
+    typed(st, `<div class="bigpic" style="font-size:70px;min-height:80px">${V[v].e}</div><div class="gapline" style="font-size:28px">${sent}</div>`, R.form(v,p), next);
+  }, done);
+};
+
+PUZ.escribe2 = (stage, done) => {
+  rounds(stage, shuffle(SE).slice(0,3), (st,[s,v,p,en,sv],next)=>{
+    typed(st, `<div class="gapline" style="font-size:30px">${s.replace("___",`<b style="color:var(--pink)">___</b>`)} <span style="color:var(--soft)">(${v})</span></div><div class="gloss">${L==="en"?"EN: "+en:"SV: "+sv}</div>`, IRR[v][p], next);
+  }, done);
+};
+
+PUZ.traduce = (stage, done) => {
+  rounds(stage, pickVP(4, R.verbs), (st,[v,p],next)=>{
+    const others = shuffle([0,1,2,3,4,5].filter(x=>x!==p)).slice(0,3);
+    const opts = shuffle([p,...others].map(x=>R.form(v,x)));
+    choice(st, `<div class="gloss">${T.how.traduce}</div><div class="question"><span class="en" style="font-size:30px">${esc(gloss(R,v,p))}</span></div>`, opts, R.form(v,p), next);
+  }, done);
+};
+
+PUZ.serestar = (stage, done) => {
+  rounds(stage, shuffle(SE).slice(0,5), (st,[s,v,p,en,sv],next)=>{
+    const opts = ["ser","estar","tener","ir"].map(x=>IRR[x][p]);
+    choice(st, `<div class="gapline" style="font-size:30px">${s.replace("___","<b>&nbsp;?&nbsp;</b>")}</div><div class="gloss">${L==="en"?"EN: "+en:"SV: "+sv}</div>`, opts, IRR[v][p], next, s.replace("___",IRR[v][p]));
+  }, done);
+};
+
+PUZ.ordena = (stage, done) => {
+  rounds(stage, pickVP(3, ALL), (st,[v,p],next)=>{
+    let subj = rnd(SUBJ[p]); if(!/^(Ana|Pablo)/.test(subj)) subj = subj[0].toLowerCase()+subj.slice(1);
+    const words = `Mañana ${subj} ${R.form(v,p)} ${V[v].o} .`.split(" ");
+    const tiles = shuffle(words.map((w,i)=>({w,i})));
+    st.innerHTML = `<div class="bigpic" style="font-size:70px;min-height:80px">${V[v].e}</div><div class="gloss">${L==="en"?"EN":"SV"}: ${esc(gloss(R,v,p))}</div>
+      <div class="slots">${words.map(()=>`<div class="slot wslot"></div>`).join("")}</div>
+      <div class="tiles">${tiles.map(t=>`<button class="word" data-w="${esc(t.w)}">${esc(t.w)}</button>`).join("")}</div><div class="feedback" id="fb"></div>`;
+    let pos=0; const slots = st.querySelectorAll(".slot");
+    st.querySelectorAll(".word").forEach(b=>b.onclick=()=>{
+      if(b.dataset.w===words[pos]){ slots[pos].textContent=words[pos]; slots[pos].classList.add("filled"); b.classList.add("used"); pos++;
+        if(pos===words.length){ say(words.join(" ")); st.querySelector("#fb").textContent="¡Muy bien!"; next(); } }
+      else { bad(b); oops(st.querySelector("#fb")); }
+    });
+  }, done);
+};
+
+PUZ.participio = (stage, done) => {
+  const irr = shuffle(Object.keys(PP_IRR)).slice(0,3), reg = shuffle(REG.filter(v=>!PP_IRR[v])).slice(0,1);
+  rounds(stage, shuffle([...irr,...reg]), (st,v,next)=>{
+    const other = pp(rnd(ALL.filter(x=>x!==v)));
+    const opts = shuffle([...new Set([pp(v), ppBad(v), other])]);
+    choice(st, `<div class="bigpic" style="font-size:70px;min-height:80px">${V[v].e}</div><div class="question">${v} → he ___</div>`, opts, pp(v), next, "he "+pp(v));
+  }, done);
+};
+
+PUZ.gerundio = (stage, done) => {
+  const irr = shuffle(Object.keys(GER_IRR)), reg = shuffle(REG.filter(v=>!GER_IRR[v])).slice(0,1);
+  rounds(stage, shuffle([...irr,...reg]), (st,v,next)=>{
+    const p = Math.floor(Math.random()*6);
+    const other = ger(rnd(ALL.filter(x=>x!==v)));
+    const opts = shuffle([...new Set([ger(v), gerBad(v), other])]);
+    let subj = rnd(SUBJ[p]); subj = /^(Ana|Pablo)/.test(subj) ? subj : subj[0].toLowerCase()+subj.slice(1);
+    choice(st, `<div class="bigpic" style="font-size:70px;min-height:80px">${V[v].e}</div><div class="question" style="font-size:30px">(${v}) Ahora ${subj} ${IRR.estar[p]} ___ ${V[v].o}.</div>`,
+      opts, ger(v), next, `Ahora ${subj} ${IRR.estar[p]} ${ger(v)} ${V[v].o}.`);
+  }, done);
+};
+
+home();
+})();
+</script>
+</body>
+</html>
