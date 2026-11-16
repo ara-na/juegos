@@ -4,100 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>English Fun – Studion</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../engine/games.css">
+<link rel="icon" href="../img/fresca.webp">
 <style>
-  :root{
-    --bg:#f6f3ec; --card:#ffffff; --ink:#2b2b3a; --soft:#6d6d80;
-    --blue:#4f7cff; --green:#2fb47c; --red:#ef5a5a; --yellow:#ffc93c; --purple:#8b5cf6; --orange:#ff8a3d; --pink:#ff6fa8; --teal:#16b3b3;
-    --radius:22px;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:'Nunito',system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
-  button{font-family:inherit;cursor:pointer;border:none}
-  .wrap{max-width:980px;margin:0 auto;padding:18px 18px 60px}
-  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
-  h1{font-size:34px;margin:0;font-weight:900;letter-spacing:-.5px}
-  h1 span{color:var(--blue)}
-  .stars{background:var(--card);border-radius:999px;padding:8px 18px;font-size:24px;font-weight:900;box-shadow:0 3px 0 #e2ddd0;display:flex;align-items:center;gap:8px}
-  .sv{display:block;font-size:.62em;color:var(--soft);font-weight:700;margin-top:2px}
-  .task .sv{font-size:.8em;color:#3a3a55;font-weight:800}
-  .panel{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:0 4px 0 #e2ddd0;margin-bottom:16px}
-  .label{font-weight:900;font-size:18px;margin:0 0 10px}
-  .topics{display:flex;flex-wrap:wrap;gap:8px}
-  .topic{background:#f1eee6;border-radius:999px;padding:9px 16px;font-size:18px;font-weight:800;color:var(--ink)}
-  .topic.on{background:var(--ink);color:#fff}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
-  .act{border-radius:var(--radius);padding:18px 16px;color:#fff;text-align:left;font-size:21px;font-weight:900;min-height:140px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 5px 0 rgba(0,0,0,.18);transition:transform .1s}
-  .act:hover{transform:translateY(-3px)}
-  .act:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.18)}
-  .act .ico{font-size:44px;line-height:1}
-  .act .sv{color:rgba(255,255,255,.85)}
-  .shelf{display:flex;flex-wrap:wrap;gap:6px;font-size:34px;min-height:44px}
-  .shelf .locked{filter:grayscale(1);opacity:.18}
-  .note{color:var(--soft);font-size:15px;font-weight:700;margin-top:8px}
-
-  /* game screen */
-  .topbar{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-  .back{background:var(--card);border-radius:14px;padding:10px 16px;font-size:18px;font-weight:900;box-shadow:0 3px 0 #e2ddd0;color:var(--ink)}
-  .bar{flex:1;height:18px;background:#e7e2d6;border-radius:999px;overflow:hidden}
-  .bar i{display:block;height:100%;background:var(--green);border-radius:999px;transition:width .3s}
-  .task{font-size:26px;font-weight:900;text-align:center;margin:6px 0 14px}
-  .stage{background:var(--card);border-radius:var(--radius);padding:22px;box-shadow:0 4px 0 #e2ddd0;text-align:center}
-  .bigpic{font-size:120px;line-height:1.1;margin:6px 0 10px;display:flex;justify-content:center;align-items:center;min-height:140px}
-  .dot{display:inline-block;border-radius:50%;border:4px solid #d9d4c8}
-  .num{font-weight:900;color:var(--purple)}
-  .opts{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:10px}
-  .opt{background:#eef2ff;color:var(--ink);border-radius:18px;padding:16px 26px;font-size:28px;font-weight:900;min-width:150px;box-shadow:0 4px 0 #cfd8f5}
-  .opt:active{transform:translateY(2px)}
-  .ok{background:var(--green)!important;color:#fff!important;box-shadow:0 4px 0 #1f8a5d!important}
-  .bad{background:var(--red)!important;color:#fff!important;animation:shake .35s}
-  .faded{opacity:.35;pointer-events:none}
-  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
-  .speak{background:var(--yellow);border-radius:999px;font-size:26px;padding:8px 16px;font-weight:900;color:var(--ink);box-shadow:0 3px 0 #d9a520}
-  .feedback{font-size:28px;font-weight:900;min-height:40px;margin-top:14px}
-  .next{background:var(--blue);color:#fff;border-radius:18px;padding:14px 34px;font-size:26px;font-weight:900;margin-top:10px;box-shadow:0 4px 0 #2f56cc}
-
-  /* match */
-  .match{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-  .col{display:flex;flex-direction:column;gap:10px}
-  .tile{background:#f4f1ea;border-radius:16px;padding:10px;font-size:26px;font-weight:900;min-height:72px;display:flex;align-items:center;justify-content:center;color:var(--ink);box-shadow:0 3px 0 #ddd7c9}
-  .tile.pic{font-size:46px}
-  .tile.sel{outline:5px solid var(--blue)}
-  /* spell / sentence */
-  .slots{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:10px 0 18px;min-height:70px}
-  .slot{width:56px;height:66px;border-radius:14px;background:#f4f1ea;border:3px dashed #d3ccbb;font-size:36px;font-weight:900;display:flex;align-items:center;justify-content:center;text-transform:lowercase}
-  .slot.filled{border-style:solid;border-color:var(--green);background:#e6f7ef}
-  .wslot{min-width:90px;padding:0 14px;width:auto}
-  .tiles{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
-  .letter{background:var(--orange);color:#fff;border-radius:14px;width:62px;height:66px;font-size:34px;font-weight:900;box-shadow:0 4px 0 #cc6620;text-transform:lowercase}
-  .word{background:var(--purple);color:#fff;border-radius:14px;padding:14px 20px;font-size:28px;font-weight:900;box-shadow:0 4px 0 #6a3fd1}
-  .used{visibility:hidden}
-  .hint{background:#f1eee6;border-radius:999px;padding:8px 16px;font-size:18px;font-weight:800;color:var(--ink);margin-top:14px}
-  .gapline{font-size:36px;font-weight:900;margin:8px 0 6px}
-  .gapline b{display:inline-block;min-width:90px;border-bottom:5px solid var(--blue);color:var(--blue)}
-  /* memory */
-  .mem{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-  .card{aspect-ratio:1/1;border-radius:18px;background:var(--teal);color:#fff;font-size:44px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 0 #0e8a8a;padding:6px}
-  .card.open{background:#fff;color:var(--ink);box-shadow:0 4px 0 #ddd7c9;border:3px solid var(--teal)}
-  .card.open.w{font-size:24px}
-  .card.done{background:#e6f7ef;border-color:var(--green);color:var(--ink)}
-  /* listen */
-  .pics{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:520px;margin:12px auto 0}
-  .picbtn{background:#f4f1ea;border-radius:20px;font-size:76px;padding:14px;box-shadow:0 4px 0 #ddd7c9;min-height:130px;display:flex;align-items:center;justify-content:center}
-  /* end */
-  .end{text-align:center;padding:30px 10px}
-  .end .big{font-size:90px}
-  .end h2{font-size:40px;margin:6px 0}
-  .confetti{position:fixed;top:-60px;font-size:36px;pointer-events:none;animation:fall linear forwards;z-index:9}
-  @keyframes fall{to{transform:translateY(110vh) rotate(360deg)}}
-  .newsticker{background:#fff7d6;border-radius:18px;padding:14px;font-size:22px;font-weight:900;display:inline-block;margin-top:12px}
-  .newsticker span{font-size:60px;display:block}
-  @media (max-width:560px){
-    h1{font-size:26px}.bigpic{font-size:90px}.opt{font-size:22px;min-width:120px;padding:14px 18px}
-    .mem{grid-template-columns:repeat(3,1fr)}.card{font-size:36px}.card.open.w{font-size:18px}
-    .tile{font-size:20px}.tile.pic{font-size:36px}
-  }
-.home{display:inline-block;background:#fff;border-radius:999px;padding:6px 14px;font-weight:900;font-size:15px;color:#2b2b3a;text-decoration:none;box-shadow:0 3px 0 #e2ddd0;margin-bottom:10px}
+  .sv{display:block;font-family:'Nunito',sans-serif;font-size:.62em;color:var(--soft);font-weight:800;margin-top:2px;letter-spacing:0;text-shadow:none}
+  .task .sv{font-size:16px;color:#3a3a3a}
+  .act .sv{color:var(--ink);opacity:.8;font-size:14px}
+  .label .sv{display:inline;margin-left:8px;font-size:14px}
+  .dot{display:inline-block;border-radius:50%;border:4px solid var(--ink)}
+  .end .big{font-size:80px}
 </style>
 </head>
 <body>
@@ -190,23 +106,24 @@ function addStar(n=1){ const before = Math.floor(state.stars/STARS_PER_STICKER);
 /* ---------------- MENU ---------------- */
 const ACTS = [
   {id:"match", ico:"🧩", t:"Match it", sv:"Para ihop", col:"var(--blue)"},
-  {id:"choose", ico:"🤔", t:"What is it?", sv:"Vad är det?", col:"var(--orange)"},
-  {id:"listen", ico:"👂", t:"Listen and click", sv:"Lyssna och klicka", col:"var(--teal)"},
+  {id:"choose", ico:"🤔", t:"What is it?", sv:"Vad är det?", col:"var(--red)"},
+  {id:"listen", ico:"👂", t:"Listen and click", sv:"Lyssna och klicka", col:"var(--lime)"},
   {id:"spell", ico:"🔤", t:"Spell the word", sv:"Stava ordet", col:"var(--pink)"},
   {id:"memory", ico:"🃏", t:"Memory", sv:"Memory", col:"var(--purple)"},
   {id:"sentence", ico:"🧱", t:"Make a sentence", sv:"Bygg en mening", col:"var(--green)"},
-  {id:"gap", ico:"✍️", t:"Fill the gap", sv:"Fyll i luckan", col:"#e0a800"}
+  {id:"gap", ico:"✍️", t:"Fill the gap", sv:"Fyll i luckan", col:"var(--orange)"}
 ];
 
 function menu(){
   const unlocked = Math.min(STICKERS.length, Math.floor(state.stars/STARS_PER_STICKER));
   const toNext = STARS_PER_STICKER - (state.stars % STARS_PER_STICKER);
   app.innerHTML = `
-  <a class="home" href="../index.html">🏠 All games</a>
+  <a class="home" href="../index.html">🏠 ¡A jugar!</a>
   <header>
-    <h1>English <span>Fun</span> 🎉</h1>
+    <h1 class="outline"><span class="w3">English</span> <span class="w1">Fun!</span></h1>
     <div class="stars">⭐ <span id="starCount">${state.stars}</span></div>
   </header>
+  <div class="fresca-row"><img class="fresca" src="../img/fresca.webp" alt="Fresca"><div class="bubble">Hi! I'm Fresca. Let's play!<span class="sv">Hej! Jag heter Fresca. Nu spelar vi!</span></div></div>
   <div class="panel">
     <p class="label">1. Choose a topic <span class="sv">Välj ett tema</span></p>
     <div class="topics">${Object.entries(TOPICS).map(([k,v])=>`<button class="topic ${k===state.topic?'on':''}" data-t="${k}">${v.name}</button>`).join("")}</div>
@@ -232,7 +149,7 @@ function shell(title, sv, done, total){
     <div class="bar"><i style="width:${total?Math.round(done/total*100):0}%"></i></div>
     <div class="stars">⭐ <span id="starCount">${state.stars}</span></div>
   </div>
-  <div class="task">${title}<span class="sv">${sv}</span></div>
+  <div class="task outline">${title}<span class="sv">${sv}</span></div>
   <div class="stage" id="stage"></div>`;
   document.getElementById("back").onclick = menu;
   return document.getElementById("stage");
@@ -245,13 +162,13 @@ function finish(gameFn, earned, newSticker){
   app.innerHTML = `
   <div class="topbar"><button class="back" id="back">← Menu</button><div style="flex:1"></div><div class="stars">⭐ <span id="starCount">${state.stars}</span></div></div>
   <div class="stage end">
-    <div class="big">🏆</div>
-    <h2>${rnd(PRAISE)}</h2>
+    <img class="fresca" src="../img/fresca.webp" alt="Fresca"><div class="big">🏆</div>
+    <h2 class="outline">${rnd(PRAISE)}</h2>
     <div style="font-size:24px;font-weight:800">Du fick / You got ${earned} ⭐ <span class="sv">${rnd(PRAISE_SV)}</span></div>
     ${st?`<div class="newsticker">New sticker! / Nytt klistermärke!<span>${st}</span></div>`:""}
     <div class="opts" style="margin-top:22px">
       <button class="next" id="again">🔁 Igen / Again</button>
-      <button class="next" id="tomenu" style="background:var(--green);box-shadow:0 4px 0 #1f8a5d">🏠 Meny</button>
+      <button class="next" id="tomenu" style="background:var(--lime)">🏠 Meny</button>
     </div>
   </div>`;
   document.getElementById("back").onclick = menu;
@@ -302,7 +219,7 @@ GAMES.match = function(){
       if(matched===set.length) setTimeout(()=>finish(GAMES.match,earned,sticker),1200);
     } else {
       misses++; [selPic,selWord].forEach(t=>{t.classList.remove("sel");t.classList.add("bad");setTimeout(()=>t.classList.remove("bad"),450);});
-      fb.textContent = "Försök igen! / Try again! 🙂";
+      fb.innerHTML = `<img src="../img/fresca.webp" alt=""> Försök igen! / Try again!`;
     }
     selPic=selWord=null;
   };
@@ -321,7 +238,7 @@ GAMES.choose = function(){
     let first=true;
     stage.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
       if(b.dataset.o===w){ b.classList.add("ok"); stage.querySelectorAll(".opt").forEach(x=>x.disabled=true); say(w); stage.querySelector("#fb").textContent=rnd(PRAISE); done(first); }
-      else { first=false; b.classList.add("bad"); setTimeout(()=>{b.classList.remove("bad");b.classList.add("faded");},400); stage.querySelector("#fb").textContent="Försök igen! / Try again! 🙂"; }
+      else { first=false; b.classList.add("bad"); setTimeout(()=>{b.classList.remove("bad");b.classList.add("faded");},400); stage.querySelector("#fb").innerHTML=`<img src="../img/fresca.webp" alt=""> Försök igen! / Try again!`; }
     });
   });
 };
@@ -341,7 +258,7 @@ GAMES.listen = function(){
     let first=true;
     stage.querySelectorAll(".picbtn").forEach(b=>b.onclick=()=>{
       if(b.dataset.o===w){ b.classList.add("ok"); stage.querySelectorAll(".picbtn").forEach(x=>x.disabled=true); stage.querySelector("#showw").style.visibility="visible"; stage.querySelector("#fb").textContent=rnd(PRAISE); done(first); }
-      else { first=false; b.classList.add("bad"); setTimeout(()=>{b.classList.remove("bad");b.classList.add("faded");},400); stage.querySelector("#fb").textContent="Lyssna igen! / Listen again! 👂"; }
+      else { first=false; b.classList.add("bad"); setTimeout(()=>{b.classList.remove("bad");b.classList.add("faded");},400); stage.querySelector("#fb").innerHTML=`<img src="../img/fresca.webp" alt=""> Lyssna igen! / Listen again!`; }
     });
   });
 };
@@ -426,7 +343,7 @@ GAMES.gap = function(){
     stage.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
       if(b.dataset.o===ans){ b.classList.add("ok"); stage.querySelectorAll(".opt").forEach(x=>x.disabled=true);
         stage.querySelector("#line").innerHTML = s.replace("___",`<b>${ans}</b>`); say(s.replace("___",ans)); stage.querySelector("#fb").textContent=rnd(PRAISE); done(first); }
-      else { first=false; b.classList.add("bad"); setTimeout(()=>{b.classList.remove("bad");b.classList.add("faded");},400); stage.querySelector("#fb").textContent="Försök igen! / Try again! 🙂"; }
+      else { first=false; b.classList.add("bad"); setTimeout(()=>{b.classList.remove("bad");b.classList.add("faded");},400); stage.querySelector("#fb").innerHTML=`<img src="../img/fresca.webp" alt=""> Försök igen! / Try again!`; }
     });
   });
 };
