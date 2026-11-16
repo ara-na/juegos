@@ -49,9 +49,8 @@
 (function(){
 /* ---------------- language ---------------- */
 const qs = new URLSearchParams(location.search);
-let L = qs.get("lang"); try{ if(!L) L = localStorage.getItem("aJugar-verbos-lang"); }catch(e){}
-if(L!=="en" && L!=="sv") L = "sv";
-try{ localStorage.setItem("aJugar-verbos-lang", L); }catch(e){}
+let L = qs.get("lang");
+if(L!=="en" && L!=="sv") L = "sv";   // always Swedish unless the link says lang=en
 const T = {
  en:{ sub:"Digital escape room · Spanish verbs", story:"¡Socorro! I'm locked in the school! Every classroom has a padlock. Solve the 5 challenges, write down the numbers and open the door.",
    choose:"Choose a room", best:"best", roomIntro:"Solve the 5 challenges. Each one gives you a number for the padlock. Write the numbers down!",

@@ -127,3 +127,30 @@ footer{margin-top:26px;color:var(--soft);font-size:14px;font-weight:700}
 }
 .act{font-family:"Luckiest Guy","Nunito",sans-serif;font-weight:400;letter-spacing:.5px}
 .act .sub{font-family:"Nunito",sans-serif;font-weight:800;letter-spacing:0}
+
+/* ---- mobile fixes: nothing may push the page sideways ---- */
+.match,.pics{grid-template-columns:repeat(2,minmax(0,1fr))}
+.col,.tile,.picbtn,.opt,.card,.word,.slot{min-width:0}
+.tile,.picbtn,.card,.opt,.word{overflow-wrap:anywhere;word-break:normal;hyphens:auto}
+.en{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.stage{overflow:hidden}
+@media (max-width:560px){
+  .wrap{padding:12px 10px 50px}
+  .stage{padding:14px 10px}
+  .pics{gap:10px}
+  .picbtn{font-size:52px;padding:8px;min-height:104px}
+  .picbtn .en{font-size:16px!important;padding:6px 8px}
+  .bigpic .en{font-size:26px!important}
+  .tile{font-size:17px;padding:8px 6px;min-height:62px}
+  .tile.pic{font-size:32px}
+  .tile.pic .en{font-size:14px!important;padding:3px 6px}
+  .match{gap:10px}
+  .opt{min-width:0;padding:12px 14px;font-size:21px}
+  .word{font-size:21px;padding:10px 12px}
+  .letter{width:48px;height:56px;font-size:28px}
+  .slot{width:44px;height:54px;font-size:28px}
+  .task{font-size:26px}
+  .gloss{font-size:15px}
+  .unitcard b{font-size:21px}
+  .act{font-size:20px;min-height:120px;padding:12px}
+}
