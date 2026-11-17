@@ -26,7 +26,7 @@ const S = {
        album:"📒 My album", seeAlbum:"Open my album 📒", title:"Your title", ach:"🏅 Achievements", rare:"✨ Rare stickers", gold:"🥇 Gold stickers", legend:"👑 Legendary", common:"⭐ Common stickers",
        goldHow:"Play a perfect game (no mistakes) in a unit to get its gold sticker.", soon:"Coming soon", newAch:"New achievement!", newGold:"New gold sticker!",
        showTeacher:"Complete the album and show it to your teacher 😉", next:"next title at", maxTitle:"Top title!",
-       escape:"Escape room: present, ser/estar/tener/ir, future, perfect, gerund", hello:"¡Hola! I'm Fresca. Choose a unit!", pick:"¡Vamos! Pick a topic and a game.",
+       escape:"Escape room: present, ser/estar/tener/ir, future, perfect, gerund", hello:"¡Hola! I'm %N, Fresca's friend. Choose a unit!", pick:"¡Vamos! Pick a topic and a game.",
        footer:"No accounts, no personal data. Your stars are saved only on this computer.",
        g:{ match:["Match it","Pair the Spanish word with its meaning","Click a meaning, then the Spanish word"],
            choose:["¿Qué es?","Choose the right Spanish word","Choose the right Spanish word"],
@@ -45,7 +45,7 @@ const S = {
        album:"📒 Mitt album", seeAlbum:"Öppna mitt album 📒", title:"Din titel", ach:"🏅 Prestationer", rare:"✨ Sällsynta klistermärken", gold:"🥇 Guldklistermärken", legend:"👑 Legendariska", common:"⭐ Vanliga klistermärken",
        goldHow:"Spela en perfekt omgång (inga fel) i ett tema för att få dess guldklistermärke.", soon:"Kommer snart", newAch:"Ny prestation!", newGold:"Nytt guldklistermärke!",
        showTeacher:"Fyll albumet och visa det för din lärare 😉", next:"nästa titel vid", maxTitle:"Högsta titeln!",
-       escape:"Escape room: presens, ser/estar/tener/ir, futurum, perfekt, gerundium", hello:"¡Hola! Jag heter Fresca. Välj ett tema!", pick:"¡Vamos! Välj ett område och ett spel.",
+       escape:"Escape room: presens, ser/estar/tener/ir, futurum, perfekt, gerundium", hello:"¡Hola! Jag heter %N och är Frescas kompis. Välj ett tema!", pick:"¡Vamos! Välj ett område och ett spel.",
        footer:"Inga konton, inga personuppgifter. Dina stjärnor sparas bara på den här datorn.",
        g:{ match:["Para ihop","Para ihop det spanska ordet med betydelsen","Klicka på en betydelse och sedan på det spanska ordet"],
            choose:["¿Qué es?","Välj rätt spanskt ord","Välj rätt spanskt ord"],
@@ -60,6 +60,9 @@ const S = {
 const STICKERS = ["🌮","🪅","🦜","🌵","🎸","💃","⚽","🦙","🌶️","🏖️","🐂","🥘","🎺","🌞","🦩","🍉","🏆","👑","🚀","🌈","🐬","🦄","🎧","🛹","💎","🐢","🌋","🍦","🎮","🛸"];
 const PER = 10;
 const IMG = (G.base || "../") + "img/";
+const PJ = {fresca:"Fresca",arandano:"Arándano",banana:"Banana",coco:"Coco",durian:"Durián",manzana:"Manzana",pera:"Pera",pina:"Piña"};
+const MASC = PJ[G.mascot] ? G.mascot : "fresca";
+const guide = (cls="fresca") => `<img class="${cls}" src="${IMG}pj/${MASC}.webp" alt="${PJ[MASC]}">`;
 const POPS = ["vamos","planazo","quefuerte","todobien"];
 const PRAISE = ["¡Muy bien!","¡Genial!","¡Perfecto!","¡Fenomenal!","¡Bravo!","¡Excelente!","¡Fantástico!"];
 const KEY = "aJugar-" + G.id;
@@ -109,6 +112,7 @@ const ACH = [
   {id:"oro",     ico:"🥇", n:{en:"Golden album",sv:"Guldalbum"},                               d:{en:"Get every gold sticker",sv:"Få alla guldklistermärken"}, ok:()=>groupUnits().every(u=>state.gold[u])}
 ];
 const RARES = ACH.filter(a=>a.rare);
+const LEGEND = {primera:"manzana", perfecto:"pera", cien:"banana", deletreo:"arandano", detective:"durian", poliglota:"pina", racha:"coco", oro:"fresca"};
 const TITLES = [[0,"Aprendiz"],[50,"Explorador/a"],[150,"Experto/a"],[300,"Maestro/a del español"]];
 function titleInfo(){ let t=TITLES[0], nx=null; TITLES.forEach((x,i)=>{ if(state.stars>=x[0]){ t=x; nx=TITLES[i+1]||null; } }); return {name: state.ach.oro ? "👑 Leyenda" : t[1], next: nx}; }
 function checkAch(){ const fresh=[]; ACH.forEach(a=>{ if(!state.ach[a.id] && a.ok()){ state.ach[a.id]=new Date().toISOString().slice(0,10); fresh.push(a); } }); if(fresh.length) save(); return fresh; }
@@ -117,7 +121,7 @@ function albumSummary(){
   const ti=titleInfo(), unlocked=Math.min(STICKERS.length, Math.floor(state.stars/PER)), us=groupUnits();
   const nRare=RARES.filter(a=>state.ach[a.id]).length, nGold=us.filter(u=>state.gold[u]).length;
   return `<div class="panel albumsum"><div><p class="label">${S.album}</p><div class="ttl">${ti.name}</div>
-     <div class="counts"><span>⭐ ${unlocked}/${STICKERS.length}</span><span>✨ ${nRare}/${RARES.length}</span><span>🥇 ${nGold}/${us.length}</span><span>👑 ${state.ach.oro?1:0}/1</span></div></div>
+     <div class="counts"><span>⭐ ${unlocked}/${STICKERS.length}</span><span>✨ ${nRare}/${RARES.length}</span><span>🥇 ${nGold}/${us.length}</span><span>👑 ${Object.keys(LEGEND).filter(k=>state.ach[k]).length}/8</span></div></div>
      <button class="next" id="toAlbum">${S.seeAlbum}</button></div>`;
 }
 function album(){
@@ -126,14 +130,13 @@ function album(){
   app.innerHTML = `
   <div class="topbar"><button class="back" id="toUnits">${S.units}</button><div style="flex:1"></div>${starsHTML()}</div>
   <header><h1 class="outline"><span class="w2">${S.album.replace("📒 ","")}</span><span class="sub">📒 ${esc(G.name)}</span></h1></header>
-  <div class="panel titlebox"><img class="fresca" src="${IMG}fresca.webp" alt=""><div><span class="sub">${S.title}</span><div class="ttl">${ti.name}</div>
+  <div class="panel titlebox">${guide()}<div><span class="sub">${S.title}</span><div class="ttl">${ti.name}</div>
     <span class="sub">${ti.next?`${S.next} ${ti.next[0]} ⭐ → ${ti.next[1]}`:S.maxTitle}</span></div></div>
   <div class="panel"><p class="label">${S.ach}</p><div class="achs">${ACH.map(a=>`<div class="achv ${state.ach[a.id]?"on":""}"><span class="ai">${a.ico}</span><b>${a.n[L]}</b><span>${a.d[L]}</span>${a.rare?`<i>✨</i>`:""}</div>`).join("")}</div></div>
   <div class="panel"><p class="label">${S.rare}</p><div class="rares">${RARES.map(a=>`<div class="rarest ${state.ach[a.id]?"on":""}"><img src="${IMG}${a.rare}.webp" alt=""><span>${state.ach[a.id]?"":a.ico+" "+a.n[L]}</span></div>`).join("")}</div></div>
   <div class="panel"><p class="label">${S.gold}</p><p class="note" style="margin-top:0">${S.goldHow}</p><div class="golds">${us.map(id=>`<div class="goldcell">${goldBadge(UNITS[id], state.gold[id], true)}<span>${esc(UNITS[id].title)}</span></div>`).join("")}</div></div>
-  <div class="panel"><p class="label">${S.legend}</p><div class="legends">
-     <div class="legst ${state.ach.oro?"on":""}"><img src="${IMG}fresca.webp" alt="Fresca"><b>Fresca</b><span>🥇 ${ACH.find(a=>a.id==="oro").d[L]}</span></div>
-     ${[1,2,3].map(()=>`<div class="legst"><span class="q">?</span><b>${S.soon}</b><span>✏️ Elliot</span></div>`).join("")}</div></div>
+  <div class="panel"><p class="label">${S.legend}</p><div class="legends">${Object.entries(LEGEND).map(([aid,pj])=>{const a=ACH.find(x=>x.id===aid), on=!!state.ach[aid];
+     return `<div class="legst ${on?"on":""}"><img src="${IMG}pj/${pj}_card.webp" alt="${PJ[pj]}"><b>${on?PJ[pj]:"???"}</b><span>${a.ico} ${a.n[L]}</span></div>`;}).join("")}</div></div>
   <div class="panel"><p class="label">${S.common} <span class="sub">${S.toNext(PER - state.stars % PER)}</span></p>
     <div class="shelf">${STICKERS.map((s,i)=>`<span class="${i<unlocked?'':'locked'}">${s}</span>`).join("")}</div></div>
   <footer>${S.showTeacher}</footer>`;
@@ -148,13 +151,13 @@ function home(){
   app.innerHTML = `
   <a class="home" href="../index.html">🏠 ¡A jugar!</a>
   <header><h1 class="outline"><span class="w1">¡Juega</span> <span class="w2">en</span> <span class="w3">español!</span><span class="sub">${esc(G.name)} · ${S.practice}</span></h1>${starsHTML()}</header>
-  <div class="fresca-row"><img class="fresca" src="${IMG}fresca.webp" alt="Fresca"><div class="bubble">${S.hello}</div></div>
+  <div class="fresca-row">${guide()}<div class="bubble">${S.hello.replace("%N",PJ[MASC])}</div></div>
   <div class="panel"><p class="label">${S.chooseUnit}</p>
     <div class="units">${units.map(id=>{const u=window.UNITS[id]; return `<button class="unitcard ${id===G.current?'now':''}" data-u="${id}">${id===G.current?`<i class="badge">${S.now}</i>`:""}<span class="ico">${u.icon}${state.gold[id]?` <i class="goldmini">🥇</i>`:""}</span>${G.labels&&G.labels[id]?`<i class="kap">${esc(G.labels[id])}</i>`:""}<b>${esc(u.title)}</b><span>${esc(tr(u.sub))}</span></button>`;}).join("")}</div>
   </div>
   <a class="unitcard" href="../verbos/?lang=${L}" style="background:var(--purple);color:#fff;text-decoration:none;margin-bottom:18px;display:flex"><span class="ico">🔐</span><b>¡Escapa de los verbos!</b><span style="color:#fff">${S.escape}</span></a>
   ${albumSummary()}
-  <footer>✏️ Fresca: diseño de Elliot · ${S.footer}</footer>`;
+  <footer>✏️ Fresca: diseño original de Elliot · ${S.footer}</footer>`;
   app.querySelectorAll(".unitcard[data-u]").forEach(b=>b.onclick=()=>{ location.hash = b.dataset.u; });
   document.getElementById("toAlbum").onclick = ()=>{ location.hash = "album"; };
 }
@@ -172,7 +175,7 @@ function unitMenu(){
   app.innerHTML = `
   <div class="topbar"><button class="back" id="toUnits">${S.units}</button><div style="flex:1"></div>${starsHTML()}</div>
   <header><h1 class="outline"><span class="w1">${esc(U.title)}</span><span class="sub">${U.icon} ${esc(G.name)} · ${esc(tr(U.sub))}</span></h1></header>
-  <div class="fresca-row"><img class="fresca" src="${IMG}fresca.webp" alt="Fresca"><div class="bubble">${S.pick}</div></div>
+  <div class="fresca-row">${guide()}<div class="bubble">${S.pick}</div></div>
   <div class="panel"><p class="label">${S.chooseTopic}</p>
     <div class="topics">${Object.entries(U.topics).map(([k,v])=>`<button class="topic ${k===cur?'on':''}" data-t="${k}">${v.icon} ${esc(tr(v.name))}</button>`).join("")}</div>
     <p class="note">${S.topicNote}</p></div>
@@ -203,11 +206,11 @@ function finish(again, earned, newSticker, total){
   const st = newSticker ? STICKERS[Math.min(STICKERS.length, Math.floor(state.stars/PER))-1] : null;
   app.innerHTML = `
   <div class="topbar"><button class="back" id="back">${S.back}</button><div style="flex:1"></div>${starsHTML()}</div>
-  <div class="stage end"><img src="${IMG}chao.webp" style="width:min(320px,75%);transform:rotate(-3deg)" alt="¡Chao pescao!"><br><img class="fresca" src="${IMG}fresca.webp" alt="Fresca"><h2 class="outline">${rnd(PRAISE)}</h2>
+  <div class="stage end"><img src="${IMG}chao.webp" style="width:min(320px,75%);transform:rotate(-3deg)" alt="¡Chao pescao!"><br>${guide()}<h2 class="outline">${rnd(PRAISE)}</h2>
     <div style="font-size:24px;font-weight:800">${S.youGot(earned)}</div>
     ${st?`<div class="newsticker">${S.newSticker}<span>${st}</span></div>`:""}
     ${newGold?`<div class="newsticker gold">${S.newGold}<span>${goldBadge(U,true,true)}</span></div>`:""}
-    ${fresh.map(a=>`<div class="newsticker">${S.newAch} ${a.ico} <b>${a.n[L]}</b>${a.rare?`<span><img src="${IMG}${a.rare}.webp" alt="" style="width:160px"></span>`:""}</div>`).join("")}
+    ${fresh.map(a=>`<div class="newsticker">${S.newAch} ${a.ico} <b>${a.n[L]}</b><span>${a.rare?`<img src="${IMG}${a.rare}.webp" alt="" style="width:150px">`:""}${LEGEND[a.id]?`<img src="${IMG}pj/${LEGEND[a.id]}_card.webp" alt="" style="width:120px;margin-left:8px">`:""}</span></div>`).join("")}
     <div class="opts" style="margin-top:22px"><button class="next" id="again">${S.again}</button>
     <button class="next" id="tomenu" style="background:var(--green);box-shadow:0 4px 0 #1f8a5d">${S.menu}</button>${(fresh.length||newGold)?`<button class="next" id="toAlb" style="background:var(--lime)">${S.album}</button>`:""}</div></div>`;
   const ta=document.getElementById("toAlb"); if(ta) ta.onclick=()=>{ location.hash="album"; };
@@ -223,7 +226,7 @@ function run(id, again, qs, renderQ){
     renderQ(stage, qs[i], ok=>{ if(ok){ earned++; if(id==="spell"){ state.spellOk++; save(); } if(addStar()) sticker=true; } i++; setTimeout(next, 1300); }); };
   next();
 }
-function oops(fb, msg){ fb.innerHTML = `<img src="${IMG}fresca.webp" alt=""> ${msg || S.tryAgain}`; }
+function oops(fb, msg){ fb.innerHTML = `<img src="${IMG}pj/${MASC}_icon.webp" alt=""> ${msg || S.tryAgain}`; }
 let lastPop = 0;
 function praise(fb, extra){
   fb.textContent = rnd(PRAISE) + (extra ? " " + extra : "");

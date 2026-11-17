@@ -6,7 +6,7 @@
 <title>English Fun · ¡A jugar!</title>
 <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../engine/games.css">
-<link rel="icon" href="../img/fresca.webp">
+<link rel="icon" href="../img/pj/pera_icon.webp">
 <style>
   .sv{display:block;font-family:'Nunito',sans-serif;font-size:.62em;color:var(--soft);font-weight:800;margin-top:2px;letter-spacing:0;text-shadow:none}
   .task .sv{font-size:16px;color:#3a3a3a}
@@ -123,7 +123,7 @@ function menu(){
     <h1 class="outline"><span class="w3">English</span> <span class="w1">Fun!</span></h1>
     <div class="stars">⭐ <span id="starCount">${state.stars}</span></div>
   </header>
-  <div class="fresca-row"><img class="fresca" src="../img/fresca.webp" alt="Fresca"><div class="bubble">Hi! I'm Fresca. Let's play!<span class="sv">Hej! Jag heter Fresca. Nu spelar vi!</span></div></div>
+  <div class="fresca-row"><img class="fresca" src="../img/pj/pera.webp" alt="Pera"><div class="bubble">Hi! I'm Pera. Let's play!<span class="sv">Hej! Jag heter Pera. Nu spelar vi!</span></div></div>
   <div class="panel">
     <p class="label">1. Choose a topic <span class="sv">Välj ett tema</span></p>
     <div class="topics">${Object.entries(TOPICS).map(([k,v])=>`<button class="topic ${k===state.topic?'on':''}" data-t="${k}">${v.name}</button>`).join("")}</div>
@@ -162,7 +162,7 @@ function finish(gameFn, earned, newSticker){
   app.innerHTML = `
   <div class="topbar"><button class="back" id="back">← Menu</button><div style="flex:1"></div><div class="stars">⭐ <span id="starCount">${state.stars}</span></div></div>
   <div class="stage end">
-    <img class="fresca" src="../img/fresca.webp" alt="Fresca"><div class="big">🏆</div>
+    <img class="fresca" src="../img/pj/pera.webp" alt="Pera"><div class="big">🏆</div>
     <h2 class="outline">${rnd(PRAISE)}</h2>
     <div style="font-size:24px;font-weight:800">Du fick / You got ${earned} ⭐ <span class="sv">${rnd(PRAISE_SV)}</span></div>
     ${st?`<div class="newsticker">New sticker! / Nytt klistermärke!<span>${st}</span></div>`:""}
@@ -219,7 +219,7 @@ GAMES.match = function(){
       if(matched===set.length) setTimeout(()=>finish(GAMES.match,earned,sticker),1200);
     } else {
       misses++; [selPic,selWord].forEach(t=>{t.classList.remove("sel");t.classList.add("bad");setTimeout(()=>t.classList.remove("bad"),450);});
-      fb.innerHTML = `<img src="../img/fresca.webp" alt=""> Försök igen! / Try again!`;
+      fb.innerHTML = `<img src="../img/pj/pera_icon.webp" alt=""> Försök igen! / Try again!`;
     }
     selPic=selWord=null;
   };
@@ -238,7 +238,7 @@ GAMES.choose = function(){
     let first=true;
     stage.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
       if(b.dataset.o===w){ b.classList.add("ok"); stage.querySelectorAll(".opt").forEach(x=>x.disabled=true); say(w); stage.querySelector("#fb").textContent=rnd(PRAISE); done(first); }
-      else { first=false; b.classList.add("bad"); setTimeout(()=>{b.classList.remove("bad");b.classList.add("faded");},400); stage.querySelector("#fb").innerHTML=`<img src="../img/fresca.webp" alt=""> Försök igen! / Try again!`; }
+      else { first=false; b.classList.add("bad"); setTimeout(()=>{b.classList.remove("bad");b.classList.add("faded");},400); stage.querySelector("#fb").innerHTML=`<img src="../img/pj/pera_icon.webp" alt=""> Försök igen! / Try again!`; }
     });
   });
 };
@@ -258,7 +258,7 @@ GAMES.listen = function(){
     let first=true;
     stage.querySelectorAll(".picbtn").forEach(b=>b.onclick=()=>{
       if(b.dataset.o===w){ b.classList.add("ok"); stage.querySelectorAll(".picbtn").forEach(x=>x.disabled=true); stage.querySelector("#showw").style.visibility="visible"; stage.querySelector("#fb").textContent=rnd(PRAISE); done(first); }
-      else { first=false; b.classList.add("bad"); setTimeout(()=>{b.classList.remove("bad");b.classList.add("faded");},400); stage.querySelector("#fb").innerHTML=`<img src="../img/fresca.webp" alt=""> Lyssna igen! / Listen again!`; }
+      else { first=false; b.classList.add("bad"); setTimeout(()=>{b.classList.remove("bad");b.classList.add("faded");},400); stage.querySelector("#fb").innerHTML=`<img src="../img/pj/pera_icon.webp" alt=""> Lyssna igen! / Listen again!`; }
     });
   });
 };
@@ -343,7 +343,7 @@ GAMES.gap = function(){
     stage.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
       if(b.dataset.o===ans){ b.classList.add("ok"); stage.querySelectorAll(".opt").forEach(x=>x.disabled=true);
         stage.querySelector("#line").innerHTML = s.replace("___",`<b>${ans}</b>`); say(s.replace("___",ans)); stage.querySelector("#fb").textContent=rnd(PRAISE); done(first); }
-      else { first=false; b.classList.add("bad"); setTimeout(()=>{b.classList.remove("bad");b.classList.add("faded");},400); stage.querySelector("#fb").innerHTML=`<img src="../img/fresca.webp" alt=""> Försök igen! / Try again!`; }
+      else { first=false; b.classList.add("bad"); setTimeout(()=>{b.classList.remove("bad");b.classList.add("faded");},400); stage.querySelector("#fb").innerHTML=`<img src="../img/pj/pera_icon.webp" alt=""> Försök igen! / Try again!`; }
     });
   });
 };

@@ -12,11 +12,12 @@ const PARTS = [
   {id:"complemento", es:"el complemento", sym:"★"}
 ];
 
-/* Placeholder characters until Elliot's drawings arrive */
+/* Fresca (original design by Elliot) and her fruit friends */
 const CHARACTERS = [
-  {name:"Fresca", img:"../img/fresca.webp"},
-  {name:"Personaje 2"},{name:"Personaje 3"},{name:"Personaje 4"},
-  {name:"Personaje 5"},{name:"Personaje 6"},{name:"Personaje 7"},{name:"Personaje 8"}
+  {name:"Fresca", img:"../img/pj/fresca_card.webp"},{name:"Manzana", img:"../img/pj/manzana_card.webp"},
+  {name:"Pera", img:"../img/pj/pera_card.webp"},{name:"Banana", img:"../img/pj/banana_card.webp"},
+  {name:"Piña", img:"../img/pj/pina_card.webp"},{name:"Coco", img:"../img/pj/coco_card.webp"},
+  {name:"Arándano", img:"../img/pj/arandano_card.webp"},{name:"Durián", img:"../img/pj/durian_card.webp"}
 ];
 
 const DECKS = {

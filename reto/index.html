@@ -152,7 +152,7 @@ function scoreHTML(){
   return `<div class="score">
     <div class="team clase"><b>${t.clase}</b><span class="pts" id="pc">${G.clase}</span></div>
     <div class="qnum">${t.q} ${Math.min(G.i+1,G.qs.length)} ${t.of} ${G.qs.length}</div>
-    <div class="team fr"><span class="pts" id="pf">${G.fresca}</span><b>Fresca</b><img src="${IMG}fresca.webp" alt=""></div></div>`;
+    <div class="team fr"><span class="pts" id="pf">${G.fresca}</span><b>Fresca</b><img src="${IMG}pj/fresca_icon.webp" alt=""></div></div>`;
 }
 function show(){
   clearInterval(timer);
@@ -217,7 +217,7 @@ function end(){
   app.innerHTML = `
   <div class="score">
     <div class="team clase"><b>${t.clase}</b><span class="pts">${G.clase}</span></div><div></div>
-    <div class="team fr"><span class="pts">${G.fresca}</span><b>Fresca</b><img src="${IMG}fresca.webp" alt=""></div></div>
+    <div class="team fr"><span class="pts">${G.fresca}</span><b>Fresca</b><img src="${IMG}pj/fresca_icon.webp" alt=""></div></div>
   <div class="board winner">
     <img class="st" src="${IMG}${st}.webp" alt=""><br><img class="fresca" src="${IMG}fresca.webp" alt="Fresca" style="width:auto;height:min(130px,16vh)">
     <div class="tit outline" style="color:${res==="win"?"var(--lime)":"var(--pink)"}">${t[res]}</div>
