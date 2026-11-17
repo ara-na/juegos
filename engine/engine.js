@@ -23,6 +23,9 @@ const S = {
        stickers:"🏅 My stickers", toNext:n=>`${n} ⭐ to the next sticker`, meaning:"ENGLISH", gloss:"EN:",
        help:"💡 Help", showWord:"👀 Show the word", tryAgain:"¡Otra vez! Try again 🙂", listenAgain:"¡Escucha otra vez! Listen again 👂",
        youGot:n=>`You got ${n} ⭐`, newSticker:"¡Nueva pegatina! New sticker!", again:"🔁 Otra vez", menu:"🏠 Menu",
+       album:"📒 My album", seeAlbum:"Open my album 📒", title:"Your title", ach:"🏅 Achievements", rare:"✨ Rare stickers", gold:"🥇 Gold stickers", legend:"👑 Legendary", common:"⭐ Common stickers",
+       goldHow:"Play a perfect game (no mistakes) in a unit to get its gold sticker.", soon:"Coming soon", newAch:"New achievement!", newGold:"New gold sticker!",
+       showTeacher:"Complete the album and show it to your teacher 😉", next:"next title at", maxTitle:"Top title!",
        escape:"Escape room: present, ser/estar/tener/ir, future, perfect, gerund", hello:"¡Hola! I'm Fresca. Choose a unit!", pick:"¡Vamos! Pick a topic and a game.",
        footer:"No accounts, no personal data. Your stars are saved only on this computer.",
        g:{ match:["Match it","Pair the Spanish word with its meaning","Click a meaning, then the Spanish word"],
@@ -39,6 +42,9 @@ const S = {
        stickers:"🏅 Mina klistermärken", toNext:n=>`${n} ⭐ till nästa klistermärke`, meaning:"SVENSKA", gloss:"SV:",
        help:"💡 Hjälp", showWord:"👀 Visa ordet", tryAgain:"¡Otra vez! Försök igen 🙂", listenAgain:"¡Escucha otra vez! Lyssna igen 👂",
        youGot:n=>`Du fick ${n} ⭐`, newSticker:"¡Nueva pegatina! Nytt klistermärke!", again:"🔁 Otra vez", menu:"🏠 Meny",
+       album:"📒 Mitt album", seeAlbum:"Öppna mitt album 📒", title:"Din titel", ach:"🏅 Prestationer", rare:"✨ Sällsynta klistermärken", gold:"🥇 Guldklistermärken", legend:"👑 Legendariska", common:"⭐ Vanliga klistermärken",
+       goldHow:"Spela en perfekt omgång (inga fel) i ett tema för att få dess guldklistermärke.", soon:"Kommer snart", newAch:"Ny prestation!", newGold:"Nytt guldklistermärke!",
+       showTeacher:"Fyll albumet och visa det för din lärare 😉", next:"nästa titel vid", maxTitle:"Högsta titeln!",
        escape:"Escape room: presens, ser/estar/tener/ir, futurum, perfekt, gerundium", hello:"¡Hola! Jag heter Fresca. Välj ett tema!", pick:"¡Vamos! Välj ett område och ett spel.",
        footer:"Inga konton, inga personuppgifter. Dina stjärnor sparas bara på den här datorn.",
        g:{ match:["Para ihop","Para ihop det spanska ordet med betydelsen","Klicka på en betydelse och sedan på det spanska ordet"],
@@ -58,8 +64,9 @@ const POPS = ["vamos","planazo","quefuerte","todobien"];
 const PRAISE = ["¡Muy bien!","¡Genial!","¡Perfecto!","¡Fenomenal!","¡Bravo!","¡Excelente!","¡Fantástico!"];
 const KEY = "aJugar-" + G.id;
 
-let state = {stars:0, topics:{}};
+let state = {stars:0, topics:{}, ach:{}, gold:{}, played:{}, days:[], games:0, spellOk:0};
 try{ const s = JSON.parse(localStorage.getItem(KEY)||"null"); if(s) state = Object.assign(state, s); }catch(e){}
+["ach","gold","played"].forEach(k=>{ if(!state[k]) state[k]={}; }); if(!state.days) state.days=[]; state.games=state.games||0; state.spellOk=state.spellOk||0;
 const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} };
 
 const app = document.getElementById("app");
@@ -87,6 +94,52 @@ function say(text){ try{ speechSynthesis.cancel(); const u = new SpeechSynthesis
 function addStar(){ const b = Math.floor(state.stars/PER); state.stars++; save(); const el=document.getElementById("starCount"); if(el) el.textContent=state.stars; return Math.floor(state.stars/PER) > b; }
 const starsHTML = () => `<div class="stars">⭐ <span id="starCount">${state.stars}</span></div>`;
 
+/* ---------- album: achievements, rare, gold, legendary ---------- */
+const escapeSave = () => { try{ return JSON.parse(localStorage.getItem("aJugar-verbos")||"{}"); }catch(e){ return {}; } };
+const groupUnits = () => G.units.filter(id=>window.UNITS[id]);
+const ACH = [
+  {id:"primera", ico:"🎮", rare:"hola",     n:{en:"First game!",sv:"Första spelet!"},          d:{en:"Finish a game",sv:"Spela klart ett spel"}, ok:()=>state.games>=1},
+  {id:"perfecto",ico:"💯", rare:"todobien", n:{en:"Perfect!",sv:"Perfekt!"},                   d:{en:"A game with no mistakes",sv:"Ett spel utan fel"}, ok:()=>Object.keys(state.gold).length>=1},
+  {id:"cien",    ico:"⭐", rare:"vamos",    n:{en:"100 stars",sv:"100 stjärnor"},              d:{en:"Collect 100 stars",sv:"Samla 100 stjärnor"}, ok:()=>state.stars>=100},
+  {id:"deletreo",ico:"🔤", rare:"planazo",  n:{en:"Spelling ace",sv:"Stavningsproffs"},        d:{en:"Spell 10 words right first time",sv:"Stava 10 ord rätt på första försöket"}, ok:()=>state.spellOk>=10},
+  {id:"detective",ico:"🔐",rare:"quefuerte",n:{en:"Verb detective",sv:"Verbdetektiv"},         d:{en:"Escape from the 5 verb rooms",sv:"Rym från de 5 verbrummen"}, ok:()=>{const e=escapeSave(); return ["presente","irregulares","futuro","perfecto","gerundio"].every(k=>e[k]);}},
+  {id:"poliglota",ico:"🌍",rare:"chao",     n:{en:"Explorer",sv:"Upptäckare"},                d:{en:"Play every unit",sv:"Spela alla teman"}, ok:()=>groupUnits().every(u=>state.played[u])},
+  {id:"racha",   ico:"🔥", n:{en:"On fire",sv:"Het som eld"},                                  d:{en:"Play on 5 different days",sv:"Spela 5 olika dagar"}, ok:()=>state.days.length>=5},
+  {id:"llave",   ico:"🗝️", n:{en:"Master key",sv:"Huvudnyckel"},                               d:{en:"Escape from the secret room",sv:"Rym från det hemliga rummet"}, ok:()=>!!escapeSave().secreto},
+  {id:"oro",     ico:"🥇", n:{en:"Golden album",sv:"Guldalbum"},                               d:{en:"Get every gold sticker",sv:"Få alla guldklistermärken"}, ok:()=>groupUnits().every(u=>state.gold[u])}
+];
+const RARES = ACH.filter(a=>a.rare);
+const TITLES = [[0,"Aprendiz"],[50,"Explorador/a"],[150,"Experto/a"],[300,"Maestro/a del español"]];
+function titleInfo(){ let t=TITLES[0], nx=null; TITLES.forEach((x,i)=>{ if(state.stars>=x[0]){ t=x; nx=TITLES[i+1]||null; } }); return {name: state.ach.oro ? "👑 Leyenda" : t[1], next: nx}; }
+function checkAch(){ const fresh=[]; ACH.forEach(a=>{ if(!state.ach[a.id] && a.ok()){ state.ach[a.id]=new Date().toISOString().slice(0,10); fresh.push(a); } }); if(fresh.length) save(); return fresh; }
+function goldBadge(u, on, big){ const z = big?78:58; return `<span class="goldst ${on?"on":""}" style="width:${z}px;height:${z}px;font-size:${Math.round(z*.5)}px" title="${esc(u.title)}">${on?u.icon:"?"}</span>`; }
+function albumSummary(){
+  const ti=titleInfo(), unlocked=Math.min(STICKERS.length, Math.floor(state.stars/PER)), us=groupUnits();
+  const nRare=RARES.filter(a=>state.ach[a.id]).length, nGold=us.filter(u=>state.gold[u]).length;
+  return `<div class="panel albumsum"><div><p class="label">${S.album}</p><div class="ttl">${ti.name}</div>
+     <div class="counts"><span>⭐ ${unlocked}/${STICKERS.length}</span><span>✨ ${nRare}/${RARES.length}</span><span>🥇 ${nGold}/${us.length}</span><span>👑 ${state.ach.oro?1:0}/1</span></div></div>
+     <button class="next" id="toAlbum">${S.seeAlbum}</button></div>`;
+}
+function album(){
+  checkAch();
+  const ti=titleInfo(), unlocked=Math.min(STICKERS.length, Math.floor(state.stars/PER)), us=groupUnits();
+  app.innerHTML = `
+  <div class="topbar"><button class="back" id="toUnits">${S.units}</button><div style="flex:1"></div>${starsHTML()}</div>
+  <header><h1 class="outline"><span class="w2">${S.album.replace("📒 ","")}</span><span class="sub">📒 ${esc(G.name)}</span></h1></header>
+  <div class="panel titlebox"><img class="fresca" src="${IMG}fresca.webp" alt=""><div><span class="sub">${S.title}</span><div class="ttl">${ti.name}</div>
+    <span class="sub">${ti.next?`${S.next} ${ti.next[0]} ⭐ → ${ti.next[1]}`:S.maxTitle}</span></div></div>
+  <div class="panel"><p class="label">${S.ach}</p><div class="achs">${ACH.map(a=>`<div class="achv ${state.ach[a.id]?"on":""}"><span class="ai">${a.ico}</span><b>${a.n[L]}</b><span>${a.d[L]}</span>${a.rare?`<i>✨</i>`:""}</div>`).join("")}</div></div>
+  <div class="panel"><p class="label">${S.rare}</p><div class="rares">${RARES.map(a=>`<div class="rarest ${state.ach[a.id]?"on":""}"><img src="${IMG}${a.rare}.webp" alt=""><span>${state.ach[a.id]?"":a.ico+" "+a.n[L]}</span></div>`).join("")}</div></div>
+  <div class="panel"><p class="label">${S.gold}</p><p class="note" style="margin-top:0">${S.goldHow}</p><div class="golds">${us.map(id=>`<div class="goldcell">${goldBadge(UNITS[id], state.gold[id], true)}<span>${esc(UNITS[id].title)}</span></div>`).join("")}</div></div>
+  <div class="panel"><p class="label">${S.legend}</p><div class="legends">
+     <div class="legst ${state.ach.oro?"on":""}"><img src="${IMG}fresca.webp" alt="Fresca"><b>Fresca</b><span>🥇 ${ACH.find(a=>a.id==="oro").d[L]}</span></div>
+     ${[1,2,3].map(()=>`<div class="legst"><span class="q">?</span><b>${S.soon}</b><span>✏️ Elliot</span></div>`).join("")}</div></div>
+  <div class="panel"><p class="label">${S.common} <span class="sub">${S.toNext(PER - state.stars % PER)}</span></p>
+    <div class="shelf">${STICKERS.map((s,i)=>`<span class="${i<unlocked?'':'locked'}">${s}</span>`).join("")}</div></div>
+  <footer>${S.showTeacher}</footer>`;
+  document.getElementById("toUnits").onclick = ()=>{ location.hash = ""; };
+}
+
 /* ---------- group home: list of units ---------- */
 function home(){
   U = null; if(location.hash) history.replaceState(null,"",location.pathname);
@@ -97,13 +150,13 @@ function home(){
   <header><h1 class="outline"><span class="w1">¡Juega</span> <span class="w2">en</span> <span class="w3">español!</span><span class="sub">${esc(G.name)} · ${S.practice}</span></h1>${starsHTML()}</header>
   <div class="fresca-row"><img class="fresca" src="${IMG}fresca.webp" alt="Fresca"><div class="bubble">${S.hello}</div></div>
   <div class="panel"><p class="label">${S.chooseUnit}</p>
-    <div class="units">${units.map(id=>{const u=window.UNITS[id]; return `<button class="unitcard ${id===G.current?'now':''}" data-u="${id}">${id===G.current?`<i class="badge">${S.now}</i>`:""}<span class="ico">${u.icon}</span>${G.labels&&G.labels[id]?`<i class="kap">${esc(G.labels[id])}</i>`:""}<b>${esc(u.title)}</b><span>${esc(tr(u.sub))}</span></button>`;}).join("")}</div>
+    <div class="units">${units.map(id=>{const u=window.UNITS[id]; return `<button class="unitcard ${id===G.current?'now':''}" data-u="${id}">${id===G.current?`<i class="badge">${S.now}</i>`:""}<span class="ico">${u.icon}${state.gold[id]?` <i class="goldmini">🥇</i>`:""}</span>${G.labels&&G.labels[id]?`<i class="kap">${esc(G.labels[id])}</i>`:""}<b>${esc(u.title)}</b><span>${esc(tr(u.sub))}</span></button>`;}).join("")}</div>
   </div>
   <a class="unitcard" href="../verbos/?lang=${L}" style="background:var(--purple);color:#fff;text-decoration:none;margin-bottom:18px;display:flex"><span class="ico">🔐</span><b>¡Escapa de los verbos!</b><span style="color:#fff">${S.escape}</span></a>
-  <div class="panel"><p class="label">${S.stickers} <span class="sub">${S.toNext(PER - state.stars % PER)}</span></p>
-    <div class="shelf">${STICKERS.map((s,i)=>`<span class="${i<unlocked?'':'locked'}">${s}</span>`).join("")}</div></div>
+  ${albumSummary()}
   <footer>✏️ Fresca: diseño de Elliot · ${S.footer}</footer>`;
-  app.querySelectorAll(".unitcard").forEach(b=>b.onclick=()=>{ location.hash = b.dataset.u; });
+  app.querySelectorAll(".unitcard[data-u]").forEach(b=>b.onclick=()=>{ location.hash = b.dataset.u; });
+  document.getElementById("toAlbum").onclick = ()=>{ location.hash = "album"; };
 }
 
 /* ---------- unit menu ---------- */
@@ -140,26 +193,34 @@ function shell(id){
   return document.getElementById("stage");
 }
 function setBar(d,t){ const i=app.querySelector(".bar i"); if(i) i.style.width = Math.round(d/t*100)+"%"; }
-function finish(again, earned, newSticker){
+function finish(again, earned, newSticker, total){
   confetti();
+  const perfect = total && earned>=total, newGold = perfect && !state.gold[U.id];
+  if(perfect) state.gold[U.id]=true;
+  state.games++; state.played[U.id]=true;
+  const today=new Date().toISOString().slice(0,10); if(!state.days.includes(today)) state.days.push(today);
+  save(); const fresh = checkAch();
   const st = newSticker ? STICKERS[Math.min(STICKERS.length, Math.floor(state.stars/PER))-1] : null;
   app.innerHTML = `
   <div class="topbar"><button class="back" id="back">${S.back}</button><div style="flex:1"></div>${starsHTML()}</div>
   <div class="stage end"><img src="${IMG}chao.webp" style="width:min(320px,75%);transform:rotate(-3deg)" alt="¡Chao pescao!"><br><img class="fresca" src="${IMG}fresca.webp" alt="Fresca"><h2 class="outline">${rnd(PRAISE)}</h2>
     <div style="font-size:24px;font-weight:800">${S.youGot(earned)}</div>
     ${st?`<div class="newsticker">${S.newSticker}<span>${st}</span></div>`:""}
+    ${newGold?`<div class="newsticker gold">${S.newGold}<span>${goldBadge(U,true,true)}</span></div>`:""}
+    ${fresh.map(a=>`<div class="newsticker">${S.newAch} ${a.ico} <b>${a.n[L]}</b>${a.rare?`<span><img src="${IMG}${a.rare}.webp" alt="" style="width:160px"></span>`:""}</div>`).join("")}
     <div class="opts" style="margin-top:22px"><button class="next" id="again">${S.again}</button>
-    <button class="next" id="tomenu" style="background:var(--green);box-shadow:0 4px 0 #1f8a5d">${S.menu}</button></div></div>`;
+    <button class="next" id="tomenu" style="background:var(--green);box-shadow:0 4px 0 #1f8a5d">${S.menu}</button>${(fresh.length||newGold)?`<button class="next" id="toAlb" style="background:var(--lime)">${S.album}</button>`:""}</div></div>`;
+  const ta=document.getElementById("toAlb"); if(ta) ta.onclick=()=>{ location.hash="album"; };
   document.getElementById("back").onclick = unitMenu;
   document.getElementById("tomenu").onclick = unitMenu;
   document.getElementById("again").onclick = again;
-  say(st ? "¡Nueva pegatina! ¡Chao pescao!" : "¡Muy bien! ¡Chao pescao!");
+  say(fresh.length||newGold ? "¡Qué fuerte! ¡Nueva pegatina!" : st ? "¡Nueva pegatina! ¡Chao pescao!" : "¡Muy bien! ¡Chao pescao!");
 }
 function confetti(){ const e=["⭐","🎉","✨","🌟","🎊"]; for(let i=0;i<26;i++){ const s=document.createElement("div"); s.className="confetti"; s.textContent=rnd(e); s.style.left=Math.random()*100+"vw"; s.style.animationDuration=(1.6+Math.random()*1.8)+"s"; document.body.appendChild(s); setTimeout(()=>s.remove(),3600); } }
 function run(id, again, qs, renderQ){
   let i=0, earned=0, sticker=false; const stage = shell(id);
-  const next = () => { if(i>=qs.length){ finish(again, earned, sticker); return; } setBar(i, qs.length);
-    renderQ(stage, qs[i], ok=>{ if(ok){ earned++; if(addStar()) sticker=true; } i++; setTimeout(next, 1300); }); };
+  const next = () => { if(i>=qs.length){ finish(again, earned, sticker, qs.length); return; } setBar(i, qs.length);
+    renderQ(stage, qs[i], ok=>{ if(ok){ earned++; if(id==="spell"){ state.spellOk++; save(); } if(addStar()) sticker=true; } i++; setTimeout(next, 1300); }); };
   next();
 }
 function oops(fb, msg){ fb.innerHTML = `<img src="${IMG}fresca.webp" alt=""> ${msg || S.tryAgain}`; }
@@ -183,7 +244,7 @@ GAMES.match = function(){
   const check = () => { if(!sp||!sw) return;
     if(sp.dataset.w===sw.dataset.w){ [sp,sw].forEach(t=>{t.classList.remove("sel");t.classList.add("ok");t.disabled=true;});
       say(sw.dataset.w); matched++; setBar(matched,set.length); if(!miss){ earned++; if(addStar()) sticker=true; } miss=0; praise(fb);
-      if(matched===set.length) setTimeout(()=>finish(GAMES.match,earned,sticker),1300);
+      if(matched===set.length) setTimeout(()=>finish(GAMES.match,earned,sticker,set.length),1300);
     } else { miss++; [sp,sw].forEach(t=>{t.classList.remove("sel");t.classList.add("bad");setTimeout(()=>t.classList.remove("bad"),450);}); oops(fb); }
     sp=sw=null; };
   stage.querySelectorAll(".tile.pic").forEach(t=>t.onclick=()=>{ stage.querySelectorAll(".tile.pic").forEach(x=>x.classList.remove("sel")); sp=t; t.classList.add("sel"); check(); });
@@ -232,7 +293,7 @@ GAMES.memory = function(){
   els.forEach(el=>el.onclick=()=>{ const i=+el.dataset.i; if(lock||open.includes(i)||el.classList.contains("done")) return; show(i); open.push(i);
     if(open.length===2){ const [a,b]=open; tries++;
       if(cards[a].w===cards[b].w && cards[a].type!==cards[b].type){ els[a].classList.add("done"); els[b].classList.add("done"); say(cards[a].w); found++; setBar(found,set.length); open=[]; praise(stage.querySelector("#fb"));
-        if(found===set.length){ const earned = tries<=10?6:tries<=14?5:4; let st=false; for(let k=0;k<earned;k++) if(addStar()) st=true; setTimeout(()=>finish(GAMES.memory,earned,st),1300); }
+        if(found===set.length){ const earned = tries<=10?6:tries<=14?5:4; let st=false; for(let k=0;k<earned;k++) if(addStar()) st=true; setTimeout(()=>finish(GAMES.memory,earned,st,tries<=8?earned:99),1300); }
       } else { lock=true; setTimeout(()=>{ hide(a); hide(b); open=[]; lock=false; },1100); } } });
 };
 GAMES.sentence = function(){
@@ -271,6 +332,7 @@ GAMES.qa = function(){
 /* ---------- routing: #unit-id opens a unit directly (good for QR codes) ---------- */
 function route(){
   const id = location.hash.slice(1);
+  if(id==="album"){ U=null; album(); window.scrollTo(0,0); return; }
   if(id && window.UNITS[id] && G.units.includes(id)){ U = window.UNITS[id]; if(!U.topics[state.topics[U.id]]) state.topics[U.id] = Object.keys(U.topics)[0]; unitMenu(); }
   else home();
   window.scrollTo(0,0);
