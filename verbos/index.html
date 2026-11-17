@@ -16,6 +16,7 @@
   .room .ico{font-size:44px;line-height:1}
   .room b{font-family:'Luckiest Guy',sans-serif;font-weight:400;font-size:25px;line-height:1.1}
   .room span{font-size:15px;font-weight:800}
+  .lockedroom{background:#c9c9c9!important;color:var(--ink)!important}
   .room .lvl{display:inline-block;background:#fff;border:2px solid var(--ink);border-radius:999px;padding:2px 10px;font-size:13px;font-weight:900;align-self:flex-start}
   .room .done{position:absolute;top:-12px;right:10px;background:var(--green);color:#fff;border:3px solid var(--ink);border-radius:999px;padding:3px 10px;font-weight:900;font-size:13px;transform:rotate(4deg)}
   .timer{background:#fff;border:3px solid var(--ink);border-radius:999px;padding:6px 14px;font-weight:900;font-size:20px;box-shadow:3px 3px 0 var(--ink)}
@@ -57,19 +58,29 @@ const T = {
    lock:"🔐 The padlock", open:"Open the door 🚪", wrongCode:"¡Ese no es el código! That's not the code.", rooms:"← Rooms", room:"← Room",
    found:"Number found! Write it down:", win:"You escaped in", next:"Next room →", again:"🔁 Otra vez", check:"Check ✔", almost:"Almost! Watch the accent:",
    answerIs:"The answer is:", typeIt:"Now type it yourself 🙂", tryAgain:"¡Otra vez! Try again", position:"N°", allGames:"🏠 ¡A jugar!",
-   names:{tabla:"The table",quien:"Who is it?",intruso:"The intruder",escribe:"Write it",escribe2:"Write it",traduce:"Translate",serestar:"Ser, estar, tener or ir?",ordena:"Word order",participio:"The participle",gerundio:"The gerund"},
+   names:{tabla:"The table",quien:"Who is it?",intruso:"The intruder",escribe:"Write it",escribe2:"Write it",traduce:"Translate",serestar:"Ser, estar, tener or ir?",ordena:"Word order",participio:"The participle",gerundio:"The gerund",tiempo:"Which tense?",quienMix:"Who is it?",marcador:"The time word",escribeMix:"Write it",traduceMix:"Translate"},
    how:{tabla:"Click the right form for each person, from top to bottom.",quien:"Who is doing it? Choose the right person.",intruso:"One form is wrong. Find it!",
         escribe:"Write the right form of the verb. Use the buttons for á é í ó ú ñ.",escribe2:"Write the right form of the verb. Use the buttons for á é í ó ú ñ.",traduce:"Choose the Spanish for:",
-        serestar:"Choose the right verb.",ordena:"Click the words in the right order.",participio:"Choose the right participle.",gerundio:"Choose the right gerund."} },
+        serestar:"Choose the right verb.",ordena:"Click the words in the right order.",participio:"Choose the right participle.",gerundio:"Choose the right gerund.",
+        tiempo:"Which tense is it?",quienMix:"All tenses mixed! Who is doing it?",marcador:"Look at the time word and choose the right form.",
+        escribeMix:"Look at the time word and write the right form. Use the buttons for á é í ó ú ñ.",traduceMix:"Careful – every option is a different tense!"},
+   tenses:{presente:"Present",futuro:"Future (ir a)",perfecto:"Perfect (haber)",gerundio:"Right now (estar + -ndo)"},
+   secretLocked:"🔒 Escape from the other 5 rooms to open this one!",
+   secretStory:"You found the secret classroom! Here all the tenses are mixed. Only real verb masters get out…" },
  sv:{ sub:"Digitalt escape room · spanska verb", story:"¡Socorro! Jag är inlåst i skolan! Varje klassrum har ett hänglås. Lös de 5 uppdragen, skriv upp siffrorna och öppna dörren.",
    choose:"Välj ett rum", best:"bästa tid", roomIntro:"Lös de 5 uppdragen. Varje uppdrag ger dig en siffra till hänglåset. Skriv upp siffrorna!",
    lock:"🔐 Hänglåset", open:"Öppna dörren 🚪", wrongCode:"¡Ese no es el código! Det är inte koden.", rooms:"← Rummen", room:"← Rummet",
    found:"Siffra hittad! Skriv upp den:", win:"Du rymde på", next:"Nästa rum →", again:"🔁 Otra vez", check:"Kolla ✔", almost:"Nästan! Tänk på accenten:",
    answerIs:"Svaret är:", typeIt:"Skriv det nu själv 🙂", tryAgain:"¡Otra vez! Försök igen", position:"Nr", allGames:"🏠 ¡A jugar!",
-   names:{tabla:"Tabellen",quien:"Vem är det?",intruso:"Inkräktaren",escribe:"Skriv",escribe2:"Skriv",traduce:"Översätt",serestar:"Ser, estar, tener eller ir?",ordena:"Ordningen",participio:"Participet",gerundio:"Gerundiet"},
+   names:{tabla:"Tabellen",quien:"Vem är det?",intruso:"Inkräktaren",escribe:"Skriv",escribe2:"Skriv",traduce:"Översätt",serestar:"Ser, estar, tener eller ir?",ordena:"Ordningen",participio:"Participet",gerundio:"Gerundiet",tiempo:"Vilken tid?",quienMix:"Vem är det?",marcador:"Tidsordet",escribeMix:"Skriv",traduceMix:"Översätt"},
    how:{tabla:"Klicka på rätt form för varje person, uppifrån och ner.",quien:"Vem gör det? Välj rätt person.",intruso:"En form är fel. Hitta den!",
         escribe:"Skriv rätt form av verbet. Använd knapparna för á é í ó ú ñ.",escribe2:"Skriv rätt form av verbet. Använd knapparna för á é í ó ú ñ.",traduce:"Välj den spanska formen för:",
-        serestar:"Välj rätt verb.",ordena:"Klicka på orden i rätt ordning.",participio:"Välj rätt particip.",gerundio:"Välj rätt gerundium."} }
+        serestar:"Välj rätt verb.",ordena:"Klicka på orden i rätt ordning.",participio:"Välj rätt particip.",gerundio:"Välj rätt gerundium.",
+        tiempo:"Vilken tid är det?",quienMix:"Alla tider blandade! Vem gör det?",marcador:"Titta på tidsordet och välj rätt form.",
+        escribeMix:"Titta på tidsordet och skriv rätt form. Använd knapparna för á é í ó ú ñ.",traduceMix:"Se upp – alla alternativ är olika tider!"},
+   tenses:{presente:"Presens",futuro:"Futurum (ir a)",perfecto:"Perfekt (haber)",gerundio:"Just nu (estar + -ndo)"},
+   secretLocked:"🔒 Rym från de andra 5 rummen för att öppna det här!",
+   secretStory:"Du hittade det hemliga klassrummet! Här är alla tider blandade. Bara riktiga verbmästare kommer ut…" }
 }[L];
 
 /* ---------------- verbs ---------------- */
@@ -153,8 +164,16 @@ const ROOMS = [
  {id:"gerundio", icon:"🎬", col:"var(--purple)", title:"Estar + gerundio", lvl:"Åk 9 · MYP 3-4",
   sub:{en:"estoy comiendo, está leyendo…", sv:"estoy comiendo, está leyendo…"},
   verbs:ALL, form:(v,p)=>IRR.estar[p]+" "+ger(v), split:(v,p)=>["",IRR.estar[p]," "+ger(v)], marker:"Ahora",
-  puzzles:["tabla","gerundio","quien","escribe","traduce"]}
+  puzzles:["tabla","gerundio","quien","escribe","traduce"]},
+ {id:"secreto", icon:"🗝️", col:"var(--ink)", dark:true, title:"El aula secreta", lvl:"Åk 9 · MYP 3-4", secret:true,
+  sub:{en:"All the tenses mixed", sv:"Alla tider blandade"},
+  verbs:REG, form:()=>"", split:()=>["","",""], marker:"",
+  puzzles:["tiempo","quienMix","marcador","escribeMix","traduceMix"]}
 ];
+const MAIN = ROOMS.filter(r=>!r.secret);
+const TENSE_ROOMS = ["presente","futuro","perfecto","gerundio"].map(id=>ROOMS.find(r=>r.id===id));
+const MARK = {presente:"Normalmente", futuro:"Mañana", perfecto:"Hoy", gerundio:"Ahora mismo"};
+const secretOpen = () => new URLSearchParams(location.search).has("secreto") || MAIN.every(r=>save[r.id]);
 
 function gloss(room, v, p){
   if(L==="en"){
@@ -207,11 +226,17 @@ function home(){
   <header><h1 class="outline"><span class="w1">¡Escapa</span> <span class="w2">de los</span> <span class="w3">verbos!</span><span class="sub">🔐 ${T.sub}</span></h1></header>
   <div class="fresca-row"><img class="fresca" src="${IMG}fresca.webp" alt="Fresca"><div class="bubble story">${T.story}</div></div>
   <div class="panel"><p class="label">${T.choose}</p>
-   <div class="rooms">${ROOMS.map((r,i)=>`<button class="room" data-r="${i}" style="background:${r.col};${i%2?"transform:rotate(1deg)":"transform:rotate(-1deg)"}">
+   <div class="rooms">${ROOMS.map((r,i)=>{ const lock = r.secret && !secretOpen();
+     return `<button class="room ${lock?"lockedroom":""}" data-r="${i}" style="background:${r.col};${r.dark?"color:#fff;":""}${i%2?"transform:rotate(1deg)":"transform:rotate(-1deg)"}">
      ${save[r.id]?`<i class="done">🔓 ${fmt(save[r.id])}</i>`:""}
-     <span class="ico">${r.icon}</span><b>${r.title}</b><span>${r.sub[L]}</span><i class="lvl">${r.lvl}</i></button>`).join("")}</div></div>
+     <span class="ico">${lock?"🔒":r.icon}</span><b>${lock?"???":r.title}</b><span>${lock?T.secretLocked:r.sub[L]}</span><i class="lvl" style="color:var(--ink)">${r.lvl}</i></button>`;}).join("")}</div>
+   <div class="feedback" id="hfb"></div></div>
   <footer>✏️ Fresca: diseño de Elliot</footer>`;
-  app.querySelectorAll(".room").forEach(b=>b.onclick=()=>startRoom(+b.dataset.r));
+  app.querySelectorAll(".room").forEach(b=>b.onclick=()=>{
+    const r = ROOMS[+b.dataset.r];
+    if(r.secret && !secretOpen()){ bad(b); oops(document.getElementById("hfb"), T.secretLocked); return; }
+    startRoom(+b.dataset.r);
+  });
 }
 
 function startRoom(i){
@@ -226,7 +251,7 @@ function roomView(){
   app.innerHTML = `
   <div class="topbar"><button class="back" id="toRooms">${T.rooms}</button><div style="flex:1"></div>${timerHTML()}</div>
   <header><h1 class="outline"><span class="w1">${R.icon} ${R.title}</span><span class="sub">${R.lvl} · ${R.sub[L]}</span></h1></header>
-  <div class="fresca-row"><img class="fresca" src="${IMG}fresca.webp" alt="Fresca"><div class="bubble">${T.roomIntro}</div></div>
+  <div class="fresca-row"><img class="fresca" src="${IMG}fresca.webp" alt="Fresca"><div class="bubble">${R.secret?T.secretStory+"<br>":""}${T.roomIntro}</div></div>
   <div class="chests">${R.puzzles.map((p,k)=>`<button class="chest ${S.solved[k]?"solved":""}" data-k="${k}">
      ${S.solved[k]?`<span class="digit">${S.digits[k]}</span>`:`<span class="big">🧰</span>`}<b>${k+1}. ${T.names[p]}</b></button>`).join("")}</div>
   <div class="panel" style="margin-top:20px"><p class="label">${T.lock}</p>
@@ -248,9 +273,9 @@ function win(){
   const secs = Math.floor((Date.now()-S.start)/1000);
   if(!save[R.id] || secs < save[R.id]){ save[R.id]=secs; store(); }
   confetti(); say("¡Chao pescao!");
-  const nxt = S.i+1 < ROOMS.length;
+  const nxt = S.i+1 < ROOMS.length && (!ROOMS[S.i+1].secret || secretOpen());
   app.innerHTML = `<div class="stage end">
-    <div class="door">🚪🔓</div>
+    <div class="door">${R.secret?"🗝️🏆":"🚪🔓"}</div>
     <img src="${IMG}chao.webp" style="width:min(320px,75%);transform:rotate(-3deg)" alt="¡Chao pescao!"><br>
     <img class="fresca" src="${IMG}fresca.webp" alt="Fresca">
     <h2 class="outline">${T.win} ${fmt(secs)}!</h2>
@@ -417,6 +442,43 @@ PUZ.gerundio = (stage, done) => {
     let subj = rnd(SUBJ[p]); subj = /^(Ana|Pablo)/.test(subj) ? subj : subj[0].toLowerCase()+subj.slice(1);
     choice(st, `<div class="bigpic" style="font-size:70px;min-height:80px">${V[v].e}</div><div class="question" style="font-size:30px">(${v}) Ahora ${subj} ${IRR.estar[p]} ___ ${V[v].o}.</div>`,
       opts, ger(v), next, `Ahora ${subj} ${IRR.estar[p]} ${ger(v)} ${V[v].o}.`);
+  }, done);
+};
+
+/* ---- secret room puzzles: every item picks its own tense ---- */
+function lowSubj(p){ let s=rnd(SUBJ[p]); return /^(Ana|Pablo)/.test(s) ? s : s[0].toLowerCase()+s.slice(1); }
+const tenseItems = (n) => { const out=[]; for(let i=0;i<n;i++){ const room=TENSE_ROOMS[i%4]; const v=rnd(room.id==="presente"?REG:ALL); out.push({room,v,p:Math.floor(Math.random()*6)}); } return shuffle(out); };
+
+PUZ.tiempo = (stage, done) => {
+  rounds(stage, tenseItems(5), (st,{room,v,p},next)=>{
+    const f = room.form(v,p);
+    choice(st, `<div class="bigpic" style="font-size:70px;min-height:80px">${V[v].e}</div><div class="question">«${f}»</div>`,
+      TENSE_ROOMS.map(r=>T.tenses[r.id]), T.tenses[room.id], next, f);
+  }, done);
+};
+PUZ.quienMix = (stage, done) => {
+  rounds(stage, tenseItems(5), (st,{room,v,p},next)=>{
+    choice(st, `<div class="question">«${room.form(v,p)}»</div>`, PRON, PRON[p], next, room.form(v,p));
+  }, done);
+};
+PUZ.marcador = (stage, done) => {
+  rounds(stage, tenseItems(4), (st,{room,v,p},next)=>{
+    const opts = shuffle(TENSE_ROOMS.map(r=>r.form(v,p)));
+    const sent = `${MARK[room.id]} ${lowSubj(p)} <b style="color:var(--pink)">___</b> ${V[v].o}.`;
+    choice(st, `<div class="bigpic" style="font-size:70px;min-height:80px">${V[v].e}</div><div class="gapline" style="font-size:28px">${sent}</div><div class="gloss">(${v})</div>`,
+      opts, room.form(v,p), next, `${MARK[room.id]} ${lowSubj(p)} ${room.form(v,p)} ${V[v].o}.`);
+  }, done);
+};
+PUZ.escribeMix = (stage, done) => {
+  rounds(stage, tenseItems(4).slice(0,3), (st,{room,v,p},next)=>{
+    const sent = `${MARK[room.id]} ${lowSubj(p)} <b style="color:var(--pink)">___</b> (${v}) ${V[v].o}.`;
+    typed(st, `<div class="bigpic" style="font-size:70px;min-height:80px">${V[v].e}</div><div class="gapline" style="font-size:28px">${sent}</div>`, room.form(v,p), next);
+  }, done);
+};
+PUZ.traduceMix = (stage, done) => {
+  rounds(stage, tenseItems(4), (st,{room,v,p},next)=>{
+    const opts = shuffle(TENSE_ROOMS.map(r=>r.form(v,p)));
+    choice(st, `<div class="gloss">${T.how.traduce}</div><div class="question"><span class="en" style="font-size:30px">${esc(gloss(room,v,p))}</span></div>`, opts, room.form(v,p), next);
   }, done);
 };
 
