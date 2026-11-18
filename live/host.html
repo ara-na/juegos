@@ -124,12 +124,12 @@ async function ask(i){
     <div class="ctrl"><span class="count" id="cnt">0 / ${Object.keys(players).length} ${t.answered}</span><button class="big" id="rv">${t.reveal}</button></div></div>`;
   document.getElementById("rv").onclick = reveal;
   if(q.say) setTimeout(()=>say(q.say),300);
-  const g=(await get(R("games/"+code+"/qStart"))).val();
-  timer=setInterval(()=>{ const left=cfg.s - (now()-g)/1000; const c=document.getElementById("clock"); if(c){ c.querySelector("i").style.width=Math.max(0,left/cfg.s*100)+"%"; c.classList.toggle("hurry",left<=5); } if(left<=0) reveal(); },200);
-  const off = onValue(R(`responses/${code}/${i}`), s=>{ answers=s.val()||{}; liveCount(); if(Object.keys(answers).length>=Object.keys(players).length && Object.keys(players).length) setTimeout(reveal,600); });
-  unsub.push(off);
+  const t0=Date.now(); qT0=now();
+  timer=setInterval(()=>{ const left=cfg.s - (Date.now()-t0)/1000; const c=document.getElementById("clock"); if(c){ c.querySelector("i").style.width=Math.max(0,left/cfg.s*100)+"%"; c.classList.toggle("hurry",left<=5); } if(left<=0) reveal(); },200);
+  if(respOff){ try{respOff();}catch(e){} }
+  respOff = onValue(R(`responses/${code}/${i}`), s=>{ if(gq!==i) return; answers=s.val()||{}; liveCount(); if(Object.keys(answers).length>=Object.keys(players).length && Object.keys(players).length) setTimeout(reveal,600); });
 }
-let answers={};
+let answers={}, respOff=null, qT0=0;
 function liveCount(){ const c=document.getElementById("cnt"); if(c) c.textContent=`${Object.keys(answers).length} / ${Object.keys(players).length} ${T().answered}`; }
 async function reveal(){
   if(revealed) return; revealed=true; clearInterval(timer);
@@ -140,7 +140,7 @@ async function reveal(){
     const r=resp[id], old=scores[id]||{s:0,st:0};
     let pts=0, ok=false;
     if(r){ dist[r.a]=(dist[r.a]||0)+1; ok = r.a===key;
-      if(ok){ const el=Math.max(0,Math.min(1,(r.t-g.qStart)/(cfg.s*1000))); pts=Math.round(1000-500*el) + Math.min(300,100*old.st); } }
+      if(ok){ const qs=(typeof g.qStart==="number")?g.qStart:qT0; const el=Math.max(0,Math.min(1,(r.t-qs)/(cfg.s*1000))); pts=Math.round(1000-500*el) + Math.min(300,100*old.st); } }
     upd[id]={s:old.s+pts, st: ok?old.st+1:0, last:pts, ok, ans: r? r.a : -1};
   }
   await set(R("scores/"+code), upd); scores=upd;
@@ -168,6 +168,7 @@ async function end(){
   document.getElementById("close").onclick = closeGame;
 }
 async function closeGame(){
+  if(respOff){ try{respOff();}catch(e){} }
   unsub.forEach(f=>{ try{f();}catch(e){} }); unsub=[];
   for(const p of paths(code)) await remove(R(p)).catch(()=>{});
   app.innerHTML = `<div class="board winner"><img class="fresca" src="${IMG}pj/fresca.webp" alt=""><h2>${T().closed}</h2><button class="go" id="again">${T().again}</button></div>`;
