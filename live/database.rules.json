@@ -1,0 +1,43 @@
+{
+  "rules": {
+    "games": {
+      "$code": {
+        ".read": "auth != null",
+        ".write": "auth != null && (data.exists() ? data.child('host').val() === auth.uid : newData.child('host').val() === auth.uid)"
+      }
+    },
+    "keys": {
+      "$code": {
+        ".read": "auth != null && root.child('games/' + $code + '/host').val() === auth.uid",
+        ".write": "auth != null && root.child('games/' + $code + '/host').val() === auth.uid"
+      }
+    },
+    "players": {
+      "$code": {
+        ".read": "auth != null",
+        "$uid": {
+          ".write": "auth != null && (auth.uid === $uid || root.child('games/' + $code + '/host').val() === auth.uid)",
+          ".validate": "newData.hasChildren(['name', 'av']) && newData.child('name').isString() && newData.child('name').val().length < 60 && newData.child('av').isString() && newData.child('av').val().length < 20"
+        }
+      }
+    },
+    "scores": {
+      "$code": {
+        ".read": "auth != null",
+        ".write": "auth != null && root.child('games/' + $code + '/host').val() === auth.uid"
+      }
+    },
+    "responses": {
+      "$code": {
+        ".read": "auth != null && root.child('games/' + $code + '/host').val() === auth.uid",
+        ".write": "auth != null && root.child('games/' + $code + '/host').val() === auth.uid",
+        "$q": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && !data.exists() && root.child('games/' + $code + '/state').val() === 'question' && (root.child('games/' + $code + '/q').val() + '') === $q",
+            ".validate": "newData.hasChildren(['a', 't']) && newData.child('a').isNumber() && newData.child('t').isNumber()"
+          }
+        }
+      }
+    }
+  }
+}

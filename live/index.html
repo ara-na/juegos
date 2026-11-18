@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¡En directo! · ¡A jugar!</title>
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../engine/games.css">
+<link rel="stylesheet" href="live.css">
+<link rel="icon" href="../img/pj/fresca_icon.webp">
+</head>
+<body>
+<div class="wrap" id="app" style="max-width:640px"><p style="font-weight:900">Cargando…</p></div>
+<script type="module">
+import { login, R, set, get, remove, onValue, onDisconnect, serverTimestamp, PJ, esc } from "./fb.js";
+const app = document.getElementById("app"), IMG = "../img/";
+const rnd = a => a[Math.floor(Math.random()*a.length)];
+// two-language labels until we know the game's language
+const TX = {
+ sv:{ code:"Skriv koden från tavlan", enter:"Gå in ➜", bad:"Hittar inget spel med den koden.", over:"Det spelet är redan slut.", name:"Ditt smeknamn", other:"🔄 Ett annat",
+      pick:"Välj din figur", join:"Jag är med!", wait:"Du är med! Vänta tills läraren startar…", sent:"Svar skickat!", waitOthers:"Vänta på de andra…",
+      right:"Rätt!", wrong:"Fel!", none:"Inget svar", pts:"poäng", place:"Du är på plats", of:"av", end:"Spelet är slut!", gone:"Spelet är slut. ¡Chao pescao!", again:"Spela igen", kicked:"Du har tagits bort från spelet." },
+ en:{ code:"Enter the code from the board", enter:"Join ➜", bad:"No game found with that code.", over:"That game has already finished.", name:"Your nickname", other:"🔄 Another one",
+      pick:"Choose your character", join:"I'm in!", wait:"You're in! Wait for the teacher to start…", sent:"Answer sent!", waitOthers:"Wait for the others…",
+      right:"Correct!", wrong:"Wrong!", none:"No answer", pts:"points", place:"You are in place", of:"of", end:"Game over!", gone:"The game is over. ¡Chao pescao!", again:"Play again", kicked:"You have been removed from the game." }
+};
+let T = TX.sv;
+const ADJ = ["Veloz","Valiente","Feliz","Genial","Fuerte","Gigante","Increíble","Elegante","Brillante","Alegre","Audaz","Tenaz","Feroz","Inteligente","Amable","Especial","Rebelde","Salvaje","Legendario","Misterioso"];
+let uid, code, me={name:"", av:rnd(Object.keys(PJ))}, game=null, myAns={}, score=null, allScores={};
+
+function nick(){ me.name = `${PJ[me.av]} ${rnd(ADJ)} ${Math.floor(Math.random()*90+10)}`; }
+const head = () => `<div class="me-head"><img src="${IMG}pj/${me.av}_icon.webp" alt="">${esc(me.name)}${score?` · ⭐ ${score.s}`:""}</div>`;
+
+function askCode(msg){
+  const pre = new URLSearchParams(location.search).get("c") || "";
+  app.innerHTML = `<header style="justify-content:center"><h1 class="outline" style="text-align:center"><span class="w1">¡En</span> <span class="w3">directo!</span></h1></header>
+   <div class="board"><img class="fresca" src="${IMG}pj/fresca.webp" alt="" style="width:110px"><p style="font-weight:900;font-size:20px">${TX.sv.code}<br><span class="sub">${TX.en.code}</span></p>
+   <input class="codein" id="c" inputmode="numeric" maxlength="5" value="${esc(pre)}" autocomplete="off"><div class="ctrl"><button class="go" id="go">${TX.sv.enter}</button></div>
+   <div class="feedback">${msg||""}</div></div>`;
+  const c=document.getElementById("c"); c.focus();
+  const go=async()=>{ const v=c.value.replace(/\D/g,""); if(v.length!==5) return; try{ await enter(v); }catch(e){ askCode("⚠️ "+e.message); } };
+  document.getElementById("go").onclick=go; c.onkeydown=e=>{ if(e.key==="Enter") go(); };
+}
+async function enter(c){
+  uid = uid || await login();
+  const g=(await get(R("games/"+c))).val();
+  if(!g) return askCode(`${TX.sv.bad}<br><span class="sub">${TX.en.bad}</span>`);
+  if(g.state==="end") return askCode(`${TX.sv.over}<br><span class="sub">${TX.en.over}</span>`);
+  code=c; T=TX[g.lang]||TX.sv; nick(); profile();
+}
+function profile(){
+  app.innerHTML = `<div class="board"><p class="label">${T.name}</p><div class="nick" id="nk">${esc(me.name)}</div>
+   <button class="hint" id="re">${T.other}</button>
+   <p class="label" style="margin-top:16px">${T.pick}</p>
+   <div class="avs">${Object.keys(PJ).map(k=>`<button data-a="${k}" class="${k===me.av?"on":""}"><img src="${IMG}pj/${k}_icon.webp" alt="${PJ[k]}"></button>`).join("")}</div>
+   <button class="go" id="ok">${T.join}</button></div>`;
+  document.getElementById("re").onclick=()=>{ nick(); profile(); };
+  app.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>{ me.av=b.dataset.a; nick(); profile(); });
+  document.getElementById("ok").onclick=join;
+}
+let joined=false;
+async function join(){
+  const pr=R(`players/${code}/${uid}`);
+  await set(pr, {name:me.name, av:me.av}); await onDisconnect(pr).remove(); joined=true;
+  onValue(pr, s=>{ if(joined && !s.exists()) setTimeout(()=>{ if(game && game.state!=="end"){ joined=false; app.innerHTML=`<div class="board"><h2>${T.kicked}</h2></div>`; } }, 1500); });
+  onValue(R(`scores/${code}`), s=>{ allScores=s.val()||{}; score=allScores[uid]||null; if(game && game.state==="reveal") render(); });
+  onValue(R("games/"+code), s=>{ game=s.val(); render(); });
+}
+function render(){
+  if(!joined) return;
+  if(!game){ app.innerHTML=`<div class="board winner"><img src="${IMG}chao.webp" alt="" style="width:min(300px,80%)"><h2>${T.gone}</h2><button class="go" onclick="location.href=location.pathname">${T.again}</button></div>`; return; }
+  const st=game.state, q=game.q;
+  if(st==="lobby"){ app.innerHTML=`${head()}<div class="board"><img src="${IMG}pj/${me.av}.webp" alt="" style="width:160px"><h2 class="nick">${esc(me.name)}</h2><p style="font-weight:900">${T.wait}</p></div>`; return; }
+  if(st==="question"){
+    const Q=game.questions[q], mine=myAns[q];
+    app.innerHTML=`${head()}<div class="board"><div class="prompt small">${Q.html}</div>
+      <div class="bans">${Q.opts.map((o,k)=>`<button class="ba c${k} ${mine===k?"mine":""}" data-k="${k}" ${mine!==undefined?"disabled":""}><span class="k">${"▲●■★"[k]}</span>${esc(o)}</button>`).join("")}</div>
+      ${mine!==undefined?`<p style="font-weight:900">✅ ${T.sent} ${T.waitOthers}</p>`:""}</div>`;
+    app.querySelectorAll(".ba").forEach(b=>b.onclick=async()=>{
+      if(myAns[q]!==undefined) return; myAns[q]=+b.dataset.k; render();
+      try{ await set(R(`responses/${code}/${q}/${uid}`), {a:+b.dataset.k, t:serverTimestamp()}); }catch(e){ /* too late */ }
+    });
+    return;
+  }
+  if(st==="reveal"){
+    const sc=allScores[uid]||{s:0,last:0,ok:false,ans:-1}, ranked=Object.entries(allScores).sort((a,b)=>b[1].s-a[1].s), place=ranked.findIndex(x=>x[0]===uid)+1;
+    const Q=game.questions[q], ok=sc.ok, none=sc.ans===-1 || sc.ans===undefined;
+    app.innerHTML=`${head()}<div class="board" style="background:${ok?"var(--green)":none?"#eee":"var(--red)"};color:${ok?"#fff":"var(--ink)"}">
+      <div class="big2">${ok?"✔ "+T.right:none?T.none:"✘ "+T.wrong}</div>${ok?`<div style="font-size:32px;font-weight:900">+${sc.last} ${T.pts}</div>`:""}
+      <div style="font-weight:900;margin-top:8px">${esc(Q.opts[game.correct])}</div></div>
+      <div class="board"><div class="big2" style="color:var(--pink)">${place||"–"}</div><div style="font-weight:900">${T.place} ${place||"–"} ${T.of} ${ranked.length} · ⭐ ${sc.s}</div></div>`;
+    return;
+  }
+  if(st==="end"){
+    const ranked=Object.entries(allScores).sort((a,b)=>b[1].s-a[1].s), place=ranked.findIndex(x=>x[0]===uid)+1, top=game.top||[];
+    app.innerHTML=`<div class="board winner"><img src="${IMG}chao.webp" alt="" style="width:min(280px,80%)"><h2>${T.end}</h2>
+      <div class="big2" style="color:var(--pink)">${place}</div><div style="font-weight:900">${T.place} ${place} ${T.of} ${ranked.length}</div>
+      ${top.map((p,k)=>`<div class="row"><span class="pos">${k+1}</span><img src="${IMG}pj/${p.av}_icon.webp" alt=""><b>${esc(p.name)}</b><span class="pts">${p.s}</span></div>`).join("")}</div>`;
+  }
+}
+askCode();
+</script>
+</body>
+</html>

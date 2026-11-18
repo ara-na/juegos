@@ -1,0 +1,54 @@
+.wrap{max-width:1300px}
+.pick{display:flex;flex-wrap:wrap;gap:10px}
+.pick button{background:#fff;border:var(--bd);box-shadow:var(--sh);border-radius:16px;padding:10px 18px;font-size:20px;font-weight:900}
+.pick button.on{background:var(--pink);color:#fff}
+.go{background:var(--lime);border:var(--bd);box-shadow:var(--sh);border-radius:22px;padding:14px 36px;font-family:'Luckiest Guy',sans-serif;font-size:36px;margin-top:10px}
+.go:disabled{opacity:.4}
+.lobby{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:stretch}
+.joinbox{text-align:center;background:var(--lime)}
+.joinbox .url{font-size:clamp(22px,3vw,40px);font-weight:900}
+.joinbox .code{font-family:'Luckiest Guy',sans-serif;font-size:clamp(70px,12vw,160px);line-height:1;color:var(--pink);text-shadow:5px 5px 0 var(--ink);letter-spacing:6px}
+.qr{display:flex;align-items:center;justify-content:center;background:#fff}.qr svg{width:min(260px,30vw);height:auto}
+.plist{display:flex;flex-wrap:wrap;gap:10px}
+.pl{display:flex;align-items:center;gap:8px;background:#fff;border:3px solid var(--ink);border-radius:999px;padding:4px 14px 4px 4px;font-weight:900;font-size:18px;animation:pop .5s}
+.pl img{width:42px;height:42px}
+.qnum{font-weight:900;font-size:22px}
+.clock{height:24px;background:#fff;border:var(--bd);border-radius:999px;overflow:hidden;margin-bottom:12px}
+.clock i{display:block;height:100%;background:var(--lime);transition:width .2s linear}.clock.hurry i{background:var(--red)}
+.board{background:#fff;border:var(--bd);box-shadow:var(--sh);border-radius:26px;padding:clamp(14px,2vw,28px);text-align:center;margin-bottom:16px}
+.prompt{font-size:clamp(28px,4.5vw,64px);font-weight:900;line-height:1.15}
+.prompt.small{font-size:clamp(20px,3vw,40px)}.prompt.small .lpic{font-size:clamp(60px,8vw,110px)}
+.lpic{font-size:clamp(80px,13vw,180px);line-height:1}
+.prompt .en{font-size:clamp(26px,4vw,56px)}
+.lsent b.gap{display:inline-block;min-width:2em;border-bottom:.12em solid var(--pink);color:var(--pink)}
+.lgloss{font-size:clamp(15px,1.8vw,22px);color:var(--soft);font-weight:800}
+.lans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}
+.la,.ba{display:flex;align-items:center;gap:12px;border:var(--bd);box-shadow:var(--sh);border-radius:18px;padding:12px 16px;font-size:clamp(20px,3vw,40px);font-weight:900;text-align:left;position:relative;color:var(--ink)}
+.c0{background:var(--pink);color:#fff}.c1{background:var(--cyan)}.c2{background:var(--lime)}.c3{background:var(--orange)}
+.la .k,.ba .k{font-size:.8em}
+.la.wrong{opacity:.35}.la.right{outline:6px solid var(--green);outline-offset:3px}
+.dist{position:absolute;right:14px;background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:999px;padding:0 12px;font-size:.7em}
+.ctrl{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;margin-top:14px}
+.ctrl .big{background:var(--pink);color:#fff;border:var(--bd);border-radius:16px;padding:10px 24px;font-size:22px;font-weight:900;box-shadow:4px 4px 0 var(--ink)}
+.count{font-weight:900;font-size:22px}
+.row{display:flex;align-items:center;gap:12px;padding:6px 0;border-bottom:2px dashed #ddd;font-size:clamp(18px,2.4vw,30px)}
+.row img{width:46px;height:46px}.row b{flex:1}.row .pos{font-family:'Luckiest Guy',sans-serif;width:1.5em;color:var(--pink)}.row .pts{font-weight:900}
+.row.me{background:var(--lime);border-radius:12px;padding:6px 10px}
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:14px;margin:12px 0}
+.step{display:flex;flex-direction:column;align-items:center;font-weight:900;font-size:clamp(16px,2vw,24px)}
+.step img{width:clamp(90px,12vw,170px)}
+.step .blk{width:clamp(110px,14vw,200px);border:var(--bd);border-radius:12px 12px 0 0;font-family:'Luckiest Guy',sans-serif;font-size:50px;display:flex;align-items:center;justify-content:center}
+.s0 .blk{height:150px;background:var(--lime)}.s1 .blk{height:105px;background:var(--cyan)}.s2 .blk{height:75px;background:var(--orange)}
+.winner h2{font-family:'Luckiest Guy',sans-serif;font-weight:400}
+/* student */
+.codein{font-family:'Luckiest Guy',sans-serif;font-size:56px;letter-spacing:8px;text-align:center;width:min(320px,90%);border:var(--bd);border-radius:18px;padding:8px;box-shadow:var(--sh)}
+.nick{font-family:'Luckiest Guy',sans-serif;font-size:clamp(30px,8vw,48px);color:var(--pink);text-shadow:3px 3px 0 var(--ink)}
+.avs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:420px;margin:10px auto}
+.avs button{background:#fff;border:3px solid var(--ink);border-radius:18px;padding:6px}.avs button img{width:100%}
+.avs button.on{background:var(--lime);outline:4px solid var(--pink)}
+.bans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
+.ba{min-height:90px;font-size:clamp(18px,5vw,30px);justify-content:flex-start}
+.ba:disabled{opacity:.35}.ba.mine{opacity:1;outline:5px solid var(--ink);outline-offset:3px}
+.big2{font-family:'Luckiest Guy',sans-serif;font-size:clamp(40px,10vw,80px);line-height:1}
+.me-head{display:flex;align-items:center;gap:10px;justify-content:center;font-weight:900;font-size:18px;margin-bottom:8px}.me-head img{width:40px}
+@media (max-width:700px){ .lobby{grid-template-columns:1fr} .lans{grid-template-columns:1fr} }
