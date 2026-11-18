@@ -112,7 +112,7 @@ function setup(){
     <div><p class="label">${t.secs}</p><div class="pick">${[10,20,30,0].map(n=>`<button data-s="${n}" class="${n===cfg.s?"on":""}">${n||"∞"}</button>`).join("")}</div></div>
   </div>
   <div style="text-align:center"><button class="go" id="go">${t.start}</button></div>
-  <footer>✏️ Fresca: diseño de Elliot</footer>`;
+  <footer>✏️ Fresca: diseño de Elliot · <a href="../live/host.html" style="color:inherit">📡 ¡En directo! – live quiz</a></footer>`;
   const sv = () => { try{ localStorage.setItem("aJugar-reto", JSON.stringify(cfg)); }catch(e){} };
   app.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{ cfg.g=b.dataset.g; cfg.u=GROUPS[cfg.g].current; sv(); setup(); });
   app.querySelectorAll("[data-u]").forEach(b=>b.onclick=()=>{ cfg.u=b.dataset.u; sv(); setup(); });
