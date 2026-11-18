@@ -121,6 +121,8 @@ function setup(){
   document.getElementById("go").onclick = start;
 }
 
+const fw = s => s.toLowerCase().replace(/[¿?¡!.,]/g,"").split(" ")[0];
+const qaWrong = (list, a, n) => { const ok=list.filter(x=>x[1]!==a && fw(x[1])!==fw(a)); return (ok.length>=n?ok:list.filter(x=>x[1]!==a)); };
 /* ---------- questions ---------- */
 function buildQuestions(U, n){
   const vocab = Object.values(U.topics).flatMap(t=>t.items.map(it=>({it, all:t.items})));
@@ -130,7 +132,7 @@ function buildQuestions(U, n){
     if(others.length===2) pool.push({kind:"pic", prompt:pic(p), say:null, opts:shuffle([w,...others]), ans:w});
   });
   const gaps = shuffle(U.gaps||[]).map(([s,opts,ans,p,gl])=>({kind:"gap", prompt:`${pic(p)}<div>${esc(s).replace("___",'<b class="gap">?</b>')}</div>`, gloss:gl?tr(gl.t):"", say:s, full:s.replace("___",ans), opts:shuffle([ans,...shuffle(opts.filter(o=>o!==ans)).slice(0,2)]), ans}));
-  const qa = shuffle(U.qa||[]).map(([q,a])=>({kind:"qa", prompt:`💬 ${esc(q)}`, say:q, full:q+" "+a, opts:shuffle([a,...shuffle((U.qa||[]).filter(x=>x[1]!==a)).slice(0,2).map(x=>x[1])]), ans:a}));
+  const qa = shuffle(U.qa||[]).map(([q,a])=>({kind:"qa", prompt:`💬 ${esc(q)}`, say:q, full:q+" "+a, opts:shuffle([a,...shuffle(qaWrong(U.qa||[],a,2)).slice(0,2).map(x=>x[1])]), ans:a}));
   // mix: ~45% vocab, ~30% gaps, ~25% qa
   const want = {pic:Math.round(n*.45), gap:Math.round(n*.3)}; want.qa = n - want.pic - want.gap;
   let out = [...pool.slice(0,want.pic), ...gaps.slice(0,want.gap), ...qa.slice(0,want.qa)];

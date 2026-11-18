@@ -48,13 +48,15 @@ function pic(p){
   if(p.n!==undefined) return `<div class="lpic"><span class="num">${p.n}</span></div>`;
   if(p.t) return `<span class="en">${esc(tr(p.t))}</span>`;
 }
+const fw = s => s.toLowerCase().replace(/[¿?¡!.,]/g,"").split(" ")[0];
+const qaWrong = (list, a, n) => { const ok=list.filter(x=>x[1]!==a && fw(x[1])!==fw(a)); return (ok.length>=n?ok:list.filter(x=>x[1]!==a)); };
 function buildQuestions(U, n){
   const pool = shuffle(Object.values(U.topics).flatMap(t=>t.items.map(it=>({it, all:t.items})))).map(({it,all})=>{
     const [w,p]=it, others=shuffle(all.filter(x=>x[0]!==w)).slice(0,3).map(x=>x[0]);
     return others.length>=2 ? {html:pic(p), opts:shuffle([w,...others]), ans:w, say:null} : null; }).filter(Boolean);
   const gaps = shuffle(U.gaps||[]).map(([s,opts,ans,p,gl])=>({html:`${pic(p)}<div class="lsent">${esc(s).replace("___",'<b class="gap">?</b>')}</div>${gl?`<div class="lgloss">${esc(tr(gl.t))}</div>`:""}`,
       opts:shuffle([ans,...shuffle(opts.filter(o=>o!==ans)).slice(0,3)]), ans, say:s}));
-  const qa = shuffle(U.qa||[]).map(([q,a])=>({html:`<div class="lsent">💬 ${esc(q)}</div>`, opts:shuffle([a,...shuffle((U.qa||[]).filter(x=>x[1]!==a)).slice(0,3).map(x=>x[1])]), ans:a, say:q}));
+  const qa = shuffle(U.qa||[]).map(([q,a])=>({html:`<div class="lsent">💬 ${esc(q)}</div>`, opts:shuffle([a,...shuffle(qaWrong(U.qa||[],a,3)).slice(0,3).map(x=>x[1])]), ans:a, say:q}));
   const want = {p:Math.round(n*.45), g:Math.round(n*.3)}; want.q = n-want.p-want.g;
   let out=[...pool.slice(0,want.p),...gaps.slice(0,want.g),...qa.slice(0,want.q)];
   const rest=shuffle([...pool.slice(want.p),...gaps.slice(want.g),...qa.slice(want.q)]);

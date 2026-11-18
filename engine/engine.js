@@ -236,6 +236,8 @@ function praise(fb, extra){
 }
 function wrong(b, stage, msg){ b.classList.add("bad"); setTimeout(()=>{b.classList.remove("bad");b.classList.add("faded");},400); oops(stage.querySelector("#fb"), msg); }
 
+const fw = s => s.toLowerCase().replace(/[¿?¡!.,]/g,"").split(" ")[0];
+const qaWrong = (list, a, n) => { const ok=list.filter(x=>x[1]!==a && fw(x[1])!==fw(a)); return (ok.length>=n?ok:list.filter(x=>x[1]!==a)); };
 /* ---------- games ---------- */
 const GAMES = {};
 GAMES.match = function(){
@@ -323,7 +325,7 @@ GAMES.gap = function(){
 };
 GAMES.qa = function(){
   run("qa", GAMES.qa, shuffle(U.qa).slice(0,8), (stage,[q,a],done)=>{
-    const opts = shuffle([a, ...shuffle(U.qa.filter(x=>x[1]!==a)).slice(0,2).map(x=>x[1])]);
+    const opts = shuffle([a, ...shuffle(qaWrong(U.qa,a,2)).slice(0,2).map(x=>x[1])]);
     stage.innerHTML = `<div class="question">💬 ${q}</div>${canSpeak?`<button class="speak" id="play">🔊</button>`:""}
       <div class="opts" style="flex-direction:column;align-items:center">${opts.map(o=>`<button class="opt long" data-o="${esc(o)}">${o}</button>`).join("")}</div><div class="feedback" id="fb"></div>`;
     if(canSpeak) stage.querySelector("#play").onclick=()=>say(q);
