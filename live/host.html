@@ -86,14 +86,15 @@ let uid, code, QS, players={}, scores={}, unsub=[], timer=null, gq=-1, revealed=
 const paths = c => ["keys/"+c, "players/"+c, "scores/"+c, "responses/"+c, "games/"+c];   // games last: the rules check it
 
 async function create(){
-  uid = await login();
+  try{ uid = await login(); }catch(e){ throw new Error("login: "+e.message); }
   for(let i=0;i<20;i++){ const c=String(10000+Math.floor(Math.random()*90000)); if(!(await get(R("games/"+c))).exists()){ code=c; break; } }
   const U = UNITS[cfg.u]; QS = buildQuestions(U, cfg.n);
-  await set(R("games/"+code), {host:uid, created:serverTimestamp(), state:"lobby", q:-1, n:QS.length, secs:cfg.s, lang:L(), title:U.title,
-     questions: QS.map(q=>({html:q.html, opts:q.opts}))});
-  await set(R("keys/"+code), QS.map(q=>q.opts.indexOf(q.ans)));
+  const step = async (name, pr) => { try{ return await pr; }catch(e){ throw new Error(name+": "+e.message); } };
+  await step("games", set(R("games/"+code), {host:uid, created:serverTimestamp(), state:"lobby", q:-1, n:QS.length, secs:cfg.s, lang:L(), title:U.title,
+     questions: QS.map(q=>({html:q.html, opts:q.opts}))}));
+  await step("keys", set(R("keys/"+code), QS.map(q=>q.opts.indexOf(q.ans))));
   // everything disappears if this tab closes or loses connection
-  for(const p of paths(code)) await onDisconnect(R(p)).remove();
+  for(const p of paths(code)) await step("cleanup "+p.split("/")[0], onDisconnect(R(p)).remove());
   unsub.push(onValue(R("players/"+code), s=>{ players=s.val()||{}; if(gq<0) lobby(); else liveCount(); }));
   unsub.push(onValue(R("scores/"+code), s=>{ scores=s.val()||{}; }));
   lobby();
