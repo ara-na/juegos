@@ -59,15 +59,17 @@ const GROUPS = {
    "es-mi-familia",
    "es-ropa",
    "es-describir",
-   "es-verbos"
+   "es-verbos",
+   "es-tiempo-libre"
   ],
-  "current": "es-verbos",
+  "current": "es-tiempo-libre",
   "labels": {
    "es-de-donde-eres": "KAP 1",
    "es-mi-familia": "KAP 1B",
    "es-ropa": "KAP 2A",
    "es-describir": "KAP 2B",
-   "es-verbos": "VERBVERKSTAD"
+   "es-verbos": "VERBVERKSTAD",
+   "es-tiempo-libre": "FRITID"
   }
  },
  "ak8": {
