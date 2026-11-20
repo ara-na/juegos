@@ -59,7 +59,9 @@
 <script src="../units/es-peru.js"></script>
 <script src="../units/es-restaurante.js"></script>
 <script src="../units/es-gerundio.js"></script><script src="../units/es-tiempo-libre.js"></script>
+<script src="../units/en-basics.js"></script>
 <script src="groups.js"></script>
+<script src="groups-extra.js"></script>
 <script>
 (function(){
 const app = document.getElementById("app");
@@ -69,18 +71,19 @@ const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floo
 const esc = s => String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
 let voice=null; function pickVoice(){ try{ const v=speechSynthesis.getVoices(); voice=v.find(x=>/es[-_]ES/i.test(x.lang))||v.find(x=>/^es/i.test(x.lang))||null; }catch(e){} }
 try{ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }catch(e){}
-function say(t){ try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t.replace(/ ([.?!])/g,"$1").replace("___","…")); u.lang="es-ES"; u.rate=.85; if(voice) u.voice=voice; speechSynthesis.speak(u); }catch(e){} }
+let voiceEn=null; try{ const pe=()=>{ const v=speechSynthesis.getVoices(); voiceEn=v.find(x=>/en[-_]GB/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null; }; pe(); speechSynthesis.addEventListener("voiceschanged",pe); }catch(e){}
+function say(t){ try{ speechSynthesis.cancel(); const en = G && G.U && G.U.target==="en"; const u=new SpeechSynthesisUtterance(t.replace(/ ([.?!])/g,"$1").replace("___","…")); u.lang=en?"en-GB":"es-ES"; u.rate=.85; const v=en?voiceEn:voice; if(v) u.voice=v; speechSynthesis.speak(u); }catch(e){} }
 
 const TX = {
  sv:{ title:"Klassen mot Fresca", group:"1. Välj klass", unit:"2. Välj tema", count:"3. Antal frågor", secs:"4. Sekunder per fråga", start:"¡A jugar!",
       clase:"Klassen", q:"Fråga", of:"av", reveal:"Visa svaret", next:"Nästa ➜", read:"🔊 Läs upp", pause:"⏸ Paus", resume:"▶ Fortsätt",
       full:"⛶ Helskärm", menu:"← Meny", keys:"Tangenter: A B C = svar · Mellanslag = visa svar / nästa · R = läs upp · P = paus",
-      howPic:"Vad heter det på spanska?", howGap:"Vilket ord saknas?", howQa:"Vilket är det bästa svaret?",
+      howPic:"Vad heter det på spanska?", howPicEn:"Vad heter det på engelska?", howGap:"Vilket ord saknas?", howQa:"Vilket är det bästa svaret?",
       win:"¡Ganó la clase!", lose:"¡Ganó Fresca!", tie:"¡Empate!", again:"🔁 Otra vez", howto:"Visa på tavlan. Klassen svarar högt tillsammans – läraren klickar på svaret." },
  en:{ title:"The class vs Fresca", group:"1. Choose a class", unit:"2. Choose a unit", count:"3. Number of questions", secs:"4. Seconds per question", start:"¡A jugar!",
       clase:"The class", q:"Question", of:"of", reveal:"Show answer", next:"Next ➜", read:"🔊 Read aloud", pause:"⏸ Pause", resume:"▶ Resume",
       full:"⛶ Full screen", menu:"← Menu", keys:"Keys: A B C = answer · Space = show answer / next · R = read aloud · P = pause",
-      howPic:"What is it in Spanish?", howGap:"Which word is missing?", howQa:"Which is the best answer?",
+      howPic:"What is it in Spanish?", howPicEn:"What is it in English?", howGap:"Which word is missing?", howQa:"Which is the best answer?",
       win:"¡Ganó la clase!", lose:"¡Ganó Fresca!", tie:"¡Empate!", again:"🔁 Otra vez", howto:"Project this. The class answers out loud together – the teacher clicks the answer." }
 };
 let cfg = {g:"myp12", u:null, n:10, s:20};
@@ -160,7 +163,7 @@ function show(){
   clearInterval(timer);
   if(G.i>=G.qs.length) return end();
   const q=G.qs[G.i], t=T(); G.done=false; G.left=cfg.s; G.paused=false;
-  const how = q.kind==="pic"?t.howPic : q.kind==="gap"?t.howGap : t.howQa;
+  const how = q.kind==="pic"?(G.U.target==="en"?t.howPicEn:t.howPic) : q.kind==="gap"?t.howGap : t.howQa;
   app.innerHTML = `
   <div class="topbar"><button class="back" id="menu">${t.menu}</button><div style="flex:1"></div><button class="back" id="full">${t.full}</button></div>
   ${scoreHTML()}

@@ -1,0 +1,142 @@
+/* English Fun – album, achievements and the music quiz.
+   Loaded after the main script. Everything is stored only in this browser (localStorage). */
+["ach","gold","played"].forEach(k=>{ if(!state[k]) state[k]={}; });
+if(!state.days) state.days=[]; state.games=state.games||0; state.spellOk=state.spellOk||0;
+
+const IMG = "../img/";
+const PJN = {fresca:"Fresca",arandano:"Arándano",banana:"Banana",coco:"Coco",durian:"Durián",manzana:"Manzana",pera:"Pera",pina:"Piña"};
+const ACH = [
+  {id:"first",   ico:"🎮", rare:"hola",     pj:"pera",     n:"First game!",     sv:"Första spelet!",          d:"Finish a game",                 dsv:"Spela klart ett spel",            ok:()=>state.games>=1},
+  {id:"perfect", ico:"💯", rare:"todobien", pj:"manzana",  n:"Perfect!",        sv:"Perfekt!",                d:"A game with no mistakes",       dsv:"Ett spel utan fel",               ok:()=>Object.keys(state.gold).length>=1},
+  {id:"stars",   ico:"⭐", rare:"vamos",    pj:"banana",   n:"100 stars",       sv:"100 stjärnor",            d:"Collect 100 stars",             dsv:"Samla 100 stjärnor",              ok:()=>state.stars>=100},
+  {id:"speller", ico:"🔤", rare:"planazo",  pj:"arandano", n:"Spelling star",   sv:"Stavningsstjärna",        d:"Spell 10 words right",          dsv:"Stava 10 ord rätt",               ok:()=>state.spellOk>=10},
+  {id:"music",   ico:"🎧", rare:"quefuerte",pj:"coco",     n:"Music star",      sv:"Musikstjärna",            d:"Do the music quiz",             dsv:"Gör musiktestet",                 ok:()=>!!state.music},
+  {id:"explorer",ico:"🌍", rare:"chao",     pj:"pina",     n:"Explorer",        sv:"Upptäckare",              d:"Play every topic",              dsv:"Spela alla teman",                ok:()=>Object.keys(TOPICS).every(t=>state.played[t])},
+  {id:"fire",    ico:"🔥",                  pj:"durian",   n:"On fire",         sv:"Het som eld",             d:"Play on 5 different days",      dsv:"Spela 5 olika dagar",             ok:()=>state.days.length>=5},
+  {id:"gold",    ico:"🥇",                  pj:"fresca",   n:"Golden album",    sv:"Guldalbum",               d:"Get every gold sticker",        dsv:"Få alla guldklistermärken",       ok:()=>Object.keys(TOPICS).every(t=>state.gold[t])}
+];
+const RARES = ACH.filter(a=>a.rare);
+const TITLES = [[0,"Beginner","Nybörjare"],[50,"Explorer","Upptäckare"],[150,"Expert","Expert"],[300,"English Master","Engelskamästare"]];
+function titleInfo(){ let t=TITLES[0], nx=null; TITLES.forEach((x,i)=>{ if(state.stars>=x[0]){ t=x; nx=TITLES[i+1]||null; } }); return {t: state.ach.gold?["👑 Legend","Legend"]:[t[1],t[2]], next:nx}; }
+function checkAch(){ const fresh=[]; ACH.forEach(a=>{ if(!state.ach[a.id] && a.ok()){ state.ach[a.id]=new Date().toISOString().slice(0,10); fresh.push(a); } }); if(fresh.length) save(); return fresh; }
+const topicIcon = k => TOPICS[k].name.split(" ")[0];
+function goldBadge(k, on){ return `<span class="goldst ${on?"on":""}" style="width:72px;height:72px;font-size:34px">${on?topicIcon(k):"?"}</span>`; }
+
+/* called by finish(): bookkeeping + banners */
+function recordFinish(earned, total){
+  const k = state.topic, perfect = total && earned>=total, newGold = perfect && !state.gold[k];
+  if(perfect) state.gold[k]=true;
+  state.games++; state.played[k]=true;
+  const today=new Date().toISOString().slice(0,10); if(!state.days.includes(today)) state.days.push(today);
+  save(); const fresh=checkAch();
+  return `${newGold?`<div class="newsticker gold">New gold sticker! / Nytt guldklistermärke!<span>${goldBadge(k,true)}</span></div>`:""}
+    ${fresh.map(achBanner).join("")}`;
+}
+const achBanner = a => `<div class="newsticker">New achievement! / Ny prestation! ${a.ico} <b>${a.n}</b><span>${a.rare?`<img src="${IMG}${a.rare}.webp" alt="" style="width:140px">`:""}<img src="${IMG}pj/${a.pj}_card.webp" alt="" style="width:110px;margin-left:8px"></span></div>`;
+
+function albumSummaryEN(){
+  const ti=titleInfo(), unlocked=Math.min(STICKERS.length, Math.floor(state.stars/STARS_PER_STICKER)), tk=Object.keys(TOPICS);
+  return `<div class="panel albumsum"><div><p class="label">📒 My album <span class="sv">Mitt album</span></p><div class="ttl">${ti.t[0]}</div>
+    <div class="counts"><span>⭐ ${unlocked}/${STICKERS.length}</span><span>✨ ${RARES.filter(a=>state.ach[a.id]).length}/${RARES.length}</span><span>🥇 ${tk.filter(k=>state.gold[k]).length}/${tk.length}</span><span>👑 ${ACH.filter(a=>state.ach[a.id]).length}/8</span></div></div>
+    <button class="next" id="toAlbum">Open my album 📒</button></div>`;
+}
+function album(){
+  checkAch();
+  const ti=titleInfo(), unlocked=Math.min(STICKERS.length, Math.floor(state.stars/STARS_PER_STICKER));
+  app.innerHTML = `
+  <div class="topbar"><button class="back" id="back">← Menu</button><div style="flex:1"></div><div class="stars">⭐ <span id="starCount">${state.stars}</span></div></div>
+  <header><h1 class="outline"><span class="w3">My album</span><span class="sv">Mitt album</span></h1></header>
+  <div class="panel titlebox"><img class="fresca" src="${IMG}pj/pera.webp" alt=""><div><span class="sv">Your title · Din titel</span><div class="ttl">${ti.t[0]}</div>
+    <span class="sv">${ti.next?`Next title at ${ti.next[0]} ⭐ → ${ti.next[1]}`:"Top title! · Högsta titeln!"}</span></div></div>
+  <div class="panel"><p class="label">🏅 Achievements <span class="sv">Prestationer</span></p><div class="achs">${ACH.map(a=>`<div class="achv ${state.ach[a.id]?"on":""}"><span class="ai">${a.ico}</span><b>${a.n}</b><span>${a.d}<br>${a.dsv}</span>${a.rare?"<i>✨</i>":""}</div>`).join("")}</div></div>
+  <div class="panel"><p class="label">✨ Rare stickers <span class="sv">Sällsynta klistermärken</span></p><div class="rares">${RARES.map(a=>`<div class="rarest ${state.ach[a.id]?"on":""}"><img src="${IMG}${a.rare}.webp" alt=""><span>${state.ach[a.id]?"":a.ico+" "+a.n}</span></div>`).join("")}</div></div>
+  <div class="panel"><p class="label">🥇 Gold stickers <span class="sv">Guldklistermärken</span></p><p class="note" style="margin-top:0">Play a perfect game (no mistakes) in a topic. · Spela en perfekt omgång (inga fel) i ett tema.</p>
+    <div class="golds">${Object.keys(TOPICS).map(k=>`<div class="goldcell">${goldBadge(k,state.gold[k])}<span>${TOPICS[k].name.replace(/^\S+\s/,"")}</span></div>`).join("")}</div></div>
+  <div class="panel"><p class="label">👑 Legendary <span class="sv">Legendariska</span></p><div class="legends">${ACH.map(a=>{const on=!!state.ach[a.id];
+    return `<div class="legst ${on?"on":""}"><img src="${IMG}pj/${a.pj}_card.webp" alt=""><b>${on?PJN[a.pj]:"???"}</b><span>${a.ico} ${a.n}</span></div>`;}).join("")}</div></div>
+  <div class="panel"><p class="label">⭐ Stickers <span class="sv">${STARS_PER_STICKER - state.stars % STARS_PER_STICKER} ⭐ to the next one / till nästa</span></p>
+    <div class="shelf">${STICKERS.map((s,i)=>`<span class="${i<unlocked?'':'locked'}">${s}</span>`).join("")}</div></div>
+  <footer>Complete your album and show it to your teacher 😉 · Fyll albumet och visa det för din lärare</footer>`;
+  document.getElementById("back").onclick = menu; window.scrollTo(0,0);
+}
+
+/* ---------------- MUSIC QUIZ (magazine style) ---------------- */
+// types: pop, rock, chill, dance, soul, kpop
+const MTYPES = {
+  pop:  {icon:"💖", name:"Pop Star",      sv:"Popstjärna",   col:"var(--pink)",   pj:"fresca",
+         en:"You love catchy songs you can sing along to. Music makes you happy and full of energy!", svd:"Du älskar låtar som fastnar och som man kan sjunga med i. Musik gör dig glad!",
+         match:["Taylor Swift","Sabrina Carpenter","Zara Larsson"]},
+  rock: {icon:"🎸", name:"Rock Rebel",    sv:"Rockrebell",   col:"var(--red)",    pj:"durian",
+         en:"You like loud guitars and big drums. Music makes you feel strong and free!", svd:"Du gillar höga gitarrer och stora trummor. Musik gör dig stark och fri!",
+         match:["Måneskin","Imagine Dragons","Green Day"]},
+  chill:{icon:"🌙", name:"Chill Dreamer", sv:"Lugn drömmare",col:"var(--cyan)",   pj:"arandano",
+         en:"You like soft, calm music with headphones on. Music helps you relax and think.", svd:"Du gillar lugn musik i hörlurarna. Musik hjälper dig att slappna av och tänka.",
+         match:["Billie Eilish","Laufey","Ed Sheeran"]},
+  dance:{icon:"⚡", name:"Dance Machine", sv:"Dansmaskin",   col:"var(--lime)",   pj:"banana",
+         en:"You can't stand still! You love a strong beat and a big party.", svd:"Du kan inte stå still! Du älskar ett starkt beat och stor fest.",
+         match:["Avicii","Dua Lipa","David Guetta"]},
+  soul: {icon:"🎤", name:"Soul Singer",   sv:"Soulsångare",  col:"var(--orange)", pj:"coco",
+         en:"You love great voices and songs with feelings. Music touches your heart.", svd:"Du älskar fina röster och låtar med känsla. Musik berör ditt hjärta.",
+         match:["Bruno Mars","Beyoncé","Alicia Keys"]},
+  kpop: {icon:"✨", name:"K-pop Fan",     sv:"K-popfan",     col:"var(--purple)", pj:"pina",
+         en:"You love cool dance moves, colourful videos and big fan energy!", svd:"Du älskar coola danssteg, färgglada videor och stor fan-energi!",
+         match:["BTS","BLACKPINK","Stray Kids"]}
+};
+const MQ = [
+  {q:"When do you listen to music?", sv:"När lyssnar du på musik?", o:[
+    ["In the morning","På morgonen","pop"],["On the bus","På bussen","chill"],["When I do sport","När jag tränar","rock"],
+    ["At a party","På fest","dance"],["In my room","I mitt rum","soul"],["All the time!","Hela tiden!","kpop"]]},
+  {q:"Pick a colour.", sv:"Välj en färg.", o:[["Pink 💗","Rosa","pop"],["Black 🖤","Svart","rock"],["Blue 💙","Blå","chill"],["Yellow 💛","Gul","dance"],["Orange 🧡","Orange","soul"],["Purple 💜","Lila","kpop"]]},
+  {q:"Your perfect Saturday is…", sv:"Din perfekta lördag är…", o:[
+    ["Singing in my room","Sjunga i mitt rum","pop"],["A big concert","En stor konsert","rock"],["A walk with headphones","En promenad med hörlurar","chill"],
+    ["Dancing with friends","Dansa med kompisar","dance"],["Karaoke!","Karaoke!","soul"],["Watching music videos","Titta på musikvideor","kpop"]]},
+  {q:"Pick an instrument.", sv:"Välj ett instrument.", o:[["Microphone 🎤","Mikrofon","pop"],["Electric guitar 🎸","Elgitarr","rock"],["Piano 🎹","Piano","chill"],["Computer / DJ 🎛️","Dator / DJ","dance"],["Saxophone 🎷","Saxofon","soul"],["Drums 🥁","Trummor","kpop"]]},
+  {q:"Music makes me feel…", sv:"Musik får mig att känna mig…", o:[["happy 😊","glad","pop"],["strong 💪","stark","rock"],["calm 😌","lugn","chill"],["free 🕊️","fri","dance"],["loved 🥰","älskad","soul"],["excited 🤩","peppad","kpop"]]},
+  {q:"Pick an emoji.", sv:"Välj en emoji.", o:[["💖","","pop"],["🔥","","rock"],["🌙","","chill"],["⚡","","dance"],["🌹","","soul"],["✨","","kpop"]]},
+  {q:"The best place for music is…", sv:"Bästa stället för musik är…", o:[["in the car","i bilen","pop"],["in a stadium","på en arena","rock"],["in bed","i sängen","chill"],["on the dance floor","på dansgolvet","dance"],["in the shower","i duschen","soul"],["on my phone","i mobilen","kpop"]]},
+  {q:"Choose a word.", sv:"Välj ett ord.", o:[["Love","Kärlek","pop"],["Power","Kraft","rock"],["Dream","Dröm","chill"],["Party","Fest","dance"],["Heart","Hjärta","soul"],["Friends","Vänner","kpop"]]}
+];
+function musicQuiz(){
+  let i=0; const score={pop:0,rock:0,chill:0,dance:0,soul:0,kpop:0}, picks=[];
+  const step = () => {
+    if(i>=MQ.length) return musicResult(score, picks);
+    const Q=MQ[i];
+    app.innerHTML = `
+    <div class="topbar"><button class="back" id="back">← Menu</button><div class="bar"><i style="width:${Math.round(i/MQ.length*100)}%"></i></div><div class="stars">🎧 ${i+1}/${MQ.length}</div></div>
+    <div class="task outline">Music quiz<span class="sv">Musiktest – bara för skojs skull! Inga rätt eller fel.</span></div>
+    <div class="stage"><div class="question">${Q.q} ${canSpeak?`<button class="speak" id="rd">🔊</button>`:""}</div><div class="gloss">${Q.sv}</div>
+      <div class="opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">${shuffle(Q.o).map(([en,sv,t])=>`<button class="opt" data-t="${t}" data-w="${en}">${en}${sv?`<span class="sv" style="font-size:14px">${sv}</span>`:""}</button>`).join("")}</div></div>`;
+    document.getElementById("back").onclick = menu;
+    if(canSpeak){ document.getElementById("rd").onclick=()=>say(Q.q); }
+    app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{ score[b.dataset.t]++; picks.push(b.dataset.w); b.classList.add("ok"); say(b.dataset.w.replace(/[^\w\s'/-]/g,"")); i++; setTimeout(step,450); });
+  };
+  step();
+}
+function musicResult(score, picks){
+  const max=Math.max(...Object.values(score)), top=Object.keys(score).filter(k=>score[k]===max), t=rnd(top), M=MTYPES[t];
+  const feel = picks[4] ? picks[4].replace(/[^\w\s]/g,"").trim() : "";
+  state.music = {type:t, date:new Date().toISOString().slice(0,10)}; save();
+  const fresh = checkAch();
+  confetti(); say(`You are a ${M.name}!`);
+  app.innerHTML = `
+  <div class="topbar"><button class="back" id="back">← Menu</button><div style="flex:1"></div></div>
+  <div class="stage end" style="background:${M.col}">
+    <div style="font-weight:900;font-size:20px">Your music type is… <span class="sv">Din musiktyp är…</span></div>
+    <img src="${IMG}pj/${M.pj}_card.webp" alt="" style="width:170px;margin:8px 0">
+    <h2 class="outline" style="color:#fff">${M.icon} ${M.name}</h2>
+    <div class="panel" style="max-width:560px;margin:10px auto;text-align:left">
+      <p style="font-weight:900;font-size:19px;margin:0 0 4px">${M.en}</p><p class="sv" style="margin:0;font-size:15px">${M.svd}</p>
+      ${feel?`<p style="font-weight:900;margin:10px 0 0">Music makes you feel <span style="color:var(--pink)">${feel}</span>.</p>`:""}
+    </div>
+    <div class="panel" style="max-width:560px;margin:10px auto"><p class="label">🎧 Your music match <span class="sv">Dina musikmatchningar</span></p>
+      <div class="opts">${M.match.map(a=>`<span class="opt" style="cursor:default">${a}</span>`).join("")}</div>
+      <p class="note">Not your style? That's OK – all music taste is cool! 😎<br>Inte din stil? Helt okej – all musiksmak är cool!</p></div>
+    ${fresh.map(achBanner).join("")}
+    <p class="note">🔒 Only on this computer. You decide if you show it to someone. · Bara på den här datorn. Du bestämmer om du visar det för någon.</p>
+    <div class="opts"><button class="next" id="again">🔁 Again / Igen</button><button class="next" id="tomenu" style="background:var(--lime)">🏠 Meny</button></div>
+  </div>`;
+  document.getElementById("back").onclick = menu; document.getElementById("tomenu").onclick = menu; document.getElementById("again").onclick = musicQuiz;
+  window.scrollTo(0,0);
+}
+
+menu();

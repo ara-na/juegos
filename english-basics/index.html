@@ -133,12 +133,15 @@ function menu(){
     <p class="label">2. Choose a game <span class="sv">Välj ett spel</span></p>
     <div class="grid">${ACTS.map(a=>`<button class="act" style="background:${a.col}" data-a="${a.id}"><span class="ico">${a.ico}</span><span>${a.t}<span class="sv">${a.sv}</span></span></button>`).join("")}</div>
   </div>
-  <div class="panel">
-    <p class="label">🏅 My stickers <span class="sv">Mina klistermärken – ${toNext} ⭐ to the next one / till nästa</span></p>
-    <div class="shelf">${STICKERS.map((s,i)=>`<span class="${i<unlocked?'':'locked'}">${s}</span>`).join("")}</div>
-  </div>`;
+  <div class="grid" style="margin-bottom:18px">
+    <button class="act" id="toMusic" style="background:var(--cyan)"><span class="ico">🎧</span><span>Music quiz<span class="sv">Musiktest – vilken musiktyp är du?</span></span></button>
+    <a class="act" href="../reto/?g=english" style="background:var(--lime);text-decoration:none;color:var(--ink)"><span class="ico">🏆</span><span>Class challenge<span class="sv">Klassen mot Fresca</span></span></a>
+  </div>
+  ${albumSummaryEN()}`;
   app.querySelectorAll(".topic").forEach(b=>b.onclick=()=>{state.topic=b.dataset.t; save(); menu();});
-  app.querySelectorAll(".act").forEach(b=>b.onclick=()=>GAMES[b.dataset.a]());
+  app.querySelectorAll(".act[data-a]").forEach(b=>b.onclick=()=>GAMES[b.dataset.a]());
+  document.getElementById("toMusic").onclick = musicQuiz;
+  document.getElementById("toAlbum").onclick = album;
 }
 
 /* ---------------- SHELL ---------------- */
@@ -156,8 +159,9 @@ function shell(title, sv, done, total){
 }
 function setBar(done,total){ const i=app.querySelector(".bar i"); if(i) i.style.width = Math.round(done/total*100)+"%"; }
 
-function finish(gameFn, earned, newSticker){
+function finish(gameFn, earned, newSticker, total){
   confetti();
+  const extra = recordFinish(earned, total);
   const st = newSticker ? STICKERS[Math.min(STICKERS.length,Math.floor(state.stars/STARS_PER_STICKER))-1] : null;
   app.innerHTML = `
   <div class="topbar"><button class="back" id="back">← Menu</button><div style="flex:1"></div><div class="stars">⭐ <span id="starCount">${state.stars}</span></div></div>
@@ -166,15 +170,18 @@ function finish(gameFn, earned, newSticker){
     <h2 class="outline">${rnd(PRAISE)}</h2>
     <div style="font-size:24px;font-weight:800">Du fick / You got ${earned} ⭐ <span class="sv">${rnd(PRAISE_SV)}</span></div>
     ${st?`<div class="newsticker">New sticker! / Nytt klistermärke!<span>${st}</span></div>`:""}
+    ${extra}
     <div class="opts" style="margin-top:22px">
       <button class="next" id="again">🔁 Igen / Again</button>
       <button class="next" id="tomenu" style="background:var(--lime)">🏠 Meny</button>
+      ${extra.trim()?`<button class="next" id="toAlb" style="background:var(--cyan)">📒 Album</button>`:""}
     </div>
   </div>`;
   document.getElementById("back").onclick = menu;
   document.getElementById("tomenu").onclick = menu;
   document.getElementById("again").onclick = gameFn;
-  if(st) say("New sticker!");
+  const ta=document.getElementById("toAlb"); if(ta) ta.onclick=album;
+  if(st || extra.trim()) say("New sticker!");
 }
 function confetti(){
   const e=["⭐","🎉","✨","🌟","🎊"];
@@ -188,9 +195,9 @@ function runQuestions(gameFn, title, sv, qs, renderQ){
   let i=0, earned=0, sticker=false;
   const stage = shell(title, sv, 0, qs.length);
   const next = () => {
-    if(i>=qs.length){ finish(gameFn, earned, sticker); return; }
+    if(i>=qs.length){ finish(gameFn, earned, sticker, qs.length); return; }
     setBar(i, qs.length);
-    renderQ(stage, qs[i], (firstTry)=>{ if(firstTry){ earned++; if(addStar()) sticker=true; } i++; setTimeout(next, 1100); });
+    renderQ(stage, qs[i], (firstTry)=>{ if(firstTry){ earned++; if(gameFn===GAMES.spell){ state.spellOk=(state.spellOk||0)+1; save(); } if(addStar()) sticker=true; } i++; setTimeout(next, 1100); });
   };
   next();
 }
@@ -216,7 +223,7 @@ GAMES.match = function(){
       say(selWord.dataset.w); matched++; setBar(matched,set.length);
       if(misses===0){ earned++; if(addStar()) sticker=true; }
       misses=0; fb.textContent = rnd(PRAISE);
-      if(matched===set.length) setTimeout(()=>finish(GAMES.match,earned,sticker),1200);
+      if(matched===set.length) setTimeout(()=>finish(GAMES.match,earned,sticker,set.length),1200);
     } else {
       misses++; [selPic,selWord].forEach(t=>{t.classList.remove("sel");t.classList.add("bad");setTimeout(()=>t.classList.remove("bad"),450);});
       fb.innerHTML = `<img src="../img/pj/pera_icon.webp" alt=""> Försök igen! / Try again!`;
@@ -303,7 +310,7 @@ GAMES.memory = function(){
       if(cards[a].w===cards[b].w && cards[a].type!==cards[b].type){
         els[a].classList.add("done"); els[b].classList.add("done"); say(cards[a].w); found++; setBar(found,set.length); open=[];
         stage.querySelector("#fb").textContent=rnd(PRAISE);
-        if(found===set.length){ const earned = tries<=10?6:tries<=14?5:4; let st=false; for(let k=0;k<earned;k++) if(addStar()) st=true; setTimeout(()=>finish(GAMES.memory,earned,st),1200); }
+        if(found===set.length){ const earned = tries<=10?6:tries<=14?5:4; let st=false; for(let k=0;k<earned;k++) if(addStar()) st=true; setTimeout(()=>finish(GAMES.memory,earned,st,tries<=8?earned:99),1200); }
       } else { lock=true; setTimeout(()=>{hide(a);hide(b);open=[];lock=false;},1100); }
     }
   });
@@ -348,7 +355,8 @@ GAMES.gap = function(){
   });
 };
 
-menu();
+
 </script>
+<script src="extra.js"></script>
 </body>
 </html>
