@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Watch & think · ¡A jugar!</title>
+<title>Watch & think · Mira y piensa · ¡A jugar!</title>
 <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../engine/games.css">
 <link rel="icon" href="../img/pj/pera_icon.webp">
@@ -54,12 +54,15 @@
 <body>
 <div class="wrap" id="app"></div>
 <div id="print"></div>
+<script>window.WQ=new URLSearchParams(location.search); window.WLANG=WQ.get("lang")==="es"?"es":"en"; window.WUI=WQ.get("ui")==="en"?"en":"sv";</script>
 <script src="videos.js"></script>
+<script>if(WLANG==="es") document.write('<script src="videos-es.js"><\/script>');</script>
 <script>
 VIDEOS.forEach(v=>{ const d=DEFAULT_Q[v.cat]||DEFAULT_Q.fun; if(!CATS[v.cat]) v.cat="fun"; v.pre=v.pre||d.pre; v.think=v.think||d.think; });
 const LIVE=()=>VIDEOS.filter(v=>!v.hidden);
 const isNew=v=>v.added && (Date.now()-new Date(v.added).getTime()) < 14*864e5;
-const KEY="aJugar-watch";
+const KEY=WLANG==="es"?"aJugar-watch-es":"aJugar-watch";
+const q2 = q => (q.length>2 && WUI==="en") ? q[2] : q[1];
 let S={log:{},recs:[]};
 try{ const s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s) S=Object.assign(S,s); }catch(e){}
 const save=()=>{ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} };
@@ -73,7 +76,7 @@ let picks=null, cat=null;
 
 function card(v){
   return `<button class="vcard ${S.log[v.id]?"seen":""}" data-v="${v.id}"><img src="${thumb(v.id)}" alt="" loading="lazy">
-    <span class="vt">${esc(v.t)}</span><span class="vm">${esc(v.ch)}${v.min?" · "+v.min:""}${isNew(v)?'<span class="tag" style="background:var(--yellow)">NEW</span>':""}${v.long?'<span class="tag">2 parts</span>':""}${v.teacher?'<span class="tag t">with teacher</span>':""}</span></button>`;
+    <span class="vt">${esc(v.t)}</span><span class="vm">${esc(v.ch)}${v.min?" · "+v.min:""}${isNew(v)?'<span class="tag" style="background:var(--yellow)">NEW</span>':""}${v.long?'<span class="tag">2 parts</span>':""}${v.teacher?'<span class="tag t">with teacher</span>':""}${WLANG==="es"&&v.lvl?`<span class="tag" style="background:#fff">${v.lvl}</span>`:""}</span></button>`;
 }
 function home(){
   if(!picks){ const ok=LIVE().filter(v=>!v.teacher), un=ok.filter(v=>!S.log[v.id]);
@@ -82,8 +85,8 @@ function home(){
   const allSeen=LIVE().every(v=>S.log[v.id]);
   const n=Object.keys(S.log).length;
   app.innerHTML=`
-  <a class="home" href="../english-basics/">🍐 English Fun</a>
-  <header><h1 class="outline"><span class="w3">Watch</span> <span class="w1">& think</span></h1>
+  ${WLANG==="es"?`<a class="home" href="../index.html">🏠 ¡A jugar!</a>`:`<a class="home" href="../english-basics/">🍐 English Fun</a>`}
+  <header><h1 class="outline">${WLANG==="es"?`<span class="w3">Mira</span> <span class="w1">y piensa</span>`:`<span class="w3">Watch</span> <span class="w1">& think</span>`}</h1>
     <div class="stars">🎬 <span>${n}</span></div></header>
   <div class="fresca-row"><img class="fresca" src="../img/pj/pera.webp" alt="Pera"><div class="bubble">${allSeen?`Wow, you watched them all! 🏆 Ask your teacher for new videos.<span class="sv">Du har sett alla! Fråga din lärare efter nya videor.</span>`:`Pick one video. Watch it, then think!<span class="sv">Välj en video. Titta och tänk sen!</span>`}</div></div>
   <div class="panel"><p class="label">⭐ Today's picks <span class="sv">Dagens förslag</span></p>
@@ -111,8 +114,8 @@ function before(id){
   <div class="panel"><p class="label">🎬 ${esc(v.t)} <span class="sv">${esc(v.ch)}${v.min?" · "+v.min:""}</span></p>
     <img src="${thumb(id)}" alt="" style="width:100%;max-width:520px;border:var(--bd);border-radius:16px;display:block;margin:0 auto 8px">
     ${v.teacher?`<p class="note">🙋 Watch this one together with your teacher. / Titta på den här tillsammans med din lärare.</p>`:""}
-    <div class="q">🤔 ${v.pre[0]}<span class="sv">${v.pre[1]}</span>
-      <textarea id="guess" rows="2" placeholder="My guess… (English or svenska)"></textarea></div>
+    <div class="q">🤔 ${v.pre[0]}<span class="sv">${q2(v.pre)}</span>
+      <textarea id="guess" rows="2" placeholder="${WLANG==="es"?"Mi idea… (español, svenska, English)":"My guess… (English or svenska)"}"></textarea></div>
     <p class="note">You can also just think, or tell your teacher. / Du kan också bara tänka, eller berätta för din lärare.</p>
     <div class="opts"><button class="next" id="go" style="background:var(--pink);color:#fff">▶ Watch / Titta</button></div></div>`;
   document.getElementById("back").onclick=e=>{e.preventDefault();home();};
@@ -121,7 +124,7 @@ function before(id){
 }
 function watch(){
   const v=V(cur.id);
-  const src=()=>`https://www.youtube-nocookie.com/embed/${v.id}?rel=0&cc_lang_pref=en&hl=en${cur.cc?"&cc_load_policy=1":""}`;
+  const src=()=>`https://www.youtube-nocookie.com/embed/${v.id}?rel=0&cc_lang_pref=${WLANG}&hl=${WLANG}${cur.cc?"&cc_load_policy=1":""}`;
   app.innerHTML=`<a class="home" href="#" id="back">⬅ Videos</a>${steps(1)}
   <div class="panel"><p class="label">🎬 ${esc(v.t)}</p>
     <div class="player"><iframe id="yt" src="${src()}" title="${esc(v.t)}" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
@@ -139,9 +142,9 @@ function think(){
   const v=V(cur.id);
   app.innerHTML=`<a class="home" href="#" id="back">⬅ Videos</a>${steps(2)}
   <div class="panel"><p class="label">🧠 Think <span class="sv">Tänk</span></p>
-    <p class="note">Answer in English or Swedish, write or talk — you choose. There are no wrong answers. / Svara på engelska eller svenska, skriv eller prata – du väljer. Det finns inga fel svar.</p>
+    <p class="note">${WLANG==="es"?"Responde en español si puedes – o en sueco o inglés. Escribe o habla. ¡No hay respuestas incorrectas! / Svara på spanska om du kan – annars svenska eller engelska. Det finns inga fel svar.":"Answer in English or Swedish, write or talk — you choose. There are no wrong answers. / Svara på engelska eller svenska, skriv eller prata – du väljer. Det finns inga fel svar."}</p>
     ${cur.guess?`<div class="q" style="background:#fff8d6">🤔 Your guess: <span style="font-weight:800">${esc(cur.guess)}</span><span class="sv">Hade du rätt? / Were you right?</span></div>`:""}
-    ${v.think.map((q,i)=>`<div class="q">${i+1}. ${q[0]}<span class="sv">${q[1]}</span>
+    ${v.think.map((q,i)=>`<div class="q">${i+1}. ${q[0]}<span class="sv">${q2(q)}</span>
       <textarea data-a="${i}" rows="2" placeholder="…">${esc(cur.ans[i])}</textarea>
       <button class="told ${cur.told[i]?"on":""}" data-t="${i}">💬 I told my teacher / Jag berättade</button></div>`).join("")}
     <div class="q">📝 One new word I heard <span class="sv">Ett nytt ord jag hörde</span><input type="text" id="word" value="${esc(cur.word)}"></div>
@@ -165,7 +168,7 @@ function finished(){
       <button class="next" id="pB" style="background:#fff">✏️ Write by hand / Skriv för hand</button>
       <button class="next" id="cp" style="background:#fff">📋 Copy / Kopiera</button></div>
     <div class="opts" style="margin-top:10px"><button class="next" id="more" style="background:var(--pink);color:#fff">🎬 Another video / En till</button>
-    <a class="next" href="../english-basics/" style="background:var(--yellow);text-decoration:none;color:var(--ink)">🍐 English Fun</a></div></div>`;
+    <a class="next" href="${WLANG==="es"?"../index.html":"../english-basics/"}" style="background:var(--yellow);text-decoration:none;color:var(--ink)">${WLANG==="es"?"🏠 ¡A jugar!":"🍐 English Fun"}</a></div></div>`;
   picks=null;
   if(has) document.getElementById("pA").onclick=()=>printSheet([id],true);
   document.getElementById("pB").onclick=()=>printSheet([id],false);
@@ -180,8 +183,8 @@ function printSheet(ids,withAns){
   document.getElementById("print").innerHTML=`<div class="ph"><h1>WATCH & THINK · LOGBOOK</h1><span>📅 ${d} &nbsp; <span class="tbox">Teacher ✔ ______</span></span></div>`+
   ids.map(id=>{ const v=V(id), l=S.log[id]||{ans:[]};
     return `<div class="ps"><h2>🎬 ${esc(v.t)}</h2><div class="m">${esc(v.ch)} · youtu.be/${v.id} · ${l.d||d}</div>
-      <div class="pq">🤔 ${v.pre[0]}<i>${v.pre[1]}</i></div>${withAns&&l.guess?`<div class="pa">${esc(l.guess)}</div>`:lines(withAns?1:2)}
-      ${v.think.map((q,i)=>`<div class="pq">${i+1}. ${q[0]}<i>${q[1]}</i></div>${withAns&&l.ans[i]?`<div class="pa">${esc(l.ans[i])}</div>`:lines(withAns&&l.told&&l.told[i]?1:3)}`).join("")}
+      <div class="pq">🤔 ${v.pre[0]}<i>${q2(v.pre)}</i></div>${withAns&&l.guess?`<div class="pa">${esc(l.guess)}</div>`:lines(withAns?1:2)}
+      ${v.think.map((q,i)=>`<div class="pq">${i+1}. ${q[0]}<i>${q2(q)}</i></div>${withAns&&l.ans[i]?`<div class="pa">${esc(l.ans[i])}</div>`:lines(withAns&&l.told&&l.told[i]?1:3)}`).join("")}
       <div class="pq">📝 New word / Nytt ord: ${withAns&&l.word?`<span style="font-weight:600">${esc(l.word)}</span>`:"______________"} &nbsp; ⭐ ${withAns&&l.stars?FACES[l.stars]:"😐 🙂 🤩"}</div></div>`; }).join("");
   setTimeout(()=>window.print(),50);
 }

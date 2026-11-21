@@ -22,9 +22,9 @@
    Cuidado: cada línea termina en coma, y los textos van entre comillas "…".
    Si un texto lleva comillas dobles dentro, usa comillas simples en el texto.
    ========================================================= */
-const CATS = {animals:"🐾 Animals & nature", film:"🎬 Movies & games", minds:"🧠 People & minds", science:"🔬 Weird science", fun:"😂 Funny & strange"};
+var CATS = {animals:"🐾 Animals & nature", film:"🎬 Movies & games", minds:"🧠 People & minds", science:"🔬 Weird science", fun:"😂 Funny & strange"};
 
-const DEFAULT_Q = {
+var DEFAULT_Q = {
   animals:{pre:["Look at the title. What will happen? Guess!","Titta på titeln. Vad kommer att hända? Gissa!"],
     think:[["Which animal or moment surprised you most? Why?","Vilket djur eller ögonblick överraskade dig mest? Varför?"],
            ["Describe one animal: how does it look and how does it move?","Beskriv ett djur: hur ser det ut och hur rör det sig?"],
@@ -47,7 +47,7 @@ const DEFAULT_Q = {
            ["Write a short news headline for the video.","Skriv en kort nyhetsrubrik till videon."]]}
 };
 
-const VIDEOS = [
+var VIDEOS = [
   {id:"qWG2f9DwwpY", t:"Why animals help each other", ch:"TED-Ed", added:"2026-11-21", cat:"animals", lvl:"B1–B2",
    pre:["Why would an animal help another animal? Guess!","Varför skulle ett djur hjälpa ett annat djur? Gissa!"],
    think:[["Which example in the video surprised you most?","Vilket exempel i videon överraskade dig mest?"],

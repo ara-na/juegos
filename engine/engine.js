@@ -158,6 +158,7 @@ function home(){
     <div class="units">${units.map(id=>{const u=window.UNITS[id]; return `<button class="unitcard ${id===G.current?'now':''}" data-u="${id}">${id===G.current?`<i class="badge">${S.now}</i>`:""}<span class="ico">${u.icon}${state.gold[id]?` <i class="goldmini">🥇</i>`:""}</span>${G.labels&&G.labels[id]?`<i class="kap">${esc(G.labels[id])}</i>`:""}<b>${esc(u.title)}</b><span>${esc(tr(u.sub))}</span></button>`;}).join("")}</div>
   </div>
   <a class="unitcard" href="../verbos/?lang=${L}" style="background:var(--purple);color:#fff;text-decoration:none;margin-bottom:18px;display:flex"><span class="ico">🔐</span><b>¡Escapa de los verbos!</b><span style="color:#fff">${S.escape}</span></a>
+  <a class="unitcard" href="../watch/?lang=es&ui=${L}" style="background:var(--pink);color:#fff;text-decoration:none;margin-bottom:18px;display:flex"><span class="ico">🎬</span><b>Mira y piensa</b><span style="color:#fff">${L==="sv"?"Korta videor på spanska med frågor":"Short videos in Spanish with questions"}</span></a>
   ${albumSummary()}
   <footer>✏️ Fresca: diseño original de Elliot · ${S.footer}</footer>`;
   app.querySelectorAll(".unitcard[data-u]").forEach(b=>b.onclick=()=>{ location.hash = b.dataset.u; });
