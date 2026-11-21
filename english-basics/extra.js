@@ -203,10 +203,15 @@ const feel = id => FEELS.find(f=>f.id===id) || {e:"·",en:"",sv:""};
 const GNAME = {match:["Match it","🧩"],choose:["What is it?","🤔"],listen:["Listen and click","👂"],spell:["Spell the word","🔤"],
   memory:["Memory","🃏"],sentence:["Make a sentence","🧱"],gap:["Fill the gap","✍️"],music:["Music quiz","🎧"],any:["A game you choose","⭐"]};
 const EASY=["match","memory","choose","listen"], HARD=["spell","sentence","gap"];
-function makeMissions(plan){
-  const e=shuffle(EASY);
-  return (plan==="calm" ? [e[0],"any"] : [e[0],e[1],rnd(HARD),"any"]).map(g=>({g, done:false}));
+function makeMissions(plan, avoidTopic){
+  const e=shuffle(EASY), games = plan==="calm" ? [e[0],e[1]] : [e[0],e[1],rnd(HARD),e[2]];
+  let tps = shuffle(Object.keys(TOPICS).filter(t=>t!==avoidTopic));
+  const NOTOPIC=["sentence","gap"]; let k=0;
+  return games.map(g=>({g, t: NOTOPIC.includes(g) ? null : tps[(k++) % tps.length], done:false}));
 }
+const tname = k => k && TOPICS[k] ? TOPICS[k].name : "";
+function nextMission(){ const d=day(); return d ? d.missions.find(m=>!m.done) : null; }
+function startMission(m){ if(!m) return; if(m.t) { state.topic=m.t; save(); } GAMES[m.g](); }
 const day = () => state.log[today()];
 
 function checkin(){
@@ -228,7 +233,7 @@ function choosePlan(f){
     <button class="act plan" data-p="power" style="background:var(--lime)"><span class="ico">⚡</span><span>Power plan<span class="sv">Kraftplan · 4 uppdrag</span></span></button>
   </div>`;
   app.querySelectorAll(".plan").forEach(b=>b.onclick=()=>{
-    state.log[today()] = {feel:f, plan:b.dataset.p, missions:makeMissions(b.dataset.p), stars0:state.stars, games:0, done:false};
+    state.log[today()] = {feel:f, plan:b.dataset.p, missions:makeMissions(b.dataset.p, state.topic), stars0:state.stars, games:0, done:false, blocks:0};
     save(); menu();
   });
 }
@@ -238,20 +243,36 @@ function missionPanel(){
   return `<div class="panel mission ${d.done?"complete":""}">
     <p class="label">🎯 Mission of the day <span class="sv">Dagens uppdrag · ${n}/${all}</span>
       <span style="float:right">${feel(d.feel).e} ${d.plan==="calm"?"🌙":"⚡"}</span></p>
-    <div class="mlist">${d.missions.map(m=>`<div class="mi ${m.done?"ok":""}"><span class="box">${m.done?"✔":""}</span>${GNAME[m.g][1]} ${GNAME[m.g][0]}</div>`).join("")}</div>
-    <div class="opts" style="justify-content:flex-start;margin-top:10px"><button class="next" id="toDay" style="background:${d.done?"var(--pink);color:#fff":"#fff"}">📒 My day / Min dag</button></div>
+    ${d.blocks?`<p class="note" style="margin:0 0 6px">🔁 Block ${d.blocks+1} · ✔ ${d.blocks} done</p>`:""}
+    <div class="mlist">${d.missions.map((m,i)=>`<button class="mi ${m.done?"ok":""}" data-m="${i}" ${m.done?"disabled":""}><span class="box">${m.done?"✔":""}</span>${GNAME[m.g][1]} ${GNAME[m.g][0]}${m.t?` <span class="mt">· ${tname(m.t)}</span>`:""}</button>`).join("")}</div>
+    <div class="opts" style="justify-content:flex-start;margin-top:10px">
+      ${nextMission()?`<button class="next" id="goMission" style="background:var(--pink);color:#fff">▶ Start mission / Starta</button>`:""}
+      ${d.done?`<button class="next" id="newBlock" style="background:var(--cyan)">🔁 New block / Nytt block</button>`:""}
+      <button class="next" id="toDay" style="background:#fff">📒 My day / Min dag</button></div>
   </div>`;
 }
 // called when a game (or the music quiz) is finished
 function tickMission(gid){
   const d=day(); if(!d) return ""; d.games=(d.games||0)+1;
-  const m = d.missions.find(x=>!x.done && x.g===gid) || d.missions.find(x=>!x.done && x.g==="any");
+  const m = d.missions.find(x=>!x.done && x.g===gid && (!x.t || x.t===state.topic)) || d.missions.find(x=>!x.done && x.g==="any");
   if(m) m.done=true;
   let html="";
-  if(!d.done && d.missions.every(x=>x.done)){ d.done=true; addStar(5); html=`<div class="newsticker" style="background:var(--pink);color:#fff">🎯 Mission complete! / Uppdraget klart! +5 ⭐<span style="font-size:20px">Show your teacher! · Visa din lärare! 🙋</span></div>`; }
+  if(!d.done && d.missions.every(x=>x.done)){ d.done=true; addStar(5); html=`<div class="newsticker" style="background:var(--pink);color:#fff">🎯 Mission complete! / Uppdraget klart! +5 ⭐<span style="font-size:20px">Show your teacher! · Visa din lärare! 🙋</span></div>`; d.blocks=(d.blocks||0)+1; }
   else if(m) html=`<div class="newsticker">🎯 ${d.missions.filter(x=>x.done).length}/${d.missions.length} ✔ ${GNAME[m.g][0]}</div>`;
   save(); return html;
 }
+function breakTime(){
+  let left=5*60;
+  app.innerHTML = `<div class="stage end" style="background:var(--cyan)">
+    <div style="font-size:90px">☕</div><h2 class="outline" style="color:#fff">Break time!</h2><div style="font-weight:900;font-size:20px">Paus! Rör på dig, drick vatten 💧</div>
+    <div class="ttl" id="brk" style="font-size:64px;margin:12px 0">5:00</div>
+    <div class="opts"><button class="next" id="brkDone" style="background:var(--lime)">🔁 I'm ready! New block / Jag är redo!</button><button class="next" id="brkMenu" style="background:#fff">🏠 Meny</button></div></div>`;
+  const t=setInterval(()=>{ left--; const el=document.getElementById("brk"); if(!el){ clearInterval(t); return; } el.textContent=`${Math.floor(Math.max(0,left)/60)}:${String(Math.max(0,left)%60).padStart(2,"0")}`; if(left<=0){ clearInterval(t); say("Break is over! Let's play!"); } },1000);
+  document.getElementById("brkDone").onclick=()=>{ clearInterval(t); newBlock(); };
+  document.getElementById("brkMenu").onclick=()=>{ clearInterval(t); menu(); };
+}
+function newBlock(){ const d=day(); if(!d) return checkin(); d.missions=makeMissions(d.plan, state.topic); d.done=false; save(); menu(); }
+
 function myDay(){
   const d=day(); if(!d) return checkin();
   const earned = state.stars-(d.stars0||0);
@@ -263,7 +284,7 @@ function myDay(){
     <div class="row2"><b>My plan</b><span>${d.plan==="calm"?"🌙 Calm plan":"⚡ Power plan"}</span></div>
     <div class="row2"><b>Games I played</b><span>🎮 ${d.games||0}</span></div>
     <div class="row2"><b>Stars I won today</b><span>⭐ ${earned}</span></div>
-    <div class="row2"><b>My mission</b><span>${d.done?"🎯 Complete! ✔":`${d.missions.filter(m=>m.done).length} / ${d.missions.length}`}</span></div>
+    <div class="row2"><b>Mission blocks done</b><span>🎯 ${d.blocks||0}${d.done?"":` · now ${d.missions.filter(m=>m.done).length}/${d.missions.length}`}</span></div>
     ${d.feelEnd?`<div class="row2"><b>Now I feel</b><span>${feel(d.feelEnd).e} ${feel(d.feelEnd).en} <span class="sv">(${feel(d.feelEnd).sv})</span></span></div>`:""}
   </div>
   <div class="panel"><p class="label">How do you feel now? <span class="sv">Hur känner du dig nu?</span></p>
@@ -279,7 +300,7 @@ function myDays(){
   app.innerHTML = `
   <div class="topbar"><button class="back" id="back">← My day</button></div>
   <header><h1 class="outline"><span class="w3">My days</span><span class="sv">Mina dagar · bara på den här datorn</span></h1></header>
-  <div class="panel">${days.map(([k,d])=>`<div class="row2"><b>${k}</b><span>${feel(d.feel).e}${d.feelEnd?" → "+feel(d.feelEnd).e:""} · ${d.plan==="calm"?"🌙":"⚡"} · 🎮 ${d.games||0} · ${d.done?"🎯 ✔":`🎯 ${d.missions.filter(m=>m.done).length}/${d.missions.length}`}</span></div>`).join("")}</div>`;
+  <div class="panel">${days.map(([k,d])=>`<div class="row2"><b>${k}</b><span>${feel(d.feel).e}${d.feelEnd?" → "+feel(d.feelEnd).e:""} · ${d.plan==="calm"?"🌙":"⚡"} · 🎮 ${d.games||0} · 🎯 ${d.blocks||0}</span></div>`).join("")}</div>`;
   document.getElementById("back").onclick = myDay;
 }
 

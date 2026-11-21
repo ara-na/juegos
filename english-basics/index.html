@@ -20,7 +20,8 @@
   .fe2{font-size:.9em}
   .mission{background:#fff8d6}.mission.complete{background:var(--lime)}
   .mlist{display:flex;flex-direction:column;gap:8px}
-  .mi{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px}
+  .mi{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px;background:#fff;border:3px solid var(--ink);border-radius:14px;padding:6px 10px;text-align:left;color:var(--ink)}
+  .mi .mt{font-weight:800;font-size:15px;color:var(--soft)}
   .mi .box{width:32px;height:32px;border:3px solid var(--ink);border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:#fff;color:var(--green)}
   .mi.ok{text-decoration:line-through;opacity:.7}.mi.ok .box{background:var(--green);color:#fff}
   .myday .row2,.panel .row2{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:2px dashed #ddd;font-size:19px;flex-wrap:wrap}
@@ -155,6 +156,9 @@ function menu(){
   app.querySelectorAll(".act[data-a]").forEach(b=>b.onclick=()=>GAMES[b.dataset.a]());
   document.getElementById("toMusic").onclick = musicQuiz;
   const td=document.getElementById("toDay"); if(td) td.onclick = myDay;
+  const gm=document.getElementById("goMission"); if(gm) gm.onclick = ()=>startMission(nextMission());
+  const nb=document.getElementById("newBlock"); if(nb) nb.onclick = newBlock;
+  app.querySelectorAll(".mi[data-m]").forEach(b=>b.onclick=()=>startMission(day().missions[+b.dataset.m]));
   const sk=document.getElementById("toSecret"); if(sk) sk.onclick = secretPage;
   document.getElementById("toAlbum").onclick = album;
 }
@@ -188,6 +192,8 @@ function finish(gameFn, earned, newSticker, total){
     ${st?`<div class="newsticker">New sticker! / Nytt klistermärke!<span>${st}</span></div>`:""}
     ${extra}
     <div class="opts" style="margin-top:22px">
+      ${nextMission()?`<button class="next" id="nextM" style="background:var(--pink);color:#fff">▶ Next mission / Nästa uppdrag</button>`:""}
+      ${day()&&day().done&&!nextMission()?`<button class="next" id="brk" style="background:var(--cyan)">☕ Break / Paus</button>`:""}
       <button class="next" id="again">🔁 Igen / Again</button>
       <button class="next" id="tomenu" style="background:var(--lime)">🏠 Meny</button>
       ${extra.trim()?`<button class="next" id="toAlb" style="background:var(--cyan)">📒 Album</button>`:""}
@@ -198,6 +204,8 @@ function finish(gameFn, earned, newSticker, total){
   document.getElementById("tomenu").onclick = menu;
   document.getElementById("again").onclick = gameFn;
   const ta=document.getElementById("toAlb"); if(ta) ta.onclick=album;
+  const nm=document.getElementById("nextM"); if(nm) nm.onclick=()=>startMission(nextMission());
+  const bk=document.getElementById("brk"); if(bk) bk.onclick=breakTime;
   const tmd=document.getElementById("toMyDay"); if(tmd) tmd.onclick=myDay;
   if(st || extra.trim()) say("New sticker!");
 }
