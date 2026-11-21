@@ -274,6 +274,22 @@ function breakTime(){
 }
 function newBlock(){ const d=day(); if(!d) return checkin(); d.missions=makeMissions(d.plan, state.topic); d.done=false; save(); menu(); }
 
+/* videos from «Watch & think» (same computer) */
+function watchLog(){ try{ return JSON.parse(localStorage.getItem("aJugar-watch")||"null")||{log:{}}; }catch(e){ return {log:{}}; } }
+function watchVideo(id){ try{ const v=VIDEOS.find(x=>x.id===id); if(!v) return null; const d=(typeof DEFAULT_Q!=="undefined"&&(DEFAULT_Q[v.cat]||DEFAULT_Q.fun))||{}; return Object.assign({},v,{pre:v.pre||d.pre,think:v.think||d.think}); }catch(e){ return null; } }
+const escW=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function videosOn(date){ const W=watchLog(); return Object.entries(W.log||{}).filter(([id,l])=>l.d===date).map(([id,l])=>({v:watchVideo(id),l})).filter(x=>x.v); }
+function videosPanel(date){
+  const vs=videosOn(date);
+  return `<div class="panel"><p class="label">🎬 Videos I watched <span class="sv">Videor jag tittade på · ${vs.length}</span></p>
+    ${vs.length?vs.map(({v,l})=>`<div class="q" style="background:#fff;border:3px solid var(--ink);border-radius:14px;padding:10px 12px;margin:8px 0">
+      <b style="font-size:18px">${escW(v.t)}</b> <span class="sv" style="display:inline;font-size:14px">${escW(v.ch)} · ${["","😐","🙂","🤩"][l.stars||0]}${l.word?" · 📝 "+escW(l.word):""}</span>
+      ${l.guess?`<div class="row2"><span>🤔 ${v.pre?v.pre[0]:"My guess"}</span><b>${escW(l.guess)}</b></div>`:""}
+      ${(v.think||[]).map((q,i)=>`<div class="row2"><span>${i+1}. ${q[0]}</span><b>${l.ans&&l.ans[i]?escW(l.ans[i]):(l.told&&l.told[i]?"💬 told my teacher":"—")}</b></div>`).join("")}
+      ${l.chk?`<div class="note" style="color:var(--green);font-weight:900">✔ Checked by teacher · ${l.chk}</div>`:""}</div>`).join("")
+      :`<p class="note">No videos yet today. / Inga videor än idag.</p>`}
+    <div class="opts" style="justify-content:flex-start"><a class="next" href="../watch/" style="background:var(--pink);color:#fff;text-decoration:none">🎬 Watch & think</a></div></div>`;
+}
 function myDay(){
   const d=day(); if(!d) return checkin();
   const earned = state.stars-(d.stars0||0);
@@ -288,6 +304,7 @@ function myDay(){
     <div class="row2"><b>Mission blocks done</b><span>🎯 ${d.blocks||0}${d.done?"":` · now ${d.missions.filter(m=>m.done).length}/${d.missions.length}`}</span></div>
     ${d.feelEnd?`<div class="row2"><b>Now I feel</b><span>${feel(d.feelEnd).e} ${feel(d.feelEnd).en} <span class="sv">(${feel(d.feelEnd).sv})</span></span></div>`:""}
   </div>
+  ${videosPanel(today())}
   <div class="panel"><p class="label">How do you feel now? <span class="sv">Hur känner du dig nu?</span></p>
     <div class="feels">${FEELS.map(f=>`<button class="feel ${d.feelEnd===f.id?"on":""}" data-f="${f.id}"><span class="fe">${f.e}</span><b>${f.en}</b></button>`).join("")}</div></div>
   <div class="opts"><button class="next" id="days" style="background:#fff">🗓️ My days / Mina dagar</button></div>`;
@@ -297,12 +314,15 @@ function myDay(){
   window.scrollTo(0,0);
 }
 function myDays(){
-  const days=Object.entries(state.log).sort((a,b)=>b[0].localeCompare(a[0]));
+  const W=watchLog(), vd={}; Object.values(W.log||{}).forEach(l=>{ vd[l.d]=(vd[l.d]||0)+1; });
+  const keys=[...new Set([...Object.keys(state.log),...Object.keys(vd)])].sort().reverse();
   app.innerHTML = `
   <div class="topbar"><button class="back" id="back">← My day</button></div>
   <header><h1 class="outline"><span class="w3">My days</span><span class="sv">Mina dagar · bara på den här datorn</span></h1></header>
-  <div class="panel">${days.map(([k,d])=>`<div class="row2"><b>${k}</b><span>${feel(d.feel).e}${d.feelEnd?" → "+feel(d.feelEnd).e:""} · ${d.plan==="calm"?"🌙":"⚡"} · 🎮 ${d.games||0} · 🎯 ${d.blocks||0}</span></div>`).join("")}</div>`;
+  <div class="panel">${keys.map(k=>{ const d=state.log[k]; return `<div class="row2"><b>${k}</b><span>${d?`${feel(d.feel).e}${d.feelEnd?" → "+feel(d.feelEnd).e:""} · ${d.plan==="calm"?"🌙":"⚡"} · 🎮 ${d.games||0} · 🎯 ${d.blocks||0}`:""}${vd[k]?` · <button class="next" data-vd="${k}" style="background:var(--pink);color:#fff;font-size:15px;padding:2px 10px">🎬 ${vd[k]}</button>`:""}</span></div>`; }).join("")}</div>
+  <div id="vday"></div>`;
   document.getElementById("back").onclick = myDay;
+  app.querySelectorAll("[data-vd]").forEach(b=>b.onclick=()=>{ document.getElementById("vday").innerHTML=`<p class="label" style="margin:8px 4px">📅 ${b.dataset.vd}</p>`+videosPanel(b.dataset.vd); document.getElementById("vday").scrollIntoView({behavior:"smooth"}); });
 }
 
 if(state.focus){ const ft=Object.keys(TOPICS).filter(t=>TOPICS[t].pack===state.focus); if(!ft.length) state.focus=null; else if(!ft.includes(state.topic)) state.topic=ft[0]; }
