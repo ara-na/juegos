@@ -7,7 +7,7 @@
 
    · id    = lo que va después de "watch?v=" en el enlace de YouTube
              (https://www.youtube.com/watch?v=7__r4FVj-EI  →  7__r4FVj-EI)
-   · cat   = "animals", "film", "minds", "science" o "fun"
+   · cat   = "animals", "film", "minds", "science", "math" o "fun"
    · added = fecha de hoy. Durante 14 días el vídeo sale con «NEW» y se propone primero.
 
    OPCIONAL:
@@ -22,7 +22,7 @@
    Cuidado: cada línea termina en coma, y los textos van entre comillas "…".
    Si un texto lleva comillas dobles dentro, usa comillas simples en el texto.
    ========================================================= */
-var CATS = {animals:"🐾 Animals & nature", film:"🎬 Movies & games", minds:"🧠 People & minds", science:"🔬 Weird science", fun:"😂 Funny & strange"};
+var CATS = {animals:"🐾 Animals & nature", film:"🎬 Movies & games", minds:"🧠 People & minds", science:"🔬 Weird science", math:"🧮 Riddles & maths", fun:"😂 Funny & strange"};
 
 var DEFAULT_Q = {
   animals:{pre:["Look at the title. What will happen? Guess!","Titta på titeln. Vad kommer att hända? Gissa!"],
@@ -41,6 +41,10 @@ var DEFAULT_Q = {
     think:[["Was your guess right? What was the real answer?","Gissade du rätt? Vad var det riktiga svaret?"],
            ["Explain the main idea in one or two sentences.","Förklara huvudidén med en eller två meningar."],
            ["What if it was the other way round? What would happen?","Tänk om det var tvärtom? Vad skulle hända?"]]},
+  math:{pre:["Pause the video before the answer! Can you solve it?","Pausa videon före svaret! Kan du lösa den?"],
+    think:[["Did you solve it before the answer? How did you think?","Löste du den före svaret? Hur tänkte du?"],
+           ["Explain the solution in your own words, step by step.","Förklara lösningen med egna ord, steg för steg."],
+           ["Make your own riddle for your teacher.","Hitta på en egen gåta till din lärare."]]},
   fun:{pre:["Look at the title. What do you think happens?","Titta på titeln. Vad tror du händer?"],
     think:[["What was the funniest or strangest moment?","Vilket var det roligaste eller konstigaste ögonblicket?"],
            ["Tell what happened in three steps: first, then, at the end.","Berätta vad som hände i tre steg: först, sen, till slut."],
@@ -176,5 +180,21 @@ var VIDEOS = [
    pre:["What do you think would happen? Guess!","Vad tror du skulle hända? Gissa!"],
    think:[["What was the most important fact in the video?","Vilken var den viktigaste faktan i videon?"],
           ["Was the result worse or better than you thought?","Var resultatet värre eller bättre än du trodde?"],
-          ["Why do you think people made this video?","Varför tror du att någon gjorde den här videon?"]]}
+          ["Why do you think people made this video?","Varför tror du att någon gjorde den här videon?"]]},
+  /* --- Tanda 3 (21 nov 2026): matemáticas y lógica (TED-Ed), biología (Amoeba Sisters) --- */
+  {id:"7yDmGnA8Hw0", t:"Can you solve the bridge riddle?", ch:"TED-Ed", cat:"math", min:"3:50", added:"2026-11-21"},
+  {id:"7Vd1dTBVbFg", t:"Can you solve the passcode riddle?", ch:"TED-Ed", cat:"math", min:"4:08", added:"2026-11-21"},
+  {id:"cpwSGsb-rTs", t:"Can you solve the frog riddle?", ch:"TED-Ed", cat:"math", min:"4:31", added:"2026-11-21"},
+  {id:"1rDVz_Fb6HQ", t:"Can you solve \"Einstein's Riddle\"?", ch:"TED-Ed", cat:"math", min:"5:13", added:"2026-11-21"},
+  {id:"aa2Fmr7sKIA", t:"Can you solve the basketball riddle?", ch:"TED-Ed", cat:"math", min:"6:13", added:"2026-11-21"},
+  {id:"8IlzKri08kk", t:"Introduction to Cells: The Grand Cell Tour", ch:"Amoeba Sisters", cat:"science", min:"9:27", added:"2026-11-21",
+   pre:["What is inside a cell? Guess two things.","Vad finns inne i en cell? Gissa två saker."],
+   think:[["Which part of the cell do you remember best? What does it do?","Vilken del av cellen minns du bäst? Vad gör den?"],
+          ["How is a plant cell different from an animal cell?","Hur skiljer sig en växtcell från en djurcell?"],
+          ["Compare the cell to a city or a school: which part is the boss?","Jämför cellen med en stad eller en skola: vilken del är chefen?"]]},
+  {id:"6mgkoqcm6Sg", t:"Cell Organelles and Structures Review", ch:"Amoeba Sisters", cat:"science", min:"8:16", added:"2026-11-21",
+   pre:["This is a guessing game! How many can you guess?","Det här är ett gissningsspel! Hur många kan du gissa?"],
+   think:[["How many did you guess right?","Hur många gissade du rätt?"],
+          ["Which clue was the hardest? Why?","Vilken ledtråd var svårast? Varför?"],
+          ["Write your own clue for one part of the cell.","Skriv en egen ledtråd för en del av cellen."]]}
 ];
