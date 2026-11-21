@@ -41,6 +41,12 @@
   .ctrl .big{background:var(--pink);color:#fff;font-size:24px;padding:12px 26px}
   .keys{color:var(--soft);font-size:14px;font-weight:800;text-align:center;margin-top:10px}
   .winner{text-align:center;padding:20px}
+  .trophies{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+  .tro{background:#f3f3f3;border:3px solid #bbb;border-radius:16px;padding:8px;text-align:center;display:flex;flex-direction:column;gap:2px;color:#888}
+  .tro .ti{font-size:34px;filter:grayscale(1)}.tro small{font-size:12px;font-weight:700}
+  .tro.on{background:#fff8d6;border-color:var(--ink);color:var(--ink);box-shadow:var(--sh)}.tro.on .ti{filter:none}
+  .newtro{display:inline-flex;flex-wrap:wrap;justify-content:center;gap:10px;align-items:center;background:var(--yellow);border:var(--bd);border-radius:18px;padding:8px 16px;margin:8px 0;font-size:clamp(18px,2.4vw,28px);box-shadow:var(--sh)}
+  .newtro small{width:100%;font-size:15px;font-weight:900}
   .winner .tit{font-family:'Luckiest Guy',sans-serif;font-size:clamp(36px,6vw,80px);line-height:1.05}
   .winner{padding:10px}.winner img.st{width:min(300px,50vw);max-height:26vh;object-fit:contain}
 </style>
@@ -100,6 +106,33 @@ function pic(p){
   if(p.t) return `<span class="en">${esc(tr(p.t))}</span>`;
 }
 
+/* ---------- class trophies (per group, on this computer) ---------- */
+const TROPHIES = [
+  {id:"first",  i:"🏆", n:{sv:"Första segern",en:"First win"},        d:{sv:"Vinn mot Fresca",en:"Beat Fresca"}, ok:(r)=>r.wins>=1},
+  {id:"three",  i:"🥉", n:{sv:"3 segrar",en:"3 wins"},                 d:{sv:"Vinn 3 gånger",en:"Win 3 times"}, ok:(r)=>r.wins>=3},
+  {id:"ten",    i:"🥇", n:{sv:"10 segrar",en:"10 wins"},               d:{sv:"Vinn 10 gånger",en:"Win 10 times"}, ok:(r)=>r.wins>=10},
+  {id:"streak", i:"🔥", n:{sv:"Segersvit",en:"Winning streak"},        d:{sv:"3 segrar i rad",en:"3 wins in a row"}, ok:(r)=>r.best>=3},
+  {id:"perfect",i:"💯", n:{sv:"Fullpott",en:"Perfect game"},          d:{sv:"Fresca får 0 poäng",en:"Fresca gets 0 points"}, ok:(r,g)=>g&&g.win&&g.fresca===0},
+  {id:"marathon",i:"🏃",n:{sv:"Maraton",en:"Marathon"},               d:{sv:"Vinn med 20 frågor",en:"Win with 20 questions"}, ok:(r,g)=>g&&g.win&&g.n>=20},
+  {id:"speed",  i:"⚡", n:{sv:"Blixtsnabba",en:"Lightning fast"},      d:{sv:"Vinn med 10 sekunder",en:"Win with 10 seconds"}, ok:(r,g)=>g&&g.win&&g.s===10},
+  {id:"explore",i:"🗺️", n:{sv:"Upptäckare",en:"Explorers"},          d:{sv:"Vinn i 3 olika enheter",en:"Win in 3 different units"}, ok:(r)=>(r.units||[]).length>=3}
+];
+const TKEY="aJugar-reto-trophies";
+const trophyData = () => { try{ return JSON.parse(localStorage.getItem(TKEY)||"{}"); }catch(e){ return {}; } };
+const trophyRec = g => Object.assign({games:0,wins:0,streak:0,best:0,units:[],got:[]}, trophyData()[g]||{});
+function recordTrophies(g, game){
+  const all=trophyData(), r=trophyRec(g);
+  r.games++; if(game.win){ r.wins++; r.streak++; r.best=Math.max(r.best,r.streak); if(!r.units.includes(game.u)) r.units.push(game.u); } else r.streak=0;
+  const fresh = TROPHIES.filter(t=>!r.got.includes(t.id) && t.ok(r,game));
+  fresh.forEach(t=>r.got.push(t.id)); all[g]=r; try{ localStorage.setItem(TKEY,JSON.stringify(all)); }catch(e){}
+  return fresh;
+}
+function shelf(g){
+  const r=trophyRec(g), L=GROUPS[g].lang==="sv"?"sv":"en";
+  return `<div class="panel"><p class="label">🏆 ${L==="sv"?"Klassens troféer":"Class trophies"} <span style="font-weight:800;color:var(--soft);font-size:14px">· ${r.wins}/${r.games} ${L==="sv"?"segrar":"wins"}${r.streak>1?` · 🔥 ${r.streak}`:""}</span></p>
+    <div class="trophies">${TROPHIES.map(t=>{ const on=r.got.includes(t.id); return `<div class="tro ${on?"on":""}" title="${esc(t.d[L])}"><span class="ti">${on?t.i:"❔"}</span><b>${esc(t.n[L])}</b><small>${esc(t.d[L])}</small></div>`; }).join("")}</div></div>`;
+}
+
 /* ---------- setup ---------- */
 function setup(){
   const G = GROUPS[cfg.g]; if(!G.units.includes(cfg.u)) cfg.u = G.current;
@@ -115,6 +148,7 @@ function setup(){
     <div><p class="label">${t.secs}</p><div class="pick">${[10,20,30,0].map(n=>`<button data-s="${n}" class="${n===cfg.s?"on":""}">${n||"∞"}</button>`).join("")}</div></div>
   </div>
   <div style="text-align:center"><button class="go" id="go">${t.start}</button></div>
+  ${shelf(cfg.g)}
   <footer>✏️ Fresca: diseño de Elliot · <a href="../live/host.html" style="color:inherit">📡 ¡En directo! – live quiz</a></footer>`;
   const sv = () => { try{ localStorage.setItem("aJugar-reto", JSON.stringify(cfg)); }catch(e){} };
   app.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{ cfg.g=b.dataset.g; cfg.u=GROUPS[cfg.g].current; sv(); setup(); });
@@ -217,6 +251,7 @@ function end(){
   document.onkeydown=null; const t=T();
   const res = G.clase>G.fresca ? "win" : G.clase<G.fresca ? "lose" : "tie";
   const st = res==="win" ? "chao" : res==="lose" ? "quefuerte" : "todobien";
+  const fresh = recordTrophies(cfg.g, {win:res==="win", fresca:G.fresca, n:cfg.n, s:cfg.s, u:cfg.u}), LT=GROUPS[cfg.g].lang==="sv"?"sv":"en";
   if(res==="win"){ const e=["⭐","🎉","✨","🌟","🎊"]; for(let i=0;i<40;i++){ const s=document.createElement("div"); s.className="confetti"; s.textContent=rnd(e); s.style.left=Math.random()*100+"vw"; s.style.animationDuration=(1.6+Math.random()*1.8)+"s"; document.body.appendChild(s); setTimeout(()=>s.remove(),3600); } }
   say(res==="win" ? "¡Ganó la clase! ¡Chao pescao!" : res==="lose" ? "¡Ganó Fresca! ¡Qué fuerte!" : "¡Empate!");
   app.innerHTML = `
@@ -226,6 +261,7 @@ function end(){
   <div class="board winner">
     <img class="st" src="${IMG}${st}.webp" alt=""><br><img class="fresca" src="${IMG}fresca.webp" alt="Fresca" style="width:auto;height:min(130px,16vh)">
     <div class="tit outline" style="color:${res==="win"?"var(--lime)":"var(--pink)"}">${t[res]}</div>
+    ${fresh.length?`<div class="newtro">${fresh.map(f=>`<span>${f.i} <b>${esc(f.n[LT])}</b></span>`).join("")}<small>${LT==="sv"?"Ny trofé till klassen!":"New class trophy!"}</small></div>`:""}
     <div class="ctrl"><button class="big" id="again">${t.again}</button><button id="menu">${t.menu}</button></div></div>`;
   document.getElementById("again").onclick = start;
   document.getElementById("menu").onclick = setup;
