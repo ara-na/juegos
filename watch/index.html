@@ -37,57 +37,11 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
+<script src="videos.js"></script>
 <script>
-/* Videos checked on YouTube (title + channel), Nov 2026. Questions are open: they don't depend on details we have not verified. */
-const CATS = {animals:"🐾 Animals & nature", film:"🎬 Movies & games", minds:"🧠 People & minds"};
-const VIDEOS = [
-  {id:"qWG2f9DwwpY", t:"Why animals help each other", ch:"TED-Ed", cat:"animals", lvl:"B1–B2",
-   pre:["Why would an animal help another animal? Guess!","Varför skulle ett djur hjälpa ett annat djur? Gissa!"],
-   think:[["Which example in the video surprised you most?","Vilket exempel i videon överraskade dig mest?"],
-          ["Do animals help for free, or do they get something back? What do you think?","Hjälper djur gratis, eller får de något tillbaka? Vad tror du?"],
-          ["Is there an animal that would never help others? Why?","Finns det ett djur som aldrig skulle hjälpa andra? Varför?"]]},
-  {id:"3uTmcG7CgdI", t:"How do animals regrow their limbs? And why can't humans do it?", ch:"TED-Ed", cat:"animals", lvl:"B1–B2",
-   pre:["Which animals can grow a new leg or tail? Guess!","Vilka djur kan få ett nytt ben eller en ny svans? Gissa!"],
-   think:[["Which animal in the video was the most amazing? Why?","Vilket djur i videon var mest fantastiskt? Varför?"],
-          ["Imagine humans could regrow an arm. What would change?","Tänk om människor kunde få en ny arm. Vad skulle ändras?"],
-          ["Would it be good or bad if we could regrow everything? Give two reasons.","Vore det bra eller dåligt om vi kunde återskapa allt? Ge två skäl."]]},
-  {id:"y6u1GPpJuR4", t:"Why do animals form swarms?", ch:"TED-Ed", cat:"animals", lvl:"B1–B2",
-   pre:["Why do birds and fish move in big groups? Guess!","Varför rör sig fåglar och fiskar i stora grupper? Gissa!"],
-   think:[["Is it safer to be alone or in a big group? Why?","Är det säkrare att vara ensam eller i en stor grupp? Varför?"],
-          ["Who decides where the swarm goes? Is there a boss?","Vem bestämmer vart svärmen går? Finns det en chef?"],
-          ["Do people sometimes act like a swarm? When?","Beter sig människor ibland som en svärm? När?"]]},
-  {id:"9bEjYunwByw", t:"Turret Spiders Launch Sneak Attacks From Tiny Towers", ch:"Deep Look (KQED)", cat:"animals", min:"4:35", lvl:"B1",
-   pre:["A spider that lives in a tiny tower. How does it catch food? Guess!","En spindel som bor i ett litet torn. Hur fångar den mat? Gissa!"],
-   think:[["Describe the spider: how does it look and how does it move?","Beskriv spindeln: hur ser den ut och hur rör den sig?"],
-          ["Why is a tower a good idea for a spider?","Varför är ett torn en bra idé för en spindel?"],
-          ["If you were an insect, how would you escape?","Om du var en insekt, hur skulle du fly?"]]},
-  {id:"7__r4FVj-EI", t:"Octopus vs Underwater Maze", ch:"Mark Rober", cat:"animals", min:"17:13", lvl:"B1", long:true,
-   pre:["Can an octopus solve a maze? Predict: yes or no?","Kan en bläckfisk lösa en labyrint? Gissa: ja eller nej?"],
-   think:[["Which part of the maze was the hardest? Why?","Vilken del av labyrinten var svårast? Varför?"],
-          ["Is an octopus smart? Give two reasons.","Är en bläckfisk smart? Ge två skäl."],
-          ["Design a new obstacle for the octopus. Draw it if you want!","Hitta på ett nytt hinder för bläckfisken. Rita det om du vill!"]]},
-  {id:"hFZFjoX2cGg", t:"Backyard Squirrel Maze 1.0 – Ninja Warrior Course", ch:"Mark Rober", cat:"animals", min:"21:40", lvl:"B1", long:true,
-   pre:["How would you stop squirrels from stealing bird food?","Hur skulle du stoppa ekorrar från att stjäla fågelmat?"],
-   think:[["Which obstacle was the best? Why?","Vilket hinder var bäst? Varför?"],
-          ["What are squirrels really good at?","Vad är ekorrar riktigt bra på?"],
-          ["Invent one more obstacle. Draw it if you want!","Hitta på ett hinder till. Rita det om du vill!"]]},
-  {id:"9dfCQx81i8g", t:"VFX Artists React to Bad & Great CGi 221", ch:"Corridor Crew", cat:"film", lvl:"B1–B2",
-   pre:["Can you always see if something in a film is CGI?","Kan man alltid se om något i en film är datoranimerat?"],
-   think:[["Which effect looked real, and which looked fake? Why?","Vilken effekt såg äkta ut, och vilken såg falsk ut? Varför?"],
-          ["Why do some CGI effects look bad?","Varför ser vissa datoreffekter dåliga ut?"],
-          ["If you made a film, which effect would you want? How would you make it?","Om du gjorde en film, vilken effekt skulle du vilja ha? Hur skulle du göra den?"]]},
-  {id:"iIOIT3dCy5w", t:"How To Think Like A Game Designer", ch:"Game Maker's Toolkit", cat:"film", lvl:"B1–B2",
-   pre:["What makes a game fun? Name one thing.","Vad gör ett spel roligt? Nämn en sak."],
-   think:[["What is one idea from the video you never thought about before?","Vilken idé i videon hade du aldrig tänkt på förut?"],
-          ["Think of a game you know. What makes it fun or boring?","Tänk på ett spel du känner till. Vad gör det roligt eller tråkigt?"],
-          ["Design a tiny game: what is the goal, the problem and the reward?","Hitta på ett litet spel: vad är målet, problemet och belöningen?"]]},
-  {id:"I9hJ_Rux9y0", t:"How To Make Friends", ch:"Kurzgesagt – In a Nutshell", cat:"minds", lvl:"B1–B2", teacher:true,
-   pre:["Is it easy or hard to make friends? Why?","Är det lätt eller svårt att få vänner? Varför?"],
-   think:[["What is one idea from the video you agree with?","Vilken idé i videon håller du med om?"],
-          ["Is there something in the video you don't agree with?","Finns det något i videon du inte håller med om?"],
-          ["What makes a good friend? Name two things.","Vad gör en bra vän? Nämn två saker."]]}
-];
-
+VIDEOS.forEach(v=>{ const d=DEFAULT_Q[v.cat]||DEFAULT_Q.fun; if(!CATS[v.cat]) v.cat="fun"; v.pre=v.pre||d.pre; v.think=v.think||d.think; });
+const LIVE=()=>VIDEOS.filter(v=>!v.hidden);
+const isNew=v=>v.added && (Date.now()-new Date(v.added).getTime()) < 14*864e5;
 const KEY="aJugar-watch";
 let S={log:{},recs:[]};
 try{ const s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s) S=Object.assign(S,s); }catch(e){}
@@ -102,29 +56,32 @@ let picks=null, cat=null;
 
 function card(v){
   return `<button class="vcard ${S.log[v.id]?"seen":""}" data-v="${v.id}"><img src="${thumb(v.id)}" alt="" loading="lazy">
-    <span class="vt">${esc(v.t)}</span><span class="vm">${esc(v.ch)}${v.min?" · "+v.min:""}${v.long?'<span class="tag">2 parts</span>':""}${v.teacher?'<span class="tag t">with teacher</span>':""}</span></button>`;
+    <span class="vt">${esc(v.t)}</span><span class="vm">${esc(v.ch)}${v.min?" · "+v.min:""}${isNew(v)?'<span class="tag" style="background:var(--yellow)">NEW</span>':""}${v.long?'<span class="tag">2 parts</span>':""}${v.teacher?'<span class="tag t">with teacher</span>':""}</span></button>`;
 }
 function home(){
-  if(!picks){ const un=VIDEOS.filter(v=>!S.log[v.id]&&!v.teacher); picks=shuffle(un.length>=3?un:VIDEOS.filter(v=>!v.teacher)).slice(0,3).map(v=>v.id); }
+  if(!picks){ const ok=LIVE().filter(v=>!v.teacher), un=ok.filter(v=>!S.log[v.id]);
+    const fresh=shuffle(un.filter(isNew)), rest=shuffle(un.filter(v=>!isNew(v))), seen=shuffle(ok.filter(v=>S.log[v.id]));
+    picks=[...fresh,...rest,...seen].slice(0,3).map(v=>v.id); }
+  const allSeen=LIVE().every(v=>S.log[v.id]);
   const n=Object.keys(S.log).length;
   app.innerHTML=`
   <a class="home" href="../english-basics/">🍐 English Fun</a>
   <header><h1 class="outline"><span class="w3">Watch</span> <span class="w1">& think</span></h1>
     <div class="stars">🎬 <span>${n}</span></div></header>
-  <div class="fresca-row"><img class="fresca" src="../img/pj/pera.webp" alt="Pera"><div class="bubble">Pick one video. Watch it, then think!<span class="sv">Välj en video. Titta och tänk sen!</span></div></div>
+  <div class="fresca-row"><img class="fresca" src="../img/pj/pera.webp" alt="Pera"><div class="bubble">${allSeen?`Wow, you watched them all! 🏆 Ask your teacher for new videos.<span class="sv">Du har sett alla! Fråga din lärare efter nya videor.</span>`:`Pick one video. Watch it, then think!<span class="sv">Välj en video. Titta och tänk sen!</span>`}</div></div>
   <div class="panel"><p class="label">⭐ Today's picks <span class="sv">Dagens förslag</span></p>
     <div class="vgrid">${picks.map(id=>card(V(id))).join("")}</div>
     <div class="opts" style="justify-content:flex-start;margin-top:12px"><button class="next" id="other" style="background:var(--cyan)">🔀 Other 3 / Tre andra</button></div></div>
   <div class="panel"><p class="label">📚 All videos <span class="sv">Alla videor</span></p>
-    <div class="cats">${Object.entries(CATS).map(([k,n])=>`<button class="topic ${k===cat?"on":""}" data-c="${k}">${n}</button>`).join("")}</div>
-    ${cat?`<div class="vgrid">${VIDEOS.filter(v=>v.cat===cat).map(card).join("")}</div>`:`<p class="note">Choose a group. / Välj en grupp.</p>`}</div>
+    <div class="cats">${Object.entries(CATS).filter(([k])=>LIVE().some(v=>v.cat===k)).map(([k,n])=>`<button class="topic ${k===cat?"on":""}" data-c="${k}">${n}</button>`).join("")}</div>
+    ${cat?`<div class="vgrid">${LIVE().filter(v=>v.cat===cat).map(card).join("")}</div>`:`<p class="note">Choose a group. / Välj en grupp.</p>`}</div>
   <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))">
     <button class="act" id="rec" style="background:var(--pink)"><span class="ico">🙋</span><span>Recommend me a video<span class="sv">Tipsa mig om en video</span></span></button>
     <button class="act" id="tch" style="background:var(--lime)"><span class="ico">📒</span><span>For my teacher<span class="sv">Till min lärare</span></span></button>
   </div>`;
   app.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>before(b.dataset.v));
   app.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{ cat=cat===b.dataset.c?null:b.dataset.c; home(); });
-  document.getElementById("other").onclick=()=>{ const rest=VIDEOS.filter(v=>!picks.includes(v.id)&&!v.teacher); picks=shuffle(rest).slice(0,3).map(v=>v.id); home(); };
+  document.getElementById("other").onclick=()=>{ const rest=LIVE().filter(v=>!picks.includes(v.id)&&!v.teacher); picks=shuffle(rest).slice(0,3).map(v=>v.id); home(); };
   document.getElementById("rec").onclick=recommend;
   document.getElementById("tch").onclick=teacher;
   scrollTo(0,0);
