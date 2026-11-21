@@ -46,4 +46,31 @@ UNIT("en-1", {icon:"🐾", title:"Animals, food, colours, numbers", target:"en",
   sub:{en:"English basics 1", sv:"Engelska 1"}, topics:conv(["animals","food","colors","numbers"]), gaps, qa:[]});
 UNIT("en-2", {icon:"👕", title:"Clothes, school, things, body", target:"en",
   sub:{en:"English basics 2", sv:"Engelska 2"}, topics:conv(["clothes","school","things","body"]), gaps, qa:[]});
+const RG = [
+  ["I would ___ a pizza, please.",["like","likes"],"like","🍕"],
+  ["Can I ___ the bill, please?",["have","has"],"have","🧾"],
+  ["Here ___ your soup.",["is","are"],"is","🍲"],
+  ["Here ___ your chips.",["is","are"],"are","🍟"],
+  ["The chef ___ in the kitchen.",["work","works"],"works","🧑‍🍳"],
+  ["The milk is ___ the fridge.",["in","on","under"],"in","🥛"],
+  ["Put the fork ___ the table.",["in","on","under"],"on","🍴"],
+  ["I eat soup with a ___.",["spoon","knife","chair"],"spoon","🥄🍲"],
+  ["I cut the bread with a ___.",["knife","spoon","cup"],"knife","🔪🍞"],
+  ["Can I take your ___?",["order","cat","sun"],"order","📋"],
+  ["___ you like a drink?",["Would","Are","Is"],"Would","🥤"],
+  ["I would like ___ orange juice.",["a","an"],"an","🍊"],
+  ["The coffee is ___ hot!",["too","two"],"too","☕"],
+  ["There is a fly ___ my soup!",["in","on","under"],"in","🪰🍲"]
+];
+const TR = {
+  kitchen:{name:"🍳 Kitchen", items:[
+    ["knife","🔪"],["fork","🍴"],["spoon","🥄"],["plate","🍽️"],["bowl","🥣"],["glass","🥃"],["pan","🍳"],["chef","🧑‍🍳"],["salt","🧂"],["chopsticks","🥢"],["teapot","🫖"],["menu","📋"],["bill","🧾"],["bell","🛎️"]]},
+  menu:{name:"🍔 Menu", items:[
+    ["burger","🍔"],["chips","🍟"],["pasta","🍝"],["soup","🍲"],["salad","🥗"],["sandwich","🥪"],["rice","🍚"],["steak","🥩"],["taco","🌮"],["pancakes","🥞"],["hot dog","🌭"],["sushi","🍣"],["noodles","🍜"],["egg","🍳"]]},
+  cafe:{name:"🧁 Café", items:[
+    ["water","💧"],["coffee","☕"],["tea","🍵"],["soda","🥤"],["lemon","🍋"],["cookie","🍪"],["cupcake","🧁"],["chocolate","🍫"],["donut","🍩"],["pie","🥧"],["popcorn","🍿"],["waffle","🧇"]]}
+};
+const convR = () => { const o={}; Object.keys(TR).forEach(k=>{ const v=TR[k]; const sp=v.name.indexOf(" "); o[k]={icon:v.name.slice(0,sp), name:{en:v.name.slice(sp+1), sv:v.name.slice(sp+1)}, items:v.items}; }); return o; };
+UNIT("en-3", {icon:"🍽️", title:"Restaurant: kitchen, menu, café", target:"en",
+  sub:{en:"English 3 · Restaurant", sv:"Engelska 3 · Restaurang"}, topics:convR(), gaps:RG, qa:[]});
 })();

@@ -205,9 +205,10 @@ const GNAME = {match:["Match it","🧩"],choose:["What is it?","🤔"],listen:["
 const EASY=["match","memory","choose","listen"], HARD=["spell","sentence","gap"];
 function makeMissions(plan, avoidTopic){
   const e=shuffle(EASY), games = plan==="calm" ? [e[0],e[1]] : [e[0],e[1],rnd(HARD),e[2]];
-  let tps = shuffle(Object.keys(TOPICS).filter(t=>t!==avoidTopic));
+  const pool = Object.keys(TOPICS).filter(t=>!state.focus || TOPICS[t].pack===state.focus);
+  let tps = shuffle(pool.length>3 ? pool.filter(t=>t!==avoidTopic) : pool); if(!tps.length) tps=shuffle(pool.length?pool:Object.keys(TOPICS));
   const NOTOPIC=["sentence","gap"]; let k=0;
-  return games.map(g=>({g, t: NOTOPIC.includes(g) ? null : tps[(k++) % tps.length], done:false}));
+  return games.map(g=>({g, t: NOTOPIC.includes(g) && !TOPICS[tps[k % tps.length]].sentences ? null : tps[(k++) % tps.length], done:false}));
 }
 const tname = k => k && TOPICS[k] ? TOPICS[k].name : "";
 function nextMission(){ const d=day(); return d ? d.missions.find(m=>!m.done) : null; }
@@ -233,7 +234,7 @@ function choosePlan(f){
     <button class="act plan" data-p="power" style="background:var(--lime)"><span class="ico">⚡</span><span>Power plan<span class="sv">Kraftplan · 4 uppdrag</span></span></button>
   </div>`;
   app.querySelectorAll(".plan").forEach(b=>b.onclick=()=>{
-    state.log[today()] = {feel:f, plan:b.dataset.p, missions:makeMissions(b.dataset.p, state.topic), stars0:state.stars, games:0, done:false, blocks:0};
+    state.log[today()] = {feel:f, plan:b.dataset.p, missions:makeMissions(b.dataset.p, state.topic), focus:state.focus||null, stars0:state.stars, games:0, done:false, blocks:0};
     save(); menu();
   });
 }
@@ -304,4 +305,7 @@ function myDays(){
   document.getElementById("back").onclick = myDay;
 }
 
+if(state.focus){ const ft=Object.keys(TOPICS).filter(t=>TOPICS[t].pack===state.focus); if(!ft.length) state.focus=null; else if(!ft.includes(state.topic)) state.topic=ft[0]; }
+{ const d=state.log[today()]; if(d && (d.focus||null)!==(state.focus||null) && !d.missions.some(m=>m.done)){ d.missions=makeMissions(d.plan,null); d.focus=state.focus||null; } }
+save();
 if(!state.log[today()]) checkin(); else menu();

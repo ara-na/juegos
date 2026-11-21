@@ -33,6 +33,30 @@
 
 <script>
 /* ---------------- DATA ---------------- */
+/* Restaurant pack (kitchen, menu, café) – own sentences and gaps */
+const R_SENT = [
+  ["Can I take your order ?","📋"],["I would like a burger please .","🍔"],["Here is the menu .","📋"],
+  ["The soup is very hot .","🍲"],["Can I have the bill please ?","🧾"],["The chef cooks pasta .","🧑‍🍳🍝"],
+  ["Wash your hands first .","🧼"],["Put the plate on the table .","🍽️"],["Waiter there is a fly in my soup !","🪰🍲"],
+  ["Do you want chips with that ?","🍟"],["The knife is very sharp .","🔪"],["Enjoy your meal !","😋"],
+  ["I am very hungry .","🤤"],["A glass of water please .","💧"],["The pancakes are ready !","🥞"],["Clean the table please .","🧽"]
+];
+const R_GAPS = [
+  ["I would ___ a pizza, please.",["like","likes"],"like","🍕"],
+  ["Can I ___ the bill, please?",["have","has"],"have","🧾"],
+  ["Here ___ your soup.",["is","are"],"is","🍲"],
+  ["Here ___ your chips.",["is","are"],"are","🍟"],
+  ["The chef ___ in the kitchen.",["work","works"],"works","🧑‍🍳"],
+  ["The milk is ___ the fridge.",["in","on","under"],"in","🥛"],
+  ["Put the fork ___ the table.",["in","on","under"],"on","🍴"],
+  ["I eat soup with a ___.",["spoon","knife","chair"],"spoon","🥄🍲"],
+  ["I cut the bread with a ___.",["knife","spoon","cup"],"knife","🔪🍞"],
+  ["Can I take your ___?",["order","cat","sun"],"order","📋"],
+  ["___ you like a drink?",["Would","Are","Is"],"Would","🥤"],
+  ["I would like ___ orange juice.",["a","an"],"an","🍊"],
+  ["The coffee is ___ hot!",["too","two"],"too","☕"],
+  ["There is a fly ___ my soup!",["in","on","under"],"in","🪰🍲"]
+];
 const TOPICS = {
   animals:{name:"🐾 Animals", items:[
     ["cat","🐱"],["dog","🐶"],["fish","🐟"],["bird","🐦"],["horse","🐴"],["cow","🐮"],["pig","🐷"],["rabbit","🐰"],["lion","🦁"],["elephant","🐘"],["frog","🐸"],["mouse","🐭"],["duck","🦆"],["sheep","🐑"]]},
@@ -49,7 +73,13 @@ const TOPICS = {
   numbers:{name:"🔢 Numbers", items:[
     ["one",{n:1}],["two",{n:2}],["three",{n:3}],["four",{n:4}],["five",{n:5}],["six",{n:6}],["seven",{n:7}],["eight",{n:8}],["nine",{n:9}],["ten",{n:10}],["eleven",{n:11}],["twelve",{n:12}]]},
   body:{name:"🖐️ Body", items:[
-    ["eye","👁️"],["ear","👂"],["nose","👃"],["mouth","👄"],["hand","✋"],["foot","🦶"],["leg","🦵"],["arm","💪"],["tooth","🦷"],["hair","💇"]]}
+    ["eye","👁️"],["ear","👂"],["nose","👃"],["mouth","👄"],["hand","✋"],["foot","🦶"],["leg","🦵"],["arm","💪"],["tooth","🦷"],["hair","💇"]]},
+  kitchen:{name:"🍳 Kitchen", pack:"restaurant", sentences:R_SENT, gaps:R_GAPS, items:[
+    ["knife","🔪"],["fork","🍴"],["spoon","🥄"],["plate","🍽️"],["bowl","🥣"],["glass","🥃"],["pan","🍳"],["chef","🧑‍🍳"],["salt","🧂"],["chopsticks","🥢"],["teapot","🫖"],["menu","📋"],["bill","🧾"],["bell","🛎️"]]},
+  menu:{name:"🍔 Menu", pack:"restaurant", sentences:R_SENT, gaps:R_GAPS, items:[
+    ["burger","🍔"],["chips","🍟"],["pasta","🍝"],["soup","🍲"],["salad","🥗"],["sandwich","🥪"],["rice","🍚"],["steak","🥩"],["taco","🌮"],["pancakes","🥞"],["hot dog","🌭"],["sushi","🍣"],["noodles","🍜"],["egg","🍳"]]},
+  cafe:{name:"🧁 Café", pack:"restaurant", sentences:R_SENT, gaps:R_GAPS, items:[
+    ["water","💧"],["coffee","☕"],["tea","🍵"],["soda","🥤"],["lemon","🍋"],["cookie","🍪"],["cupcake","🧁"],["chocolate","🍫"],["donut","🍩"],["pie","🥧"],["popcorn","🍿"],["waffle","🧇"]]}
 };
 
 const SENTENCES = [
@@ -91,6 +121,7 @@ const PRAISE_SV = ["Bra jobbat!","Snyggt!","Toppen!","Rätt!","Jättebra!"];
 /* ---------------- STATE ---------------- */
 let state = {stars:0, topic:"animals"};
 try{ const s = JSON.parse(localStorage.getItem("englishFunStudion")||"null"); if(s) state = Object.assign(state,s); }catch(e){}
+try{ const f=new URLSearchParams(location.search).get("focus"); if(f) state.focus = (f==="off"?null:f); }catch(e){}
 function save(){ try{ localStorage.setItem("englishFunStudion", JSON.stringify(state)); }catch(e){} }
 
 const app = document.getElementById("app");
@@ -140,7 +171,7 @@ function menu(){
   <div class="panel">
     <p class="label">1. Choose a topic <span class="sv">Välj ett tema</span></p>
     <div class="topics">${Object.entries(TOPICS).map(([k,v])=>`<button class="topic ${k===state.topic?'on':''}" data-t="${k}">${v.name}</button>`).join("")}</div>
-    <p class="note">Temat gäller för: Match, What is it?, Listen, Spell och Memory.</p>
+    <p class="note">${TOPICS[state.topic].sentences?"🍽️ Restaurang: temat gäller för alla spel, även meningar och luckor.":"Temat gäller för: Match, What is it?, Listen, Spell och Memory."}</p>
   </div>
   <div class="panel">
     <p class="label">2. Choose a game <span class="sv">Välj ett spel</span></p>
@@ -344,7 +375,7 @@ GAMES.memory = function(){
 
 /* 6. SENTENCE */
 GAMES.sentence = function(){
-  const qs = shuffle(SENTENCES).slice(0,6);
+  const qs = shuffle(TOPICS[state.topic].sentences||SENTENCES).slice(0,6);
   runQuestions(GAMES.sentence, "Make a sentence", "Bygg en mening – klicka på orden i rätt ordning", qs, (stage,[s,p],done)=>{
     const words = s.split(" ");
     const tiles = shuffle(words.map((w,i)=>({w,i})));
@@ -366,7 +397,7 @@ GAMES.sentence = function(){
 
 /* 7. GAP */
 GAMES.gap = function(){
-  const qs = shuffle(GAPS).slice(0,8);
+  const qs = shuffle(TOPICS[state.topic].gaps||GAPS).slice(0,8);
   runQuestions(GAMES.gap, "Fill the gap", "Fyll i luckan – välj rätt ord", qs, (stage,[s,opts,ans,p],done)=>{
     stage.innerHTML = `<div class="bigpic" style="font-size:90px;min-height:110px">${p}</div>
       <div class="gapline" id="line">${s.replace("___","<b>&nbsp;?&nbsp;</b>")}</div>
