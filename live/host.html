@@ -16,7 +16,9 @@
 <script src="../units/es-heladeria.js"></script><script src="../units/es-ropa.js"></script><script src="../units/es-describir.js"></script>
 <script src="../units/es-verbos.js"></script><script src="../units/es-mi-barrio.js"></script><script src="../units/es-peru.js"></script>
 <script src="../units/es-restaurante.js"></script><script src="../units/es-gerundio.js"></script><script src="../units/es-tiempo-libre.js"></script>
+<script src="../units/en-basics.js"></script>
 <script src="../reto/groups.js"></script>
+<script src="../reto/groups-extra.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script type="module">
 import { login, R, set, get, update, remove, onValue, onDisconnect, serverTimestamp, now, PJ, esc } from "./fb.js";
@@ -25,22 +27,23 @@ const rnd = a => a[Math.floor(Math.random()*a.length)];
 const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
 const JOIN = "ara-na.github.io/juegos/live";
 const TX = {
- sv:{ title:"Live-quiz", cls:"1. Välj klass", unit:"2. Välj tema", count:"3. Antal frågor", secs:"4. Sekunder per fråga", create:"Skapa spel",
+ sv:{ title:"Live-quiz", cls:"1. Välj klass", unit:"2. Välj tema", count:"3. Antal frågor", secs:"4. Sekunder per fråga", opts:"5. Svarsalternativ", easy:"lätt", create:"Skapa spel",
       join:"Gå till", code:"och skriv koden", players:"spelare", start:"Starta! ▶", waiting:"Väntar på spelare…", answered:"har svarat",
       next:"Nästa ➜", reveal:"Visa svaret", top:"Topplista", podium:"Prispallen", close:"Avsluta och radera spelet", closed:"Spelet är raderat. ¡Chao pescao!",
       q:"Fråga", of:"av", again:"Nytt spel", note:"Spelet raderas automatiskt när du stänger den här fliken.", kick:"Klicka på en spelare för att ta bort den." },
- en:{ title:"Live quiz", cls:"1. Choose a class", unit:"2. Choose a unit", count:"3. Number of questions", secs:"4. Seconds per question", create:"Create game",
+ en:{ title:"Live quiz", cls:"1. Choose a class", unit:"2. Choose a unit", count:"3. Number of questions", secs:"4. Seconds per question", opts:"5. Answer options", easy:"easy", create:"Create game",
       join:"Go to", code:"and enter the code", players:"players", start:"Start! ▶", waiting:"Waiting for players…", answered:"have answered",
       next:"Next ➜", reveal:"Show answer", top:"Leaderboard", podium:"Podium", close:"End and delete the game", closed:"The game has been deleted. ¡Chao pescao!",
       q:"Question", of:"of", again:"New game", note:"The game is deleted automatically when you close this tab.", kick:"Click a player to remove them." }
 };
-let cfg = {g:"ak7", u:null, n:10, s:20};
+let cfg = {g:"ak7", u:null, n:10, s:20, o:4};
 try{ Object.assign(cfg, JSON.parse(localStorage.getItem("aJugar-live")||"{}")); }catch(e){}
 if(!GROUPS[cfg.g]) cfg.g="ak7";
 const L = () => GROUPS[cfg.g].lang, T = () => TX[L()];
 const tr = v => (v && typeof v==="object") ? (v[L()] || v.en) : v;
 let voice=null; try{ const pv=()=>{ const v=speechSynthesis.getVoices(); voice=v.find(x=>/es[-_]ES/i.test(x.lang))||v.find(x=>/^es/i.test(x.lang))||null; }; pv(); speechSynthesis.onvoiceschanged=pv; }catch(e){}
-function say(t){ try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t.replace("___","…")); u.lang="es-ES"; u.rate=.85; if(voice) u.voice=voice; speechSynthesis.speak(u); }catch(e){} }
+let voiceEn=null; try{ const pe=()=>{ const v=speechSynthesis.getVoices(); voiceEn=v.find(x=>/en[-_]GB/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null; }; pe(); speechSynthesis.addEventListener("voiceschanged",pe); }catch(e){}
+function say(t){ try{ speechSynthesis.cancel(); const en = UNITS[cfg.u] && UNITS[cfg.u].target==="en"; const u=new SpeechSynthesisUtterance(t.replace("___","…")); u.lang=en?"en-GB":"es-ES"; u.rate=.85; const v=en?voiceEn:voice; if(v) u.voice=v; speechSynthesis.speak(u); }catch(e){} }
 
 function pic(p){
   if(typeof p==="string") return `<div class="lpic">${p}</div>`;
@@ -52,11 +55,11 @@ const fw = s => s.toLowerCase().replace(/[¿?¡!.,]/g,"").split(" ")[0];
 const qaWrong = (list, a, n) => { const ok=list.filter(x=>x[1]!==a && fw(x[1])!==fw(a)); return (ok.length>=n?ok:list.filter(x=>x[1]!==a)); };
 function buildQuestions(U, n){
   const pool = shuffle(Object.values(U.topics).flatMap(t=>t.items.map(it=>({it, all:t.items})))).map(({it,all})=>{
-    const [w,p]=it, others=shuffle(all.filter(x=>x[0]!==w)).slice(0,3).map(x=>x[0]);
-    return others.length>=2 ? {html:pic(p), opts:shuffle([w,...others]), ans:w, say:null} : null; }).filter(Boolean);
+    const NO=(cfg.o||4)-1, [w,p]=it, others=shuffle(all.filter(x=>x[0]!==w)).slice(0,NO).map(x=>x[0]);
+    return others.length>=1 ? {html:pic(p), opts:shuffle([w,...others]), ans:w, say:null} : null; }).filter(Boolean);
   const gaps = shuffle(U.gaps||[]).map(([s,opts,ans,p,gl])=>({html:`${pic(p)}<div class="lsent">${esc(s).replace("___",'<b class="gap">?</b>')}</div>${gl?`<div class="lgloss">${esc(tr(gl.t))}</div>`:""}`,
-      opts:shuffle([ans,...shuffle(opts.filter(o=>o!==ans)).slice(0,3)]), ans, say:s}));
-  const qa = shuffle(U.qa||[]).map(([q,a])=>({html:`<div class="lsent">💬 ${esc(q)}</div>`, opts:shuffle([a,...shuffle(qaWrong(U.qa||[],a,3)).slice(0,3).map(x=>x[1])]), ans:a, say:q}));
+      opts:shuffle([ans,...shuffle(opts.filter(o=>o!==ans)).slice(0,(cfg.o||4)-1)]), ans, say:s}));
+  const qa = shuffle(U.qa||[]).map(([q,a])=>({html:`<div class="lsent">💬 ${esc(q)}</div>`, opts:shuffle([a,...shuffle(qaWrong(U.qa||[],a,(cfg.o||4)-1)).slice(0,(cfg.o||4)-1).map(x=>x[1])]), ans:a, say:q}));
   const want = {p:Math.round(n*.45), g:Math.round(n*.3)}; want.q = n-want.p-want.g;
   let out=[...pool.slice(0,want.p),...gaps.slice(0,want.g),...qa.slice(0,want.q)];
   const rest=shuffle([...pool.slice(want.p),...gaps.slice(want.g),...qa.slice(want.q)]);
@@ -73,13 +76,15 @@ function setup(){
   <div class="panel"><p class="label">${t.unit}</p><div class="pick">${G.units.map(id=>`<button data-u="${id}" class="${id===cfg.u?"on":""}">${UNITS[id].icon} ${esc(UNITS[id].title)}</button>`).join("")}</div></div>
   <div class="panel" style="display:flex;flex-wrap:wrap;gap:30px">
    <div><p class="label">${t.count}</p><div class="pick">${[5,10,15,20].map(n=>`<button data-n="${n}" class="${n===cfg.n?"on":""}">${n}</button>`).join("")}</div></div>
-   <div><p class="label">${t.secs}</p><div class="pick">${[10,20,30].map(n=>`<button data-s="${n}" class="${n===cfg.s?"on":""}">${n}</button>`).join("")}</div></div></div>
+   <div><p class="label">${t.secs}</p><div class="pick">${[10,20,30,60].map(n=>`<button data-s="${n}" class="${n===cfg.s?"on":""}">${n}</button>`).join("")}</div></div>
+   <div><p class="label">${t.opts}</p><div class="pick">${[2,3,4].map(n=>`<button data-o="${n}" class="${n===(cfg.o||4)?"on":""}">${n}${n<4?" · "+t.easy:""}</button>`).join("")}</div></div></div>
   <div style="text-align:center"><button class="go" id="go">${t.create}</button></div><div class="feedback" id="err"></div>`;
   const sv=()=>{ try{ localStorage.setItem("aJugar-live", JSON.stringify(cfg)); }catch(e){} };
   app.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{ cfg.g=b.dataset.g; cfg.u=GROUPS[cfg.g].current; sv(); setup(); });
   app.querySelectorAll("[data-u]").forEach(b=>b.onclick=()=>{ cfg.u=b.dataset.u; sv(); setup(); });
   app.querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>{ cfg.n=+b.dataset.n; sv(); setup(); });
   app.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{ cfg.s=+b.dataset.s; sv(); setup(); });
+  app.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{ cfg.o=+b.dataset.o; sv(); setup(); });
   document.getElementById("go").onclick = ()=>create().catch(e=>{ document.getElementById("err").textContent = "⚠️ "+e.message; });
 }
 
