@@ -135,12 +135,14 @@ function menu(){
   </div>
   <div class="grid" style="margin-bottom:18px">
     <button class="act" id="toMusic" style="background:var(--cyan)"><span class="ico">🎧</span><span>Music quiz<span class="sv">Musiktest – vilken musiktyp är du?</span></span></button>
+    ${state.music?`<button class="act" id="toSecret" style="background:#1b1b1b;color:#fff"><span class="ico">🔒</span><span>My secret<span class="sv" style="color:#ccc">Min hemliga favorit</span></span></button>`:""}
     <a class="act" href="../reto/?g=english" style="background:var(--lime);text-decoration:none;color:var(--ink)"><span class="ico">🏆</span><span>Class challenge<span class="sv">Klassen mot Fresca</span></span></a>
   </div>
   ${albumSummaryEN()}`;
   app.querySelectorAll(".topic").forEach(b=>b.onclick=()=>{state.topic=b.dataset.t; save(); menu();});
   app.querySelectorAll(".act[data-a]").forEach(b=>b.onclick=()=>GAMES[b.dataset.a]());
   document.getElementById("toMusic").onclick = musicQuiz;
+  const sk=document.getElementById("toSecret"); if(sk) sk.onclick = secretPage;
   document.getElementById("toAlbum").onclick = album;
 }
 

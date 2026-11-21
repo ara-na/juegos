@@ -115,7 +115,7 @@ function musicQuiz(){
 function musicResult(score, picks){
   const max=Math.max(...Object.values(score)), top=Object.keys(score).filter(k=>score[k]===max), t=rnd(top), M=MTYPES[t];
   const feel = picks[4] ? picks[4].replace(/[^\w\s]/g,"").trim() : "";
-  state.music = {type:t, date:new Date().toISOString().slice(0,10)}; save();
+  state.music = Object.assign({}, state.music||{}, {type:t, date:new Date().toISOString().slice(0,10)}); save();
   const fresh = checkAch();
   confetti(); say(`You are a ${M.name}!`);
   app.innerHTML = `
@@ -131,12 +131,59 @@ function musicResult(score, picks){
     <div class="panel" style="max-width:560px;margin:10px auto"><p class="label">🎧 Your music match <span class="sv">Dina musikmatchningar</span></p>
       <div class="opts">${M.match.map(a=>`<span class="opt" style="cursor:default">${a}</span>`).join("")}</div>
       <p class="note">Not your style? That's OK – all music taste is cool! 😎<br>Inte din stil? Helt okej – all musiksmak är cool!</p></div>
+    ${secretBox()}
     ${fresh.map(achBanner).join("")}
     <p class="note">🔒 Only on this computer. You decide if you show it to someone. · Bara på den här datorn. Du bestämmer om du visar det för någon.</p>
     <div class="opts"><button class="next" id="again">🔁 Again / Igen</button><button class="next" id="tomenu" style="background:var(--lime)">🏠 Meny</button></div>
   </div>`;
   document.getElementById("back").onclick = menu; document.getElementById("tomenu").onclick = menu; document.getElementById("again").onclick = musicQuiz;
-  window.scrollTo(0,0);
+  wireSecret(); window.scrollTo(0,0);
+}
+
+/* ---------------- MY SECRET FAVOURITE ---------------- */
+// Stored only in this browser. Never shown anywhere unless she opens it herself.
+const esc2 = x => String(x||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+function secretBox(){
+  const sec = (state.music && state.music.secret) || null;
+  return `<div class="panel secret" style="max-width:560px;margin:12px auto;text-align:left;background:#1b1b1b;color:#fff">
+    <p class="label" style="color:#fff;margin-bottom:6px">🔒 My secret favourite <span class="sv" style="color:#ccc">Min hemliga favorit</span></p>
+    <p style="margin:0 0 10px;font-weight:700;font-size:15px;color:#ddd">Your favourite band or singer. Only you can see it – it stays on this computer.<br><span style="color:#aaa">Ditt favoritband eller din favoritartist. Bara du kan se det – det stannar på den här datorn.</span></p>
+    <div id="secView" style="${sec?"":"display:none"}">
+      <button class="next" id="secShow" style="background:var(--pink);color:#fff">👀 Show / Visa</button>
+      <div id="secText" style="display:none;margin-top:10px">
+        <div class="ttl" id="secName" style="color:var(--lime)">${esc2(sec&&sec.name)}</div>
+        <div id="secWhy" style="font-weight:800;margin-top:4px">${sec&&sec.why?"♥ "+esc2(sec.why):""}</div>
+        <button class="hint" id="secEdit" style="margin-top:10px">✏️ Change / Ändra</button>
+      </div>
+    </div>
+    <div id="secForm" style="${sec?"display:none":""}">
+      <input id="secIn" maxlength="60" placeholder="My favourite is…" value="${esc2(sec&&sec.name)}" autocomplete="off"
+        style="width:100%;font-family:inherit;font-size:22px;font-weight:900;border:3px solid #fff;border-radius:14px;padding:10px 12px;background:#fff;color:#141414">
+      <p style="margin:10px 0 4px;font-weight:800;font-size:15px">I like it because… <span style="color:#aaa">(optional / frivilligt)</span></p>
+      <div class="opts" id="secWhyOpts" style="justify-content:flex-start;margin-top:4px">${["it makes me happy","it makes me calm","the voice","the beat","the words","it makes me strong"].map(w=>`<button class="opt" data-w="${w}" style="font-size:16px;min-width:0;padding:8px 12px;background:#fff">${w}</button>`).join("")}</div>
+      <button class="next" id="secSave" style="background:var(--lime);margin-top:12px">🔒 Save secretly / Spara hemligt</button>
+    </div>
+  </div>`;
+}
+function wireSecret(){
+  const $ = id => document.getElementById(id); if(!$("secSave")) return;
+  let why = (state.music && state.music.secret && state.music.secret.why) || "";
+  document.querySelectorAll("#secWhyOpts .opt").forEach(b=>{ if(b.dataset.w===why) b.classList.add("ok");
+    b.onclick=()=>{ why = why===b.dataset.w ? "" : b.dataset.w; document.querySelectorAll("#secWhyOpts .opt").forEach(x=>x.classList.toggle("ok", x.dataset.w===why)); }; });
+  $("secSave").onclick = ()=>{
+    const name = $("secIn").value.trim(); if(!name){ $("secIn").focus(); return; }
+    state.music = Object.assign({}, state.music||{}, {secret:{name, why}}); save();
+    $("secName").textContent = name; $("secWhy").textContent = why ? "♥ "+why : "";
+    $("secForm").style.display="none"; $("secView").style.display=""; $("secText").style.display="none";
+    say("Saved! It's your secret."); 
+  };
+  $("secShow").onclick = ()=>{ const t=$("secText"); const open = t.style.display==="none"; t.style.display = open?"":"none"; $("secShow").textContent = open ? "🙈 Hide / Dölj" : "👀 Show / Visa"; };
+  $("secEdit").onclick = ()=>{ $("secForm").style.display=""; $("secView").style.display="none"; $("secIn").focus(); };
+}
+function secretPage(){
+  app.innerHTML = `<div class="topbar"><button class="back" id="back">← Menu</button></div>
+    <header><h1 class="outline"><span class="w1">🔒 Secret</span></h1></header>${secretBox()}`;
+  document.getElementById("back").onclick = menu; wireSecret();
 }
 
 menu();
