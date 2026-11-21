@@ -201,13 +201,13 @@ const FEELS = [
 ];
 const feel = id => FEELS.find(f=>f.id===id) || {e:"·",en:"",sv:""};
 const GNAME = {match:["Match it","🧩"],choose:["What is it?","🤔"],listen:["Listen and click","👂"],spell:["Spell the word","🔤"],
-  memory:["Memory","🃏"],sentence:["Make a sentence","🧱"],gap:["Fill the gap","✍️"],music:["Music quiz","🎧"],any:["A game you choose","⭐"]};
-const EASY=["match","memory","choose","listen"], HARD=["spell","sentence","gap"];
+  memory:["Memory","🃏"],sentence:["Make a sentence","🧱"],gap:["Fill the gap","✍️"],read:["Read and answer","📖"],music:["Music quiz","🎧"],any:["A game you choose","⭐"]};
+const EASY=["match","memory","choose","listen"], HARD=["spell","sentence","gap","read"];
 function makeMissions(plan, avoidTopic){
   const e=shuffle(EASY), games = plan==="calm" ? [e[0],e[1]] : [e[0],e[1],rnd(HARD),e[2]];
   const pool = Object.keys(TOPICS).filter(t=>!state.focus || TOPICS[t].pack===state.focus);
   let tps = shuffle(pool.length>3 ? pool.filter(t=>t!==avoidTopic) : pool); if(!tps.length) tps=shuffle(pool.length?pool:Object.keys(TOPICS));
-  const NOTOPIC=["sentence","gap"]; let k=0;
+  const NOTOPIC=["sentence","gap","read"]; let k=0;
   return games.map(g=>({g, t: NOTOPIC.includes(g) && !TOPICS[tps[k % tps.length]].sentences ? null : tps[(k++) % tps.length], done:false}));
 }
 const tname = k => k && TOPICS[k] ? TOPICS[k].name : "";
