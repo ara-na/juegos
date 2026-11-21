@@ -33,10 +33,27 @@
   .note{font-weight:800;color:var(--soft);font-size:15px}
   .row2{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:2px dashed #ddd;font-size:17px;flex-wrap:wrap}
   .cats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+  .day{border-top:3px dashed var(--ink);margin-top:14px;padding-top:10px}
+  .chk{background:#fff;border:3px solid var(--ink);border-radius:12px;padding:3px 10px;font-weight:900;font-size:14px;margin-top:6px}
+  .chk.on{background:var(--green);color:#fff}
+  #print{display:none}
+  @media print{
+    body{background:#fff!important} .wrap{display:none!important} #print{display:block;font-family:'Nunito',sans-serif;color:#000}
+    @page{margin:12mm}
+    .ph{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #000;margin-bottom:10px;padding-bottom:4px}
+    .ph h1{font-family:'Luckiest Guy',sans-serif;font-size:26px;margin:0;letter-spacing:1px}
+    .ps{page-break-inside:avoid;border:2px solid #000;border-radius:10px;padding:8px 12px;margin-bottom:10px}
+    .ps h2{font-size:17px;margin:0 0 2px}.ps .m{font-size:12px;color:#444}
+    .pq{margin-top:6px;font-weight:800;font-size:14px}.pq i{font-weight:600;font-size:11px;color:#555;display:block}
+    .pa{font-weight:600;font-size:14px;border-bottom:1px solid #999;padding:3px 0;min-height:18px}
+    .ln{border-bottom:1px solid #999;height:24px}
+    .tbox{border:2px solid #000;border-radius:8px;padding:2px 10px;font-size:12px;font-weight:800}
+  }
 </style>
 </head>
 <body>
 <div class="wrap" id="app"></div>
+<div id="print"></div>
 <script src="videos.js"></script>
 <script>
 VIDEOS.forEach(v=>{ const d=DEFAULT_Q[v.cat]||DEFAULT_Q.fun; if(!CATS[v.cat]) v.cat="fun"; v.pre=v.pre||d.pre; v.think=v.think||d.think; });
@@ -139,14 +156,46 @@ function think(){
   scrollTo(0,0);
 }
 function finished(){
-  const n=Object.keys(S.log).length;
+  const n=Object.keys(S.log).length, id=cur.id, has=S.log[id].ans.some(a=>a);
   app.innerHTML=`<div class="stage end" style="background:var(--lime)"><div style="font-size:90px">🎬</div>
     <h2 class="outline" style="color:#fff">Well done!</h2><div style="font-weight:900;font-size:20px">Bra jobbat! You have watched ${n} video${n===1?"":"s"}.</div>
-    <div style="font-weight:900;font-size:18px;margin-top:8px">Show your teacher what you think! · Visa din lärare! 🙋</div>
-    <div class="opts" style="margin-top:14px"><button class="next" id="more" style="background:#fff">🎬 Another video / En till</button>
+    <div style="font-weight:900;font-size:18px;margin-top:8px">📓 Put it in your Logbook! · Lägg in det i din loggbok!</div>
+    <div class="opts" style="margin-top:10px">
+      ${has?`<button class="next" id="pA" style="background:#fff">🖨 With my answers / Med mina svar</button>`:""}
+      <button class="next" id="pB" style="background:#fff">✏️ Write by hand / Skriv för hand</button>
+      <button class="next" id="cp" style="background:#fff">📋 Copy / Kopiera</button></div>
+    <div class="opts" style="margin-top:10px"><button class="next" id="more" style="background:var(--pink);color:#fff">🎬 Another video / En till</button>
     <a class="next" href="../english-basics/" style="background:var(--yellow);text-decoration:none;color:var(--ink)">🍐 English Fun</a></div></div>`;
   picks=null;
+  if(has) document.getElementById("pA").onclick=()=>printSheet([id],true);
+  document.getElementById("pB").onclick=()=>printSheet([id],false);
+  document.getElementById("cp").onclick=e=>copyText([id],e.target);
   document.getElementById("more").onclick=home;
+}
+/* ---------- Logbook: print sheet / copy text ---------- */
+const FACES=["","😐","🙂","🤩"];
+function printSheet(ids,withAns){
+  const lines=n=>Array.from({length:n},()=>'<div class="ln"></div>').join("");
+  const d=ids.length?S.log[ids[0]].d:today();
+  document.getElementById("print").innerHTML=`<div class="ph"><h1>WATCH & THINK · LOGBOOK</h1><span>📅 ${d} &nbsp; <span class="tbox">Teacher ✔ ______</span></span></div>`+
+  ids.map(id=>{ const v=V(id), l=S.log[id]||{ans:[]};
+    return `<div class="ps"><h2>🎬 ${esc(v.t)}</h2><div class="m">${esc(v.ch)} · youtu.be/${v.id} · ${l.d||d}</div>
+      <div class="pq">🤔 ${v.pre[0]}<i>${v.pre[1]}</i></div>${withAns&&l.guess?`<div class="pa">${esc(l.guess)}</div>`:lines(withAns?1:2)}
+      ${v.think.map((q,i)=>`<div class="pq">${i+1}. ${q[0]}<i>${q[1]}</i></div>${withAns&&l.ans[i]?`<div class="pa">${esc(l.ans[i])}</div>`:lines(withAns&&l.told&&l.told[i]?1:3)}`).join("")}
+      <div class="pq">📝 New word / Nytt ord: ${withAns&&l.word?`<span style="font-weight:600">${esc(l.word)}</span>`:"______________"} &nbsp; ⭐ ${withAns&&l.stars?FACES[l.stars]:"😐 🙂 🤩"}</div></div>`; }).join("");
+  setTimeout(()=>window.print(),50);
+}
+function sheetText(ids){
+  return ids.map(id=>{ const v=V(id), l=S.log[id];
+    return [`WATCH & THINK – ${l.d}`, `Video: ${v.t} (${v.ch}) – youtu.be/${v.id}`,
+      `Guess: ${v.pre[0]}`, `→ ${l.guess||""}`,
+      ...v.think.flatMap((q,i)=>[`${i+1}. ${q[0]}`, `→ ${l.ans[i]||(l.told[i]?"(told my teacher)":"")}`]),
+      `New word: ${l.word||""}`, `I liked it: ${FACES[l.stars||0]}`].join("\n"); }).join("\n\n");
+}
+function copyText(ids,btn){
+  const t=sheetText(ids), ok=()=>{ if(btn){ const o=btn.textContent; btn.textContent="✔ Copied / Kopierat"; setTimeout(()=>btn.textContent=o,1500);} };
+  try{ navigator.clipboard.writeText(t).then(ok,()=>fallback()); }catch(e){ fallback(); }
+  function fallback(){ const a=document.createElement("textarea"); a.value=t; document.body.appendChild(a); a.select(); try{document.execCommand("copy");}catch(e){} a.remove(); ok(); }
 }
 function recommend(){
   app.innerHTML=`<a class="home" href="#" id="back">⬅ Videos</a>
@@ -161,16 +210,25 @@ function recommend(){
   document.getElementById("rs").onclick=()=>{ const t=document.getElementById("rt").value.trim(); if(!t) return; S.recs.push({t,w:document.getElementById("rw").value.trim(),d:today()}); save(); recommend(); };
 }
 function teacher(){
-  const ids=Object.keys(S.log);
+  const ids=Object.keys(S.log).filter(id=>V(id));
+  const days=[...new Set(ids.map(id=>S.log[id].d))].sort().reverse();
   app.innerHTML=`<a class="home" href="#" id="back">⬅ Videos</a>
-  <div class="panel"><p class="label">📒 For my teacher <span class="sv">Till min lärare</span></p>
-    ${ids.length?ids.map(id=>{ const v=V(id), l=S.log[id]; if(!v) return ""; return `<div class="q" style="font-size:17px">🎬 ${esc(v.t)} <span class="sv">${l.d} · ${["","😐","🙂","🤩"][l.stars||0]} ${l.word?"· 📝 "+esc(l.word):""}</span>
-      ${l.guess?`<div class="note">🤔 ${esc(l.guess)}</div>`:""}
-      ${v.think.map((q,i)=>(l.ans[i]||l.told[i])?`<div class="row2"><span>${i+1}. ${q[0]}</span><b>${l.told[i]?"💬 ":""}${esc(l.ans[i])}</b></div>`:"").join("")}</div>`; }).join("")
+  <div class="panel"><p class="label">📒 For my teacher <span class="sv">Till min lärare · ${ids.length} 🎬</span></p>
+    ${days.length?days.map(d=>{ const di=ids.filter(id=>S.log[id].d===d); return `<div class="day"><p class="label">📅 ${d} <span class="sv">${di.length} video${di.length>1?"s":""}</span></p>
+      <div class="opts" style="justify-content:flex-start"><button class="next" data-pa="${d}" style="background:#fff;font-size:15px">🖨 With answers</button><button class="next" data-pb="${d}" style="background:#fff;font-size:15px">✏️ To write by hand</button><button class="next" data-cp="${d}" style="background:#fff;font-size:15px">📋 Copy</button></div>
+      ${di.map(id=>{ const v=V(id), l=S.log[id]; return `<div class="q" style="font-size:17px">🎬 ${esc(v.t)} <span class="sv">${esc(v.ch)} · ${FACES[l.stars||0]} ${l.word?"· 📝 "+esc(l.word):""}</span>
+        ${l.guess?`<div class="note">🤔 ${esc(l.guess)}</div>`:""}
+        ${v.think.map((q,i)=>(l.ans[i]||l.told[i])?`<div class="row2"><span>${i+1}. ${q[0]}</span><b>${l.told[i]?"💬 ":""}${esc(l.ans[i])}</b></div>`:"").join("")}
+        <button class="chk ${l.chk?"on":""}" data-k="${id}">${l.chk?"✔ Checked in Logbook · "+l.chk:"☐ Teacher: checked in Logbook"}</button></div>`; }).join("")}</div>`; }).join("")
       :`<p class="note">No videos yet. / Inga videor än.</p>`}
     ${S.recs.length?`<p class="label" style="margin-top:14px">🙋 Tips <span class="sv">Tips från mig</span></p>${S.recs.map(r=>`<div class="row2"><b>${esc(r.t)}</b><span>${esc(r.w)}</span></div>`).join("")}`:""}
     <p class="note" style="margin-top:10px">🔒 Saved only on this computer. / Sparas bara på den här datorn.</p></div>`;
+  const of=d=>ids.filter(id=>S.log[id].d===d);
   document.getElementById("back").onclick=e=>{e.preventDefault();home();};
+  app.querySelectorAll("[data-pa]").forEach(b=>b.onclick=()=>printSheet(of(b.dataset.pa),true));
+  app.querySelectorAll("[data-pb]").forEach(b=>b.onclick=()=>printSheet(of(b.dataset.pb),false));
+  app.querySelectorAll("[data-cp]").forEach(b=>b.onclick=()=>copyText(of(b.dataset.cp),b));
+  app.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{ const l=S.log[b.dataset.k]; l.chk=l.chk?null:today(); save(); teacher(); });
 }
 home();
 </script>
