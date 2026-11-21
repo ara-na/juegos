@@ -57,6 +57,28 @@ const R_GAPS = [
   ["The coffee is ___ hot!",["too","two"],"too","☕"],
   ["There is a fly ___ my soup!",["in","on","under"],"in","🪰🍲"]
 ];
+/* Ride pack (vehicles, gaming, road safety) */
+const RIDE_SENT = [
+  ["I ride my scooter to school .","🛴🏫"],["Always wear a helmet .","⛑️"],["Stop at the red light .","🚦"],
+  ["Slow down near the school .","🚸"],["Look left and right .","👀"],["Turn on your light at night .","🔦🌙"],
+  ["Don't use your phone on the scooter .","📱🛴"],["The train is faster than the car .","🚆🚗"],
+  ["I play games with my friends .","🎮"],["We won the game !","🏆"],["The boss is very strong !","👾"],
+  ["Press the green button .","🟢"],["Can I play after school ?","🎮🏫"],["I have three lives left .","❤️❤️❤️"]
+];
+const RIDE_GAPS = [
+  ["Always ___ a helmet.",["wear","eat","sing"],"wear","⛑️"],
+  ["Stop at the ___ light.",["red","green","blue"],"red","🚦"],
+  ["The train is ___ than the bike.",["faster","slower"],"faster","🚆🚲"],
+  ["I ___ my scooter every day.",["ride","rides"],"ride","🛴"],
+  ["He ___ video games.",["play","plays"],"plays","🎮"],
+  ["Yesterday we ___ the game!",["won","win"],"won","🏆"],
+  ["Look left and right ___ you cross.",["before","after"],"before","🚸"],
+  ["___ down near the school.",["Slow","Fast"],"Slow","🚸"],
+  ["The bus stops ___ the bus stop.",["at","under"],"at","🚌"],
+  ["Turn ___ your light at night.",["on","off"],"on","🔦"],
+  ["It is dangerous to use a phone ___ you ride.",["when","what"],"when","📱"],
+  ["I need a new ___ for my game.",["controller","helmet","bridge"],"controller","🎮"]
+];
 const TOPICS = {
   animals:{name:"🐾 Animals", items:[
     ["cat","🐱"],["dog","🐶"],["fish","🐟"],["bird","🐦"],["horse","🐴"],["cow","🐮"],["pig","🐷"],["rabbit","🐰"],["lion","🦁"],["elephant","🐘"],["frog","🐸"],["mouse","🐭"],["duck","🦆"],["sheep","🐑"]]},
@@ -79,7 +101,13 @@ const TOPICS = {
   menu:{name:"🍔 Menu", pack:"restaurant", sentences:R_SENT, gaps:R_GAPS, items:[
     ["burger","🍔"],["chips","🍟"],["pasta","🍝"],["soup","🍲"],["salad","🥗"],["sandwich","🥪"],["rice","🍚"],["steak","🥩"],["taco","🌮"],["pancakes","🥞"],["hot dog","🌭"],["sushi","🍣"],["noodles","🍜"],["egg","🍳"]]},
   cafe:{name:"🧁 Café", pack:"restaurant", sentences:R_SENT, gaps:R_GAPS, items:[
-    ["water","💧"],["coffee","☕"],["tea","🍵"],["soda","🥤"],["lemon","🍋"],["cookie","🍪"],["cupcake","🧁"],["chocolate","🍫"],["donut","🍩"],["pie","🥧"],["popcorn","🍿"],["waffle","🧇"]]}
+    ["water","💧"],["coffee","☕"],["tea","🍵"],["soda","🥤"],["lemon","🍋"],["cookie","🍪"],["cupcake","🧁"],["chocolate","🍫"],["donut","🍩"],["pie","🥧"],["popcorn","🍿"],["waffle","🧇"]]},
+  wheels:{name:"🛴 On wheels", pack:"ride", sentences:RIDE_SENT, gaps:RIDE_GAPS, items:[
+    ["scooter","🛴"],["bike","🚲"],["skateboard","🛹"],["motorbike","🏍️"],["car","🚗"],["bus","🚌"],["train","🚆"],["truck","🚚"],["tractor","🚜"],["taxi","🚕"],["ambulance","🚑"],["police car","🚓"],["plane","✈️"],["boat","⛵"]]},
+  gaming:{name:"🎮 Gaming", pack:"ride", sentences:RIDE_SENT, gaps:RIDE_GAPS, items:[
+    ["controller","🎮"],["joystick","🕹️"],["headphones","🎧"],["screen","🖥️"],["keyboard","⌨️"],["mouse","🖱️"],["trophy","🏆"],["monster","👾"],["sword","🗡️"],["shield","🛡️"],["gem","💎"],["coin","🪙"],["heart","❤️"],["dice","🎲"]]},
+  road:{name:"🚦 Road safety", pack:"ride", sentences:RIDE_SENT, gaps:RIDE_GAPS, items:[
+    ["helmet","⛑️"],["traffic light","🚦"],["stop sign","🛑"],["crossing","🚸"],["road","🛣️"],["bridge","🌉"],["map","🗺️"],["torch","🔦"],["bell","🔔"],["parking","🅿️"],["warning","⚠️"],["petrol","⛽"]]}
 };
 
 const SENTENCES = [
@@ -171,7 +199,7 @@ function menu(){
   <div class="panel">
     <p class="label">1. Choose a topic <span class="sv">Välj ett tema</span></p>
     <div class="topics">${Object.entries(TOPICS).map(([k,v])=>`<button class="topic ${k===state.topic?'on':''}" data-t="${k}">${v.name}</button>`).join("")}</div>
-    <p class="note">${TOPICS[state.topic].sentences?"🍽️ Restaurang: temat gäller för alla spel, även meningar och luckor.":"Temat gäller för: Match, What is it?, Listen, Spell och Memory."}</p>
+    <p class="note">${TOPICS[state.topic].sentences?"✨ Det här temat gäller för alla spel, även meningar och luckor.":"Temat gäller för: Match, What is it?, Listen, Spell och Memory."}</p>
   </div>
   <div class="panel">
     <p class="label">2. Choose a game <span class="sv">Välj ett spel</span></p>

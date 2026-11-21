@@ -73,4 +73,29 @@ const TR = {
 const convR = () => { const o={}; Object.keys(TR).forEach(k=>{ const v=TR[k]; const sp=v.name.indexOf(" "); o[k]={icon:v.name.slice(0,sp), name:{en:v.name.slice(sp+1), sv:v.name.slice(sp+1)}, items:v.items}; }); return o; };
 UNIT("en-3", {icon:"🍽️", title:"Restaurant: kitchen, menu, café", target:"en",
   sub:{en:"English 3 · Restaurant", sv:"Engelska 3 · Restaurang"}, topics:convR(), gaps:RG, qa:[]});
+const RG4 = [
+  ["Always ___ a helmet.",["wear","eat","sing"],"wear","⛑️"],
+  ["Stop at the ___ light.",["red","green","blue"],"red","🚦"],
+  ["The train is ___ than the bike.",["faster","slower"],"faster","🚆🚲"],
+  ["I ___ my scooter every day.",["ride","rides"],"ride","🛴"],
+  ["He ___ video games.",["play","plays"],"plays","🎮"],
+  ["Yesterday we ___ the game!",["won","win"],"won","🏆"],
+  ["Look left and right ___ you cross.",["before","after"],"before","🚸"],
+  ["___ down near the school.",["Slow","Fast"],"Slow","🚸"],
+  ["The bus stops ___ the bus stop.",["at","under"],"at","🚌"],
+  ["Turn ___ your light at night.",["on","off"],"on","🔦"],
+  ["It is dangerous to use a phone ___ you ride.",["when","what"],"when","📱"],
+  ["I need a new ___ for my game.",["controller","helmet","bridge"],"controller","🎮"]
+];
+const T4 = {
+  wheels:{name:"🛴 On wheels", items:[
+    ["scooter","🛴"],["bike","🚲"],["skateboard","🛹"],["motorbike","🏍️"],["car","🚗"],["bus","🚌"],["train","🚆"],["truck","🚚"],["tractor","🚜"],["taxi","🚕"],["ambulance","🚑"],["police car","🚓"],["plane","✈️"],["boat","⛵"]]},
+  gaming:{name:"🎮 Gaming", items:[
+    ["controller","🎮"],["joystick","🕹️"],["headphones","🎧"],["screen","🖥️"],["keyboard","⌨️"],["mouse","🖱️"],["trophy","🏆"],["monster","👾"],["sword","🗡️"],["shield","🛡️"],["gem","💎"],["coin","🪙"],["heart","❤️"],["dice","🎲"]]},
+  road:{name:"🚦 Road safety", items:[
+    ["helmet","⛑️"],["traffic light","🚦"],["stop sign","🛑"],["crossing","🚸"],["road","🛣️"],["bridge","🌉"],["map","🗺️"],["torch","🔦"],["bell","🔔"],["parking","🅿️"],["warning","⚠️"],["petrol","⛽"]]}
+};
+const conv4 = () => { const o={}; Object.keys(T4).forEach(k=>{ const v=T4[k]; const sp=v.name.indexOf(" "); o[k]={icon:v.name.slice(0,sp), name:{en:v.name.slice(sp+1), sv:v.name.slice(sp+1)}, items:v.items}; }); return o; };
+UNIT("en-4", {icon:"🛴", title:"On the move: vehicles, gaming, road safety", target:"en",
+  sub:{en:"English 4 · On the move", sv:"Engelska 4 · På väg"}, topics:conv4(), gaps:RG4, qa:[]});
 })();
