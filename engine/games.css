@@ -185,3 +185,13 @@ footer{margin-top:26px;color:var(--soft);font-size:14px;font-weight:700}
 .legst span{font-size:12px;font-weight:800;color:var(--soft)}
 .legst.on{background:radial-gradient(circle,#fff,#ffe9a8);box-shadow:0 0 0 4px #ffd23a,4px 4px 0 6px var(--ink)} .legst.on img{filter:none;animation:pop 1s}
 .newsticker.gold{background:#fff3c4}
+
+/* Lee y responde / Read and answer */
+.readbox{background:#fff;border:3px solid var(--ink);border-radius:16px;padding:12px 16px;text-align:left}
+.rtitle{display:flex;align-items:center;gap:10px;font-size:20px}.rpic{font-size:40px}
+.rtext{font-size:22px;line-height:1.6;font-weight:700;margin:8px 0 6px}
+.rs{border-radius:6px;padding:1px 2px;transition:background .3s}.rs.lit{background:var(--yellow);box-shadow:0 0 0 3px var(--yellow)}
+.ropts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}
+.ropt{display:flex;flex-direction:column;align-items:center;gap:4px;background:#fff;border:3px solid var(--ink);border-radius:14px;padding:10px 6px;font-weight:900;font-size:17px;box-shadow:var(--sh);overflow-wrap:anywhere;color:var(--ink)}
+.ropt .rp{font-size:40px;line-height:1.1}.ropt.ok{background:var(--lime)}.ropt.bad{animation:shake .3s}.ropt.faded{opacity:.35}
+@media (max-width:560px){ .rtext{font-size:18px} .ropt{font-size:14px} .ropt .rp{font-size:30px} }

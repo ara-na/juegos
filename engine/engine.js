@@ -35,7 +35,8 @@ const S = {
            memory:["Memory","Find the pairs","Find the Spanish word and its meaning"],
            sentence:["Make a sentence","Put the words in order","Click the words in the right order"],
            gap:["Fill the gap","Choose the missing word","Choose the word that completes the sentence"],
-           qa:["Question & answer","Find the right answer","Read (or listen to) the question and choose the best answer"] } },
+           qa:["Question & answer","Find the right answer","Read (or listen to) the question and choose the best answer"],
+           read:["Lee y responde","Read a short text and answer","Read the text and choose the answer – 💡 shows where it is"] }, trBtn:"👀 Translation", where:"💡 Where is the answer?" },
   sv:{ practice:"Spanska", chooseUnit:"Välj ett tema", now:"NU", units:"← Teman", back:"← Meny",
        chooseTopic:"1. Välj ett område", chooseGame:"2. Välj ett spel",
        topicNote:"Området används i de fem första spelen. De tre sista blandar hela temat.",
@@ -54,7 +55,8 @@ const S = {
            memory:["Memory","Hitta paren","Hitta det spanska ordet och betydelsen"],
            sentence:["Bygg en mening","Sätt orden i rätt ordning","Klicka på orden i rätt ordning"],
            gap:["Fyll i luckan","Välj ordet som saknas","Välj ordet som fattas i meningen"],
-           qa:["Fråga & svar","Hitta rätt svar","Läs (eller lyssna på) frågan och välj det bästa svaret"] } }
+           qa:["Fråga & svar","Hitta rätt svar","Läs (eller lyssna på) frågan och välj det bästa svaret"],
+           read:["Lee y responde","Läs en kort text och svara","Läs texten och välj svaret – 💡 visar var det står"] }, trBtn:"👀 Översättning", where:"💡 Var står svaret?" }
 }[L];
 
 const STICKERS = ["🌮","🪅","🦜","🌵","🎸","💃","⚽","🦙","🌶️","🏖️","🐂","🥘","🎺","🌞","🦩","🍉","🏆","👑","🚀","🌈","🐬","🦄","🎧","🛹","💎","🐢","🌋","🍦","🎮","🛸"];
@@ -167,7 +169,8 @@ const ACTS = [
   {id:"match", ico:"🧩", col:"var(--blue)"}, {id:"choose", ico:"🤔", col:"var(--terra)"},
   {id:"listen", ico:"👂", col:"var(--lime)"}, {id:"spell", ico:"🔤", col:"var(--pink)"},
   {id:"memory", ico:"🃏", col:"var(--purple)"}, {id:"sentence", ico:"🧱", col:"var(--green)", need:"sentences"},
-  {id:"gap", ico:"✍️", col:"var(--orange)", need:"gaps"}, {id:"qa", ico:"💬", col:"var(--red)", need:"qa", min:3}
+  {id:"gap", ico:"✍️", col:"var(--orange)", need:"gaps"}, {id:"qa", ico:"💬", col:"var(--red)", need:"qa", min:3},
+  {id:"read", ico:"📖", col:"var(--cyan)", need:"readings"}
 ];
 function unitMenu(){
   const cur = state.topics[U.id] || Object.keys(U.topics)[0];
@@ -331,6 +334,24 @@ GAMES.qa = function(){
     if(canSpeak) stage.querySelector("#play").onclick=()=>say(q);
     let first=true;
     stage.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{ if(b.dataset.o===a){ b.classList.add("ok"); stage.querySelectorAll(".opt").forEach(x=>x.disabled=true); say(q+" "+a); praise(stage.querySelector("#fb")); done(first); } else { first=false; wrong(b,stage); } });
+  });
+};
+
+GAMES.read = function(){
+  const qs=[]; shuffle(U.readings).slice(0,2).forEach(r=>shuffle(r.qs).slice(0,2).forEach(q=>qs.push({r,q})));
+  run("read", GAMES.read, qs, (stage,{r,q},done)=>{
+    const [question, opts, ans, si] = q; const order = shuffle(opts.map((o,i)=>({o,i})));
+    stage.innerHTML = `<div class="readbox"><div class="rtitle"><span class="rpic">${r.pic}</span><b>${esc(r.t)}</b>${canSpeak?`<button class="hint" id="rsay" style="margin-left:auto">🔊</button>`:""}</div>
+      <p class="rtext">${r.text.map((x,k)=>`<span class="rs" data-s="${k}">${esc(x)}</span>`).join(" ")}</p>
+      ${r.tr?`<button class="hint" id="rtr" style="font-size:14px">${S.trBtn}</button><div class="gloss" id="rtrt" style="display:none">${esc(tr(r.tr.t))}</div>`:""}</div>
+      <div class="gapline" style="margin-top:10px">${esc(question)}</div>
+      <div class="ropts">${order.map(({o,i})=>`<button class="ropt" data-i="${i}"><span class="rp">${o[1]}</span><span>${esc(o[0])}</span></button>`).join("")}</div>
+      <button class="hint" id="where">${S.where}</button><div class="feedback" id="fb"></div>`;
+    let first=true; const lit=()=>stage.querySelector(`.rs[data-s="${si}"]`).classList.add("lit");
+    if(canSpeak) stage.querySelector("#rsay").onclick=()=>say(r.text.join(" "));
+    if(r.tr) stage.querySelector("#rtr").onclick=()=>{ const t=stage.querySelector("#rtrt"); t.style.display=t.style.display==="none"?"block":"none"; };
+    stage.querySelector("#where").onclick=()=>{ lit(); say(r.text[si]); };
+    stage.querySelectorAll(".ropt").forEach(b=>b.onclick=()=>{ if(+b.dataset.i===ans){ b.classList.add("ok"); stage.querySelectorAll(".ropt").forEach(x=>x.disabled=true); lit(); say(opts[ans][0]); praise(stage.querySelector("#fb")); done(first); } else { first=false; wrong(b,stage); } });
   });
 };
 
