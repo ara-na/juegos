@@ -14,6 +14,17 @@
   .label .sv{display:inline;margin-left:8px;font-size:14px}
   .dot{display:inline-block;border-radius:50%;border:4px solid var(--ink)}
   .end .big{font-size:80px}
+  .feels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .feel{background:#fff;border:var(--bd);box-shadow:var(--sh);border-radius:20px;padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:20px}
+  .feel .fe{font-size:56px;line-height:1.1}.feel.on{background:var(--lime)}
+  .fe2{font-size:.9em}
+  .mission{background:#fff8d6}.mission.complete{background:var(--lime)}
+  .mlist{display:flex;flex-direction:column;gap:8px}
+  .mi{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px}
+  .mi .box{width:32px;height:32px;border:3px solid var(--ink);border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:#fff;color:var(--green)}
+  .mi.ok{text-decoration:line-through;opacity:.7}.mi.ok .box{background:var(--green);color:#fff}
+  .myday .row2,.panel .row2{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:2px dashed #ddd;font-size:19px;flex-wrap:wrap}
+  @media (max-width:560px){ .feel .fe{font-size:42px} .feel{font-size:16px} }
 </style>
 </head>
 <body>
@@ -124,6 +135,7 @@ function menu(){
     <div class="stars">⭐ <span id="starCount">${state.stars}</span></div>
   </header>
   <div class="fresca-row"><img class="fresca" src="../img/pj/pera.webp" alt="Pera"><div class="bubble">Hi! I'm Pera. Let's play!<span class="sv">Hej! Jag heter Pera. Nu spelar vi!</span></div></div>
+  ${missionPanel()}
   <div class="panel">
     <p class="label">1. Choose a topic <span class="sv">Välj ett tema</span></p>
     <div class="topics">${Object.entries(TOPICS).map(([k,v])=>`<button class="topic ${k===state.topic?'on':''}" data-t="${k}">${v.name}</button>`).join("")}</div>
@@ -142,6 +154,7 @@ function menu(){
   app.querySelectorAll(".topic").forEach(b=>b.onclick=()=>{state.topic=b.dataset.t; save(); menu();});
   app.querySelectorAll(".act[data-a]").forEach(b=>b.onclick=()=>GAMES[b.dataset.a]());
   document.getElementById("toMusic").onclick = musicQuiz;
+  const td=document.getElementById("toDay"); if(td) td.onclick = myDay;
   const sk=document.getElementById("toSecret"); if(sk) sk.onclick = secretPage;
   document.getElementById("toAlbum").onclick = album;
 }
@@ -163,7 +176,8 @@ function setBar(done,total){ const i=app.querySelector(".bar i"); if(i) i.style.
 
 function finish(gameFn, earned, newSticker, total){
   confetti();
-  const extra = recordFinish(earned, total);
+  const gid = Object.keys(GAMES).find(k=>GAMES[k]===gameFn);
+  const extra = tickMission(gid) + recordFinish(earned, total);
   const st = newSticker ? STICKERS[Math.min(STICKERS.length,Math.floor(state.stars/STARS_PER_STICKER))-1] : null;
   app.innerHTML = `
   <div class="topbar"><button class="back" id="back">← Menu</button><div style="flex:1"></div><div class="stars">⭐ <span id="starCount">${state.stars}</span></div></div>
@@ -177,12 +191,14 @@ function finish(gameFn, earned, newSticker, total){
       <button class="next" id="again">🔁 Igen / Again</button>
       <button class="next" id="tomenu" style="background:var(--lime)">🏠 Meny</button>
       ${extra.trim()?`<button class="next" id="toAlb" style="background:var(--cyan)">📒 Album</button>`:""}
+      ${day()&&day().done?`<button class="next" id="toMyDay" style="background:var(--pink);color:#fff">📒 My day</button>`:""}
     </div>
   </div>`;
   document.getElementById("back").onclick = menu;
   document.getElementById("tomenu").onclick = menu;
   document.getElementById("again").onclick = gameFn;
   const ta=document.getElementById("toAlb"); if(ta) ta.onclick=album;
+  const tmd=document.getElementById("toMyDay"); if(tmd) tmd.onclick=myDay;
   if(st || extra.trim()) say("New sticker!");
 }
 function confetti(){

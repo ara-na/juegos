@@ -116,7 +116,7 @@ function musicResult(score, picks){
   const max=Math.max(...Object.values(score)), top=Object.keys(score).filter(k=>score[k]===max), t=rnd(top), M=MTYPES[t];
   const feel = picks[4] ? picks[4].replace(/[^\w\s]/g,"").trim() : "";
   state.music = Object.assign({}, state.music||{}, {type:t, date:new Date().toISOString().slice(0,10)}); save();
-  const fresh = checkAch();
+  const fresh = checkAch(); const mtick = tickMission("music");
   confetti(); say(`You are a ${M.name}!`);
   app.innerHTML = `
   <div class="topbar"><button class="back" id="back">← Menu</button><div style="flex:1"></div></div>
@@ -131,6 +131,7 @@ function musicResult(score, picks){
     <div class="panel" style="max-width:560px;margin:10px auto"><p class="label">🎧 Your music match <span class="sv">Dina musikmatchningar</span></p>
       <div class="opts">${M.match.map(a=>`<span class="opt" style="cursor:default">${a}</span>`).join("")}</div>
       <p class="note">Not your style? That's OK – all music taste is cool! 😎<br>Inte din stil? Helt okej – all musiksmak är cool!</p></div>
+    ${mtick}
     ${secretBox()}
     ${fresh.map(achBanner).join("")}
     <p class="note">🔒 Only on this computer. You decide if you show it to someone. · Bara på den här datorn. Du bestämmer om du visar det för någon.</p>
@@ -186,4 +187,100 @@ function secretPage(){
   document.getElementById("back").onclick = menu; wireSecret();
 }
 
-menu();
+/* ================= CHECK-IN · MISSION OF THE DAY · MY DAY =================
+   Everything stays in this browser. One entry per day in state.log[YYYY-MM-DD]. */
+if(!state.log) state.log = {};
+const today = () => new Date().toISOString().slice(0,10);
+const FEELS = [
+  {id:"happy",   e:"😊", en:"happy",   sv:"glad"},
+  {id:"calm",    e:"😌", en:"calm",    sv:"lugn"},
+  {id:"tired",   e:"😴", en:"tired",   sv:"trött"},
+  {id:"nervous", e:"😬", en:"nervous", sv:"nervös"},
+  {id:"sad",     e:"😢", en:"sad",     sv:"ledsen"},
+  {id:"angry",   e:"😠", en:"angry",   sv:"arg"}
+];
+const feel = id => FEELS.find(f=>f.id===id) || {e:"·",en:"",sv:""};
+const GNAME = {match:["Match it","🧩"],choose:["What is it?","🤔"],listen:["Listen and click","👂"],spell:["Spell the word","🔤"],
+  memory:["Memory","🃏"],sentence:["Make a sentence","🧱"],gap:["Fill the gap","✍️"],music:["Music quiz","🎧"],any:["A game you choose","⭐"]};
+const EASY=["match","memory","choose","listen"], HARD=["spell","sentence","gap"];
+function makeMissions(plan){
+  const e=shuffle(EASY);
+  return (plan==="calm" ? [e[0],"any"] : [e[0],e[1],rnd(HARD),"any"]).map(g=>({g, done:false}));
+}
+const day = () => state.log[today()];
+
+function checkin(){
+  app.innerHTML = `
+  <header><h1 class="outline"><span class="w3">Hi!</span> <span class="w1">Hej!</span></h1></header>
+  <div class="fresca-row"><img class="fresca" src="${IMG}pj/pera.webp" alt="Pera"><div class="bubble">How do you feel today?<span class="sv">Hur känner du dig idag?</span></div></div>
+  <div class="panel"><div class="feels">${FEELS.map(f=>`<button class="feel" data-f="${f.id}"><span class="fe">${f.e}</span><b>${f.en}</b><span class="sv">${f.sv}</span></button>`).join("")}</div></div>`;
+  app.querySelectorAll(".feel").forEach(b=>b.onclick=()=>{ say("I feel "+feel(b.dataset.f).en); choosePlan(b.dataset.f); });
+}
+function choosePlan(f){
+  const hard = ["tired","sad","angry","nervous"].includes(f);
+  app.innerHTML = `
+  <header><h1 class="outline"><span class="fe2">${feel(f).e}</span> <span class="w3">I feel ${feel(f).en}</span><span class="sv">Jag känner mig ${feel(f).sv}</span></h1></header>
+  <div class="fresca-row"><img class="fresca" src="${IMG}pj/pera.webp" alt="Pera"><div class="bubble">${hard
+     ? `That's OK. 💛 You can choose the calm plan today. Music first? 🎧<span class="sv">Det är okej. Du kan välja den lugna planen idag. Musik först?</span>`
+     : `Great! Choose your plan for today.<span class="sv">Toppen! Välj din plan för idag.</span>`}</div></div>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+    <button class="act plan" data-p="calm" style="background:var(--cyan);${hard?"outline:5px solid var(--pink);outline-offset:3px":""}"><span class="ico">🌙</span><span>Calm plan<span class="sv">Lugn plan · 2 uppdrag</span></span></button>
+    <button class="act plan" data-p="power" style="background:var(--lime)"><span class="ico">⚡</span><span>Power plan<span class="sv">Kraftplan · 4 uppdrag</span></span></button>
+  </div>`;
+  app.querySelectorAll(".plan").forEach(b=>b.onclick=()=>{
+    state.log[today()] = {feel:f, plan:b.dataset.p, missions:makeMissions(b.dataset.p), stars0:state.stars, games:0, done:false};
+    save(); menu();
+  });
+}
+function missionPanel(){
+  const d=day(); if(!d) return "";
+  const n=d.missions.filter(m=>m.done).length, all=d.missions.length;
+  return `<div class="panel mission ${d.done?"complete":""}">
+    <p class="label">🎯 Mission of the day <span class="sv">Dagens uppdrag · ${n}/${all}</span>
+      <span style="float:right">${feel(d.feel).e} ${d.plan==="calm"?"🌙":"⚡"}</span></p>
+    <div class="mlist">${d.missions.map(m=>`<div class="mi ${m.done?"ok":""}"><span class="box">${m.done?"✔":""}</span>${GNAME[m.g][1]} ${GNAME[m.g][0]}</div>`).join("")}</div>
+    <div class="opts" style="justify-content:flex-start;margin-top:10px"><button class="next" id="toDay" style="background:${d.done?"var(--pink);color:#fff":"#fff"}">📒 My day / Min dag</button></div>
+  </div>`;
+}
+// called when a game (or the music quiz) is finished
+function tickMission(gid){
+  const d=day(); if(!d) return ""; d.games=(d.games||0)+1;
+  const m = d.missions.find(x=>!x.done && x.g===gid) || d.missions.find(x=>!x.done && x.g==="any");
+  if(m) m.done=true;
+  let html="";
+  if(!d.done && d.missions.every(x=>x.done)){ d.done=true; addStar(5); html=`<div class="newsticker" style="background:var(--pink);color:#fff">🎯 Mission complete! / Uppdraget klart! +5 ⭐<span style="font-size:20px">Show your teacher! · Visa din lärare! 🙋</span></div>`; }
+  else if(m) html=`<div class="newsticker">🎯 ${d.missions.filter(x=>x.done).length}/${d.missions.length} ✔ ${GNAME[m.g][0]}</div>`;
+  save(); return html;
+}
+function myDay(){
+  const d=day(); if(!d) return checkin();
+  const earned = state.stars-(d.stars0||0);
+  app.innerHTML = `
+  <div class="topbar"><button class="back" id="back">← Menu</button><div style="flex:1"></div><div class="stars">⭐ <span id="starCount">${state.stars}</span></div></div>
+  <header><h1 class="outline"><span class="w3">My day</span> <span class="w1">${new Date().toLocaleDateString("sv-SE",{weekday:"long",day:"numeric",month:"long"})}</span><span class="sv">Min dag – skriv det i din loggbok!</span></h1></header>
+  <div class="panel myday">
+    <div class="row2"><b>This morning I felt</b><span>${feel(d.feel).e} ${feel(d.feel).en} <span class="sv">(${feel(d.feel).sv})</span></span></div>
+    <div class="row2"><b>My plan</b><span>${d.plan==="calm"?"🌙 Calm plan":"⚡ Power plan"}</span></div>
+    <div class="row2"><b>Games I played</b><span>🎮 ${d.games||0}</span></div>
+    <div class="row2"><b>Stars I won today</b><span>⭐ ${earned}</span></div>
+    <div class="row2"><b>My mission</b><span>${d.done?"🎯 Complete! ✔":`${d.missions.filter(m=>m.done).length} / ${d.missions.length}`}</span></div>
+    ${d.feelEnd?`<div class="row2"><b>Now I feel</b><span>${feel(d.feelEnd).e} ${feel(d.feelEnd).en} <span class="sv">(${feel(d.feelEnd).sv})</span></span></div>`:""}
+  </div>
+  <div class="panel"><p class="label">How do you feel now? <span class="sv">Hur känner du dig nu?</span></p>
+    <div class="feels">${FEELS.map(f=>`<button class="feel ${d.feelEnd===f.id?"on":""}" data-f="${f.id}"><span class="fe">${f.e}</span><b>${f.en}</b></button>`).join("")}</div></div>
+  <div class="opts"><button class="next" id="days" style="background:#fff">🗓️ My days / Mina dagar</button></div>`;
+  document.getElementById("back").onclick = menu;
+  document.getElementById("days").onclick = myDays;
+  app.querySelectorAll(".feel").forEach(b=>b.onclick=()=>{ d.feelEnd=b.dataset.f; save(); say("Now I feel "+feel(b.dataset.f).en); myDay(); });
+  window.scrollTo(0,0);
+}
+function myDays(){
+  const days=Object.entries(state.log).sort((a,b)=>b[0].localeCompare(a[0]));
+  app.innerHTML = `
+  <div class="topbar"><button class="back" id="back">← My day</button></div>
+  <header><h1 class="outline"><span class="w3">My days</span><span class="sv">Mina dagar · bara på den här datorn</span></h1></header>
+  <div class="panel">${days.map(([k,d])=>`<div class="row2"><b>${k}</b><span>${feel(d.feel).e}${d.feelEnd?" → "+feel(d.feelEnd).e:""} · ${d.plan==="calm"?"🌙":"⚡"} · 🎮 ${d.games||0} · ${d.done?"🎯 ✔":`🎯 ${d.missions.filter(m=>m.done).length}/${d.missions.length}`}</span></div>`).join("")}</div>`;
+  document.getElementById("back").onclick = myDay;
+}
+
+if(!state.log[today()]) checkin(); else menu();
