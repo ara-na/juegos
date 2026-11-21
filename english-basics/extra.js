@@ -279,17 +279,34 @@ function watchLog(){ try{ return JSON.parse(localStorage.getItem("aJugar-watch")
 function watchVideo(id){ try{ const v=VIDEOS.find(x=>x.id===id); if(!v) return null; const d=(typeof DEFAULT_Q!=="undefined"&&(DEFAULT_Q[v.cat]||DEFAULT_Q.fun))||{}; return Object.assign({},v,{pre:v.pre||d.pre,think:v.think||d.think}); }catch(e){ return null; } }
 const escW=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function videosOn(date){ const W=watchLog(); return Object.entries(W.log||{}).filter(([id,l])=>l.d===date).map(([id,l])=>({v:watchVideo(id),l})).filter(x=>x.v); }
+function favOf(l){ const a=l.ans||[]; if(Number.isInteger(l.fav)&&a[l.fav]) return l.fav; const i=a.findIndex(x=>x); return i<0?null:i; }
+function logbookBox(v,l){
+  const f=favOf(l), q=(v.think||[]);
+  const third = f!==null ? `${q[f]?q[f][0]:""}<br>→ <b>${escW(l.ans[f])}</b>`
+    : `<i>Choose one question above and write your answer.<span class="sv">Välj en fråga ovan och skriv ditt svar.</span></i>`;
+  return `<div style="margin-top:10px;background:#fff8d6;border:3px dashed var(--ink);border-radius:12px;padding:8px 12px">
+    <p class="label" style="margin:0 0 6px">✏️ For your Logbook <span class="sv">Skriv i din loggbok</span></p>
+    <div class="row2" style="font-size:17px"><span>1️⃣ Date + video</span><b>${l.d} · ${escW(v.t)}</b></div>
+    <div class="row2" style="font-size:17px"><span>2️⃣ New word</span><b>${l.word?escW(l.word):"<i>one word you heard / ett ord du hörde</i>"}</b></div>
+    <div class="row2" style="font-size:17px;border:none"><span>3️⃣ One answer</span><span style="text-align:right">${third}</span></div>
+    ${f!==null&&(l.ans||[]).filter(x=>x).length>1?`<p class="note" style="margin:4px 0 0">⭐ Tap another answer to choose it. / Tryck på ett annat svar för att välja.</p>`:""}
+  </div>`;
+}
 function videosPanel(date){
   const vs=videosOn(date);
   return `<div class="panel"><p class="label">🎬 Videos I watched <span class="sv">Videor jag tittade på · ${vs.length}</span></p>
     ${vs.length?vs.map(({v,l})=>`<div class="q" style="background:#fff;border:3px solid var(--ink);border-radius:14px;padding:10px 12px;margin:8px 0">
       <b style="font-size:18px">${escW(v.t)}</b> <span class="sv" style="display:inline;font-size:14px">${escW(v.ch)} · ${["","😐","🙂","🤩"][l.stars||0]}${l.word?" · 📝 "+escW(l.word):""}</span>
       ${l.guess?`<div class="row2"><span>🤔 ${v.pre?v.pre[0]:"My guess"}</span><b>${escW(l.guess)}</b></div>`:""}
-      ${(v.think||[]).map((q,i)=>`<div class="row2"><span>${i+1}. ${q[0]}</span><b>${l.ans&&l.ans[i]?escW(l.ans[i]):(l.told&&l.told[i]?"💬 told my teacher":"—")}</b></div>`).join("")}
+      ${(v.think||[]).map((q,i)=>{ const has=l.ans&&l.ans[i]; return `<div class="row2 ${has?"favq":""}" ${has?`data-fav="${v.id}|${i}" style="cursor:pointer"`:""}><span>${i+1}. ${q[0]}</span><b>${has?escW(l.ans[i])+(favOf(l)===i?" ⭐":""):(l.told&&l.told[i]?"💬 told my teacher":"—")}</b></div>`; }).join("")}
+      ${logbookBox(v,l)}
       ${l.chk?`<div class="note" style="color:var(--green);font-weight:900">✔ Checked by teacher · ${l.chk}</div>`:""}</div>`).join("")
       :`<p class="note">No videos yet today. / Inga videor än idag.</p>`}
     <div class="opts" style="justify-content:flex-start"><a class="next" href="../watch/" style="background:var(--pink);color:#fff;text-decoration:none">🎬 Watch & think</a></div></div>`;
 }
+if(!window._favWired){ window._favWired=true; document.addEventListener("click",e=>{ const r=e.target.closest("[data-fav]"); if(!r) return;
+  const [id,i]=r.dataset.fav.split("|"); const W=watchLog(); if(!W.log||!W.log[id]) return; W.log[id].fav=+i; try{ localStorage.setItem("aJugar-watch",JSON.stringify(W)); }catch(err){}
+  const vd=document.getElementById("vday"); if(vd&&vd.contains(r)){ const d=W.log[id].d; vd.innerHTML=`<p class="label" style="margin:8px 4px">📅 ${d}</p>`+videosPanel(d); } else myDay(); }); }
 function myDay(){
   const d=day(); if(!d) return checkin();
   const earned = state.stars-(d.stars0||0);
