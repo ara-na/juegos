@@ -4,6 +4,7 @@
    Preguntas: [español, svenska, English].
    · cat: "historias", "gente", "animales", "cultura"
    · lvl: nivel aproximado (A1, A2, B1…)
+   · noembed:true si el canal no deja verlo dentro de la página (se abre en YouTube)
    · hidden:true para retirar un vídeo sin borrarlo
    ========================================================= */
 CATS = {historias:"🧩 Historias fáciles", gente:"🎤 En la calle", animales:"🐾 Animales y ciencia", cultura:"🌎 Cultura"};
@@ -29,24 +30,24 @@ DEFAULT_Q = {
 
 VIDEOS = [
   /* Dreaming Spanish · Superbeginner: el significado va en las imágenes y los gestos (A1) */
-  {id:"HUH85APB9PM", t:"Fast Things – Superbeginner Spanish", ch:"Dreaming Spanish", cat:"historias", min:"3:11", lvl:"A1", added:"2026-11-21",
+  {id:"HUH85APB9PM", t:"Fast Things – Superbeginner Spanish", ch:"Dreaming Spanish", noembed:true, cat:"historias", min:"3:11", lvl:"A1", added:"2026-11-21",
    pre:["¿Qué cosas son rápidas? Di tres.","Vilka saker är snabba? Säg tre.","Which things are fast? Say three."]},
-  {id:"TvU1vLowwYk", t:"My Head – Superbeginner Spanish", ch:"Dreaming Spanish", cat:"historias", min:"3:19", lvl:"A1", added:"2026-11-21",
+  {id:"TvU1vLowwYk", t:"My Head – Superbeginner Spanish", ch:"Dreaming Spanish", noembed:true, cat:"historias", min:"3:19", lvl:"A1", added:"2026-11-21",
    pre:["¿Qué partes de la cabeza sabes decir en español?","Vilka delar av huvudet kan du säga på spanska?","Which parts of the head can you say in Spanish?"]},
-  {id:"4tUEXGXmTng", t:"My Daily Routine – Superbeginner Spanish", ch:"Dreaming Spanish", cat:"historias", min:"5:25", lvl:"A1", added:"2026-11-21",
+  {id:"4tUEXGXmTng", t:"My Daily Routine – Superbeginner Spanish", ch:"Dreaming Spanish", noembed:true, cat:"historias", min:"5:25", lvl:"A1", added:"2026-11-21",
    pre:["¿Qué haces tú por la mañana?","Vad gör du på morgonen?","What do you do in the morning?"],
    think:[["¿Qué hace la persona por la mañana? Escribe dos verbos.","Vad gör personen på morgonen? Skriv två verb.","What does the person do in the morning? Write two verbs."],
           ["¿Qué hace igual que tú?","Vad gör hen likadant som du?","What does the person do the same as you?"],
           ["Cuenta tu rutina en tres frases: «Me levanto…»","Berätta om din rutin i tre meningar.","Tell your routine in three sentences."]]},
-  {id:"jDPGnj1DAg4", t:"Easy Spanish Story: The Coffee Shop", ch:"Dreaming Spanish", cat:"historias", min:"7:53", lvl:"A1", added:"2026-11-21"},
-  {id:"aelWcJxodNw", t:"A1 Spanish Story: A smart idea for an even smarter monkey", ch:"Dreaming Spanish", cat:"historias", min:"5:14", lvl:"A1", added:"2026-11-21"},
-  {id:"OrszUmEdk4Y", t:"Guess who's older: Celebrity Edition", ch:"Dreaming Spanish", cat:"historias", min:"8:29", lvl:"A1–A2", added:"2026-11-21",
+  {id:"jDPGnj1DAg4", t:"Easy Spanish Story: The Coffee Shop", ch:"Dreaming Spanish", noembed:true, cat:"historias", min:"7:53", lvl:"A1", added:"2026-11-21"},
+  {id:"aelWcJxodNw", t:"A1 Spanish Story: A smart idea for an even smarter monkey", ch:"Dreaming Spanish", noembed:true, cat:"historias", min:"5:14", lvl:"A1", added:"2026-11-21"},
+  {id:"OrszUmEdk4Y", t:"Guess who's older: Celebrity Edition", ch:"Dreaming Spanish", noembed:true, cat:"historias", min:"8:29", lvl:"A1–A2", added:"2026-11-21",
    pre:["¿Cómo se dice «Hur gammal är hon?» en español?","Hur säger man «Hur gammal är hon?» på spanska?","How do you say «How old is she?» in Spanish?"],
    think:[["¿Has adivinado bien? ¿Cuántas veces?","Gissade du rätt? Hur många gånger?","Did you guess right? How many times?"],
           ["Escribe un número grande que has oído.","Skriv ett stort tal som du hörde.","Write a big number you heard."],
           ["¿Cuántos años tiene tu famoso favorito? Escríbelo en español.","Hur gammal är din favoritkändis? Skriv på spanska.","How old is your favourite celebrity? Write it in Spanish."]]},
-  {id:"rYAeNmqj2Y8", t:"What's Longer? – Superbeginner Spanish", ch:"Dreaming Spanish", cat:"historias", min:"10:04", lvl:"A1", added:"2026-11-21", long:true},
-  {id:"Iup1-H1ryes", t:"Polite and Impolite in Spain – Spanish Culture #28", ch:"Dreaming Spanish", cat:"cultura", min:"5:08", lvl:"A1–A2", added:"2026-11-21",
+  {id:"rYAeNmqj2Y8", t:"What's Longer? – Superbeginner Spanish", ch:"Dreaming Spanish", noembed:true, cat:"historias", min:"10:04", lvl:"A1", added:"2026-11-21", long:true},
+  {id:"Iup1-H1ryes", t:"Polite and Impolite in Spain – Spanish Culture #28", ch:"Dreaming Spanish", noembed:true, cat:"cultura", min:"5:08", lvl:"A1–A2", added:"2026-11-21",
    pre:["¿Qué es «educado» en Suecia? Da un ejemplo.","Vad är artigt i Sverige? Ge ett exempel.","What is polite in Sweden? Give an example."]},
   /* Easy Spanish · entrevistas en la calle con subtítulos en español e inglés en la imagen */
   {id:"Py3pD4_B9lg", t:"HOBBIES | Easy Spanish 84", ch:"Easy Spanish", cat:"gente", min:"9:19", lvl:"A2", added:"2026-11-21",

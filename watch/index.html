@@ -127,14 +127,15 @@ function watch(){
   const src=()=>`https://www.youtube-nocookie.com/embed/${v.id}?rel=0&cc_lang_pref=${WLANG}&hl=${WLANG}${cur.cc?"&cc_load_policy=1":""}`;
   app.innerHTML=`<a class="home" href="#" id="back">⬅ Videos</a>${steps(1)}
   <div class="panel"><p class="label">🎬 ${esc(v.t)}</p>
-    <div class="player"><iframe id="yt" src="${src()}" title="${esc(v.t)}" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+    ${v.noembed?`<a href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener" class="player" style="display:block;text-decoration:none"><img src="${thumb(v.id)}" alt="" style="width:100%;height:100%;object-fit:cover;opacity:.75"><span style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#fff;font-weight:900;font-size:24px;text-shadow:0 2px 6px #000">▶ YouTube<span style="font-size:15px">Den här videon öppnas på YouTube · This video opens on YouTube</span></span></a>`
+      :`<div class="player"><iframe id="yt" src="${src()}" title="${esc(v.t)}" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`}
     ${v.long?`<p class="note">⏸ This video is long. Watch half, take a break, then watch the rest. / Lång video: titta på halva, ta en paus, titta sen klart.</p>`:""}
     <div class="opts" style="margin-top:10px">
-      <button class="next" id="cc" style="background:#fff">💬 Subtitles ${cur.cc?"ON":"OFF"}</button>
+      ${v.noembed?"":`<button class="next" id="cc" style="background:#fff">💬 Subtitles ${cur.cc?"ON":"OFF"}</button>`}
       <a class="next" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener" style="background:#fff;text-decoration:none;color:var(--ink)">↗ YouTube</a>
       <button class="next" id="done" style="background:var(--lime)">✔ I watched it / Klar</button></div></div>`;
   document.getElementById("back").onclick=e=>{e.preventDefault();home();};
-  document.getElementById("cc").onclick=()=>{ cur.cc=!cur.cc; watch(); };
+  { const ccb=document.getElementById("cc"); if(ccb) ccb.onclick=()=>{ cur.cc=!cur.cc; watch(); }; }
   document.getElementById("done").onclick=think;
   scrollTo(0,0);
 }
