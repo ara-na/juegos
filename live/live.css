@@ -52,3 +52,6 @@
 .big2{font-family:'Luckiest Guy',sans-serif;font-size:clamp(40px,10vw,80px);line-height:1}
 .me-head{display:flex;align-items:center;gap:10px;justify-content:center;font-weight:900;font-size:18px;margin-bottom:8px}.me-head img{width:40px}
 @media (max-width:700px){ .lobby{grid-template-columns:1fr} .lans{grid-template-columns:1fr} }
+.student .prompt.small{font-size:clamp(24px,6vw,36px)}
+.student .prompt.small .lpic{font-size:clamp(90px,26vw,150px)}
+.student .prompt.small .en{font-size:clamp(24px,6vw,34px)}
