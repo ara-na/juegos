@@ -59,7 +59,8 @@
 <script>if(WLANG==="es") document.write('<script src="videos-es.js"><\/script>');</script>
 <script>
 VIDEOS.forEach(v=>{ const d=DEFAULT_Q[v.cat]||DEFAULT_Q.fun; if(!CATS[v.cat]) v.cat="fun"; v.pre=v.pre||d.pre; v.think=v.think||d.think; });
-const LIVE=()=>VIDEOS.filter(v=>!v.hidden);
+let EDAD=(WQ.get("edad")==="jr"||WQ.get("edad")==="sr")?WQ.get("edad"):null;
+const LIVE=()=>VIDEOS.filter(v=>!v.hidden && (!EDAD || !v.edad || v.edad===EDAD));
 const isNew=v=>v.added && (Date.now()-new Date(v.added).getTime()) < 14*864e5;
 const KEY=WLANG==="es"?"aJugar-watch-es":"aJugar-watch";
 const q2 = q => (q.length>2 && WUI==="en") ? q[2] : q[1];
@@ -89,6 +90,7 @@ function home(){
   <header><h1 class="outline">${WLANG==="es"?`<span class="w3">Mira</span> <span class="w1">y piensa</span>`:`<span class="w3">Watch</span> <span class="w1">& think</span>`}</h1>
     <div class="stars">🎬 <span>${n}</span></div></header>
   <div class="fresca-row"><img class="fresca" src="../img/pj/pera.webp" alt="Pera"><div class="bubble">${allSeen?`Wow, you watched them all! 🏆 Ask your teacher for new videos.<span class="sv">Du har sett alla! Fråga din lärare efter nya videor.</span>`:`Pick one video. Watch it, then think!<span class="sv">Välj en video. Titta och tänk sen!</span>`}</div></div>
+  ${WLANG==="es"&&VIDEOS.some(v=>v.edad)?`<div class="cats" style="justify-content:center;margin-bottom:10px">${[["jr","🧒 11–13"],["sr","🧑 14–16"],["","🌍 "+(WUI==="en"?"All":"Alla")]].map(([k,n])=>`<button class="topic ${(EDAD||"")===k?"on":""}" data-e="${k}">${n}</button>`).join("")}</div>`:""}
   <div class="panel"><p class="label">⭐ Today's picks <span class="sv">Dagens förslag</span></p>
     <div class="vgrid">${picks.map(id=>card(V(id))).join("")}</div>
     <div class="opts" style="justify-content:flex-start;margin-top:12px"><button class="next" id="other" style="background:var(--cyan)">🔀 Other 3 / Tre andra</button></div></div>
@@ -102,6 +104,7 @@ function home(){
   app.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>before(b.dataset.v));
   app.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{ cat=cat===b.dataset.c?null:b.dataset.c; home(); });
   document.getElementById("other").onclick=()=>{ const rest=LIVE().filter(v=>!picks.includes(v.id)&&!v.teacher); picks=shuffle(rest).slice(0,3).map(v=>v.id); home(); };
+  app.querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>{ EDAD=b.dataset.e||null; picks=null; cat=null; home(); });
   document.getElementById("rec").onclick=recommend;
   document.getElementById("tch").onclick=teacher;
   scrollTo(0,0);
