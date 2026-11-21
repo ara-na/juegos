@@ -15,7 +15,7 @@
   .bar a.on{background:#e4f21c}
   .bar button{background:#ff2fa0;color:#fff}
   .page{width:210mm;height:297mm;margin:10mm auto;background:#fff;position:relative;overflow:hidden;page-break-after:always;box-shadow:0 2px 10px rgba(0,0,0,.2)}
-  @media print{ body{background:#fff} .bar{display:none} .page{margin:0;box-shadow:none} }
+  @media print{ .page{zoom:1!important} body{background:#fff} .bar{display:none} .page{margin:0;box-shadow:none} }
 
   /* card sheet */
   .sheet{position:absolute;left:10.5mm;top:16.5mm;display:grid;grid-template-columns:repeat(3,63mm);grid-auto-rows:88mm;gap:0}
@@ -174,5 +174,9 @@ for(let i=0;i<cards.length;i+=9){
 html += `<div class="page"><div class="sheet">${Array.from({length:9},backHTML).join("")}</div><div class="foot">${L==="sv"?"Baksida (valfritt) – skriv ut på baksidan av kortarken":"Card backs (optional) – print on the back of the card sheets"}</div></div>`;
 document.getElementById("out").innerHTML = html;
 </script>
+<script>/* móvil: encoge la vista previa A4 para que quepa en pantalla (no afecta a la impresión) */
+(function(){const fit=()=>{const z=Math.min(1,(innerWidth-12)/794);document.querySelectorAll(".page").forEach(p=>p.style.zoom=z<1?z:"");};
+addEventListener("resize",fit);addEventListener("load",fit);new MutationObserver(fit).observe(document.body,{childList:true,subtree:true});
+addEventListener("beforeprint",()=>document.querySelectorAll(".page").forEach(p=>p.style.zoom=""));addEventListener("afterprint",fit);})();</script>
 </body>
 </html>
