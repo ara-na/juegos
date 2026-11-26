@@ -199,3 +199,7 @@ footer{margin-top:26px;color:var(--soft);font-size:14px;font-weight:700}
 .probadge{width:140px;height:140px;margin:6px auto;border-radius:50%;border:4px solid #141414;background:conic-gradient(#ff2fa0,#ffd23f,#39ff88,#2fd0ff,#9b5cff,#ff2fa0);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 0 4px #fff,0 0 24px #fff6}
 .probadge img{width:66px;filter:drop-shadow(2px 2px 0 #141414)}
 .probadge b{font-family:'Luckiest Guy',sans-serif;font-weight:400;font-size:28px;color:#fff;text-shadow:2px 2px 0 #141414;margin-top:-4px}
+
+/* La sombra negra de los botones también recibe el clic (antes era solo dibujo) */
+:where(button,a.unitcard,a.next,a.act,a.home,.vcard,.opt,.tile,.picbtn,.card,.letter,.word,.ropt){position:relative}
+:where(button,a.unitcard,a.next,a.act,a.home,.vcard,.opt,.tile,.picbtn,.card,.letter,.word,.ropt)::before{content:"";position:absolute;top:-4px;left:-4px;right:-12px;bottom:-12px;border-radius:inherit}

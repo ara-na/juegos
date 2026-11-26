@@ -172,7 +172,7 @@ function say(text){
   try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text.replace(/ \./g,".").replace(/ \?/g,"?")); u.lang="en-GB"; u.rate=.8; if(voice) u.voice=voice; speechSynthesis.speak(u); }catch(e){}
 }
 
-function addStar(n=1){ const before = Math.floor(state.stars/STARS_PER_STICKER); state.stars += n; save(); const el=document.getElementById("starCount"); if(el) el.textContent=state.stars; return Math.floor(state.stars/STARS_PER_STICKER) > before; }
+function addStar(n=1){ const before = Math.floor(state.stars/STARS_PER_STICKER); state.stars += n; save(); const el=document.getElementById("starCount"); if(el) el.textContent=state.stars; const after = Math.floor(state.stars/STARS_PER_STICKER); return after > before && after <= STICKERS.length; }
 
 /* ---------------- MENU ---------------- */
 const ACTS = [

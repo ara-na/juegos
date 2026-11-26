@@ -96,7 +96,7 @@ function pickVoice(){ try{ const v = speechSynthesis.getVoices(); voice = v.find
 try{ pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }catch(e){}
 const canSpeak = (()=>{ try{ return "speechSynthesis" in window; }catch(e){ return false; } })();
 function say(text){ try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text.replace(/ ([.?!])/g,"$1").replace("…","")); u.lang="es-ES"; u.rate=.8; if(voice) u.voice=voice; speechSynthesis.speak(u); }catch(e){} }
-function addStar(){ const b = Math.floor(state.stars/PER); state.stars++; save(); const el=document.getElementById("starCount"); if(el) el.textContent=state.stars; return Math.floor(state.stars/PER) > b; }
+function addStar(){ const b = Math.floor(state.stars/PER); state.stars++; save(); const el=document.getElementById("starCount"); if(el) el.textContent=state.stars; const a = Math.floor(state.stars/PER); return a > b && a <= STICKERS.length; }
 const starsHTML = () => `<div class="stars">⭐ <span id="starCount">${state.stars}</span></div>`;
 
 /* ---------- album: achievements, rare, gold, legendary ---------- */
@@ -224,7 +224,7 @@ function finish(again, earned, newSticker, total){
     ${newGold?`<div class="newsticker gold">${S.newGold}<span>${goldBadge(U,true,true)}</span></div>`:""}
     ${fresh.map(a=>`<div class="newsticker">${S.newAch} ${a.ico} <b>${a.n[L]}</b><span>${a.rare?`<img src="${IMG}${a.rare}.webp" alt="" style="width:150px">`:""}${LEGEND[a.id]?`<img src="${IMG}pj/${LEGEND[a.id]}_card.webp" alt="" style="width:120px;margin-left:8px">`:""}</span></div>`).join("")}
     <div class="opts" style="margin-top:22px"><button class="next" id="again">${S.again}</button>
-    <button class="next" id="tomenu" style="background:var(--green);box-shadow:0 4px 0 #1f8a5d">${S.menu}</button>${(fresh.length||newGold)?`<button class="next" id="toAlb" style="background:var(--lime)">${S.album}</button>`:""}</div></div>`;
+    <button class="next" id="tomenu" style="background:var(--green)">${S.menu}</button>${(fresh.length||newGold)?`<button class="next" id="toAlb" style="background:var(--lime)">${S.album}</button>`:""}</div></div>`;
   const ta=document.getElementById("toAlb"); if(ta) ta.onclick=()=>{ location.hash="album"; };
   document.getElementById("back").onclick = unitMenu;
   document.getElementById("tomenu").onclick = unitMenu;
