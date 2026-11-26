@@ -116,7 +116,13 @@ const ACH = [
 const RARES = ACH.filter(a=>a.rare);
 const LEGEND = {primera:"manzana", perfecto:"pera", cien:"banana", deletreo:"arandano", detective:"durian", poliglota:"pina", racha:"coco", oro:"fresca"};
 const TITLES = [[0,"Aprendiz"],[50,"Explorador/a"],[150,"Experto/a"],[300,"Maestro/a del español"]];
-function titleInfo(){ let t=TITLES[0], nx=null; TITLES.forEach((x,i)=>{ if(state.stars>=x[0]){ t=x; nx=TITLES[i+1]||null; } }); return {name: state.ach.oro ? "👑 Leyenda" : t[1], next: nx}; }
+const isPro=()=>{ try{ return !!localStorage.getItem("aJugar-pro"); }catch(e){ return false; } };
+/* puerta secreta: 5 clics en la mascota de la portada */
+let proClicks=0, proTimer=null;
+function proDoor(){ const f=app.querySelector(".fresca-row .fresca"); if(!f) return; f.style.cursor="pointer";
+  f.onclick=()=>{ proClicks++; f.animate([{transform:"rotate(0)"},{transform:"rotate(-12deg)"},{transform:"rotate(0)"}],{duration:250}); clearTimeout(proTimer); proTimer=setTimeout(()=>proClicks=0,2500); if(proClicks>=5) location.href="../pro/"; }; }
+try{ console.log("%c¿Hacker? 🕵️","font:bold 20px monospace;color:#39ff88;background:#141414;padding:4px 8px","\nHay una puerta secreta en esta página. Busca a la mascota y haz clic cinco veces.\n(Det finns en hemlig dörr. Klicka fem gånger på maskoten.)"); }catch(e){}
+function titleInfo(){ let t=TITLES[0], nx=null; TITLES.forEach((x,i)=>{ if(state.stars>=x[0]){ t=x; nx=TITLES[i+1]||null; } }); return {name: state.ach.oro ? "👑 Leyenda" : (isPro()? "🕶️ PRO · "+t[1] : t[1]), next: nx}; }
 function checkAch(){ const fresh=[]; ACH.forEach(a=>{ if(!state.ach[a.id] && a.ok()){ state.ach[a.id]=new Date().toISOString().slice(0,10); fresh.push(a); } }); if(fresh.length) save(); return fresh; }
 function goldBadge(u, on, big){ const z = big?78:58; return `<span class="goldst ${on?"on":""}" style="width:${z}px;height:${z}px;font-size:${Math.round(z*.5)}px" title="${esc(u.title)}">${on?u.icon:"?"}</span>`; }
 function albumSummary(){
@@ -134,6 +140,7 @@ function album(){
   <header><h1 class="outline"><span class="w2">${S.album.replace("📒 ","")}</span><span class="sub">📒 ${esc(G.name)}</span></h1></header>
   <div class="panel titlebox">${guide()}<div><span class="sub">${S.title}</span><div class="ttl">${ti.name}</div>
     <span class="sub">${ti.next?`${S.next} ${ti.next[0]} ⭐ → ${ti.next[1]}`:S.maxTitle}</span></div></div>
+  ${isPro()?`<div class="panel" style="background:#141414;color:#39ff88;text-align:center"><p class="label" style="color:#39ff88">🕶️ ${L==="sv"?"Hemligt klistermärke":"Secret sticker"}</p><div class="probadge"><img src="${IMG}pj/fresca_icon.webp" alt=""><b>PRO</b></div><p style="font-weight:800">${L==="sv"?"Du hittade den hemliga dörren!":"You found the secret door!"}</p></div>`:""}
   <div class="panel"><p class="label">${S.ach}</p><div class="achs">${ACH.map(a=>`<div class="achv ${state.ach[a.id]?"on":""}"><span class="ai">${a.ico}</span><b>${a.n[L]}</b><span>${a.d[L]}</span>${a.rare?`<i>✨</i>`:""}</div>`).join("")}</div></div>
   <div class="panel"><p class="label">${S.rare}</p><div class="rares">${RARES.map(a=>`<div class="rarest ${state.ach[a.id]?"on":""}"><img src="${IMG}${a.rare}.webp" alt=""><span>${state.ach[a.id]?"":a.ico+" "+a.n[L]}</span></div>`).join("")}</div></div>
   <div class="panel"><p class="label">${S.gold}</p><p class="note" style="margin-top:0">${S.goldHow}</p><div class="golds">${us.map(id=>`<div class="goldcell">${goldBadge(UNITS[id], state.gold[id], true)}<span>${esc(UNITS[id].title)}</span></div>`).join("")}</div></div>
@@ -163,6 +170,7 @@ function home(){
   <footer>✏️ Fresca: diseño original de Elliot · ${S.footer}</footer>`;
   app.querySelectorAll(".unitcard[data-u]").forEach(b=>b.onclick=()=>{ location.hash = b.dataset.u; });
   document.getElementById("toAlbum").onclick = ()=>{ location.hash = "album"; };
+  proDoor();
 }
 
 /* ---------- unit menu ---------- */
